@@ -5,11 +5,11 @@ using UnityEngine;
 
 namespace Game._00.Script._05._Manager
 {
-    public class SubjectBase<T>: ISubject<T>
+    public class SubjectBase: ISubject
     {
-        private readonly List<IObserver<T>> _observers = new();
+        private readonly List<IObserver> _observers = new();
 
-        public void Attach(IObserver<T> observer)
+        public void Attach(IObserver observer)
         {
             if (!_observers.Contains(observer))
             {
@@ -17,7 +17,7 @@ namespace Game._00.Script._05._Manager
             }
         }
 
-        public void Detach(IObserver<T> observer)
+        public void Detach(IObserver observer)
         {
             if (_observers.Contains(observer))
             {
@@ -25,7 +25,7 @@ namespace Game._00.Script._05._Manager
             }
         }
 
-        public void Notify(T data)
+        public void Notify(object data)
         {
             foreach (var observer in _observers)
             {
