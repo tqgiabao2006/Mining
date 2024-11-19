@@ -31,7 +31,6 @@ public class Test : MonoBehaviour
         mesh = new Mesh();
         meshRenderer = GetComponent<MeshRenderer>();
         meshFilter = GetComponent<MeshFilter>();
-        _grid =FindObjectOfType<Grid>();
 
         // Initialize the lists
         vertices = new List<Vector3>();

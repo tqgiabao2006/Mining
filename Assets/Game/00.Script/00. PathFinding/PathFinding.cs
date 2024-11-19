@@ -3,13 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
-public class PathFinding : MonoBehaviour
+public class PathFinding:MonoBehaviour
 {
-    Grid grid;
+    private Grid _grid;
 
-    void Awake()
+    private void Start()
     {
-        grid = GetComponent<Grid>();
+        _grid = GetComponent<Grid>();
     }
 
     public void FindPath(PathRequest request, Action<PathResult> callBack)
@@ -18,12 +18,12 @@ public class PathFinding : MonoBehaviour
         Vector2[] waypoints = new Vector2[0];
         bool pathSuccess = false;
 
-        Node startNode = grid.NodeFromWorldPosition(request.pathStart);
-        Node targetNode = grid.NodeFromWorldPosition(request.pathEnd);
+        Node startNode = _grid.NodeFromWorldPosition(request.pathStart);
+        Node targetNode = _grid.NodeFromWorldPosition(request.pathEnd);
         
         if (startNode.Walkable && targetNode.Walkable)
         {
-            Heap<Node> openSet = new Heap<Node>(grid.MaxSize);
+            Heap<Node> openSet = new Heap<Node>(_grid.MaxSize);
             HashSet<Node> closedSet = new HashSet<Node>();
 
             openSet.Add(startNode);

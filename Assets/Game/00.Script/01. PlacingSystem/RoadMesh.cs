@@ -72,10 +72,11 @@ public class RoadMesh : MonoBehaviour
     private void Initial()
     {
         _meshFilter = GetComponent<MeshFilter>();
-        _grid = FindObjectOfType<Grid>();
-        _meshRenderer = GetComponent<MeshRenderer>(); 
         _meshCollider = GetComponent<MeshCollider>();
+        _meshRenderer = GetComponent<MeshRenderer>();
+        
         _gameManager = GameManager.Instance;    
+        _grid = _gameManager.Grid;
         _roadManager = _gameManager.RoadManager;
             
         // Initialize lists for the mesh data
@@ -145,7 +146,6 @@ public class RoadMesh : MonoBehaviour
             // Assign the new combined mesh
             _meshFilter.mesh = combinedMesh;
             _meshRenderer.material = roadMaterial;
-            
             _meshCollider.sharedMesh = combinedMesh;
         }
     }

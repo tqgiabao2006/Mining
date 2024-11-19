@@ -94,7 +94,7 @@ public class PlacingSystem : MonoBehaviour
 
             if (newNode != _curNode) 
             {
-                _roadManager.PlaceNode(newNode);
+                _roadManager.PlaceNode(newNode, BuildingType.None);
                 _roadManager.SetAdjList(_curNode, newNode);
                 _selectedNodes.Add(newNode);
                 _roadManager.CreateMesh(newNode);
@@ -125,8 +125,7 @@ public class PlacingSystem : MonoBehaviour
         Vector2 botRight= new Vector2(curNode.WorldPosition.x + _grid.NodeRadius - diagonalThreshold, curNode.WorldPosition.y - _grid.NodeRadius + diagonalThreshold);
         Vector2 topLeft = new Vector2(curNode.WorldPosition.x - _grid.NodeRadius + diagonalThreshold, curNode.WorldPosition.y + _grid.NodeRadius - diagonalThreshold);
         Vector2 topRight = new Vector2(curNode.WorldPosition.x + _grid.NodeRadius - diagonalThreshold, curNode.WorldPosition.y + _grid.NodeRadius - diagonalThreshold);
-        Debug.Log(botLeft);
-
+        
         float nodeDiamater = _grid.NodeDiameter;
         if (isInThreshold(botLeft, diagonalThreshold, mousePos))
         {

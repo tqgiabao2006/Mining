@@ -4,13 +4,15 @@ using UnityEngine;
 using Vector2 = UnityEngine.Vector2;
 
 
-public class Grid : MonoBehaviour
+public class Grid: MonoBehaviour
 {
    [SerializeField] bool displayOnGizmos;
 
    #region Variables
    //1. Grid:
    public Node[,] grid { get; private set; }
+   
+   private Vector2 gridCenter = Vector2.zero;
    public float NodeDiameter{get; private set;}
    public int GridSizeX {get; private set;}
    public int GridSizeY{get; private set;}
@@ -34,6 +36,15 @@ public class Grid : MonoBehaviour
   //Blur;
    int penaltyMin = int.MaxValue;
    int penaltyMax = int.MinValue;
+   
+   public int MaxSize
+   {
+       get
+       {
+           return GridSizeX * GridSizeY;
+       }
+   }
+
 
 
    #endregion
@@ -42,6 +53,12 @@ public class Grid : MonoBehaviour
 
 
    private void Awake()
+   {
+       Initialize();
+
+   }
+
+   private void Initialize()
    {
        // diameter = 2R
        NodeDiameter = NodeRadius * 2;
@@ -67,20 +84,11 @@ public class Grid : MonoBehaviour
        }
        CreateGrid();
    }
-   public int MaxSize
-   {
-       get
-       {
-           return GridSizeX * GridSizeY;
-       }
-   }
-
-
    private void CreateGrid()
    {
        grid = new Node[GridSizeX, GridSizeY];
        //Get bottom left node position
-       UnityEngine.Vector2 worldBottomLeft = (UnityEngine.Vector2)this.transform.position
+       UnityEngine.Vector2 worldBottomLeft = (UnityEngine.Vector2)gridCenter
        - UnityEngine.Vector2.right * GridWorldSize.x / 2 // substact the length of a half square
        - UnityEngine.Vector2.up * GridWorldSize.y / 2;
 
@@ -222,7 +230,7 @@ public class Grid : MonoBehaviour
    #region Gizmos and UI
    public List<Node> path;
    void OnDrawGizmos() {
-   Gizmos.DrawWireCube(transform.position, new UnityEngine.Vector2(GridWorldSize.x, GridWorldSize.y));
+   Gizmos.DrawWireCube(gridCenter, new UnityEngine.Vector2(GridWorldSize.x, GridWorldSize.y));
    if (grid != null && displayOnGizmos) {
        foreach (Node n in grid) {
            // Compute the color based on the movement penalty

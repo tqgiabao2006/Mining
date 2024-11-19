@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameStateManager:MonoBehaviour
+public class GameStateManager :MonoBehaviour
 {
     private int _currentLevel;
 
@@ -24,5 +24,6 @@ public class GameStateManager:MonoBehaviour
     {
         _currentLevel += exp;
     }
+    
 
 }
