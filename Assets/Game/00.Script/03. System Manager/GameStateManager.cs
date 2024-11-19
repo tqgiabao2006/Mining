@@ -24,6 +24,29 @@ public class GameStateManager :MonoBehaviour
     {
         _currentLevel += exp;
     }
-    
+}
 
+public interface IState
+{
+    void Enter();
+    void Do();
+    void Exit();
+}
+
+public class BuildingState : IState
+{
+    public void Enter()
+    {
+        
+    }
+
+    public void Do()
+    {
+        
+    }
+
+    public void Exit()
+    {
+        
+    }
 }
