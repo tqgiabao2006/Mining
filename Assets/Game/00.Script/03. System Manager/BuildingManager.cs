@@ -82,13 +82,20 @@ namespace Game._00.Script._05._Manager
             {
                 foreach (var building in buildingList)
                 {
-                    if (observerSet.Add(building))
+                    // Ensure building is an IObserver
+                    if (building is IObserver observer)
                     {
-                        _observers.Add(building);
-                        Attach(building);
+                        if (observerSet.Add(observer))
+                        {
+                            _observers.Add(observer);
+                            Attach(observer);
+                        }
                     }
                 }
             }
+            
+            _observers.Clear();
+            _observers.AddRange(observerSet);
         }
 
         public void OnNotified(object data, string flag)

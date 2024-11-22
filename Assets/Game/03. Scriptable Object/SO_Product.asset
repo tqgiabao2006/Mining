@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc418c634ed740e0bd674641da6cc210, type: 3}
+  m_Name: SO_Product
+  m_EditorClassIdentifier: 
+  redBlood: {fileID: 3172533359594825561, guid: cf43377637e1941f3ae63d31608e1398, type: 3}
+  blueBlood: {fileID: 5453207989947690477, guid: 44ac0224f3d2c47f99e6b57f6afebca0, type: 3}
