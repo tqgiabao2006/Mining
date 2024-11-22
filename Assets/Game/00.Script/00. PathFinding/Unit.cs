@@ -16,12 +16,10 @@ public class Unit : MonoBehaviour
 	[SerializeField] public float stoppingDistance = 5; //how far from the finish that the object start slowing down
 
 	private Path _path;
-	private GameManager _gameManager;
 	private PathRequestManager _requestManager;
 	void Start()
 	{
-		_gameManager = GameManager.Instance;
-		_requestManager = _gameManager.PathRequestManager;
+		_requestManager =  GameManager.Instance.PathRequestManager;
 		StartCoroutine(UpdatePath());
 	}
 

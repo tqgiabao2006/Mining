@@ -12,12 +12,10 @@ public class PathRequestManager : MonoBehaviour
 	public Transform target;
 	
 	private Queue<PathResult> results = new Queue<PathResult>();
-	private GameManager _gameManager;
     private PathFinding _pathFinding;
 	private void Start()
 	{
-		_gameManager = GameManager.Instance;
-		_pathFinding = _gameManager.PathFinding;
+		_pathFinding =  GameManager.Instance.PathFinding;
 	}
 
 	void Update()

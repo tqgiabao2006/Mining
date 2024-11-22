@@ -69,7 +69,6 @@ public class Spawner : MonoBehaviour
     private Coroutine _spawnWaveCoroutine;
     
     private ObjectPooling _objectPooling;
-    private GameManager _gameManager;
     private Grid _grid;
     private RoadMesh _roadMesh;
     private Invertory _invertory;
@@ -85,11 +84,10 @@ public class Spawner : MonoBehaviour
     #region Initialize
     private void IntialSetUp()
     {
-        _gameManager = GameManager.Instance;
-        _objectPooling = _gameManager.ObjectPooling;
-        _grid = _gameManager.Grid;  
+        _objectPooling = GameManager.Instance.ObjectPooling;
+        _grid =GameManager.Instance.Grid;  
         _invertory = FindObjectOfType<Invertory>();
-        _buildingManager = _gameManager.BuildingManager;
+        _buildingManager = GameManager.Instance.BuildingManager;
         _roadMesh = FindObjectOfType<RoadMesh>();
         _waveInfos = new SpawningWaveInfo[maxWaves];
     }
@@ -160,12 +158,12 @@ public class Spawner : MonoBehaviour
                 //Spawned object
                 GameObject building = _objectPooling.GetObj(buildingPrefab);
                 Building buildingComponent = building.GetComponent<Building>();
-                _buildingManager.RegisterBuilding(buildingComponent);
                 
                 Vector2 spawnedPos = GetRandomPosition(ref maxRoadLength, waveInfo.ZoneRadius, usedPositions);
                 Node buildingNode = _grid.NodeFromWorldPosition(spawnedPos);
 
                 buildingComponent.Initialize(buildingNode,_grid, buildingType, spawnedPos);
+                _buildingManager.RegisterBuilding(buildingComponent);
                 building.transform.position = spawnedPos;
                 building.SetActive(true);   
                 

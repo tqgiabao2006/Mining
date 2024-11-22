@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using Game._00.Script._05._Manager;
 using Unity.Collections;
 using UnityEngine;
-using UnityEngine.Audio;
 using UnityEngine.Serialization;
 
-public class PlacingSystem : MonoBehaviour
+public 
+    class PlacingSystem : SubjectBase
 {
     [Header("Gizmos Setting")] [SerializeField]
     public bool showGizmos = true;
@@ -34,23 +34,34 @@ public class PlacingSystem : MonoBehaviour
     private float _fastThreshold = 0f;
     
     //Manager:
-    private GameManager _gameManager;
     private RoadManager _roadManager;
+    private GameStateManager _gameStateManager;
+    
+    //Observer:
+    /// <summary>
+    /// Include: GameStateManager => catch isPlacing system
+    /// </summary>'
     
     private void Start()
     {
         Initialize();
-        
     }
 
     private void Initialize()
     {
         _grid = GetComponentInParent<Grid>();
         _roadMesh = FindObjectOfType<RoadMesh>();
-        _gameManager = GameManager.Instance;
-        _roadManager = _gameManager.RoadManager;
-        _baseThreshold = _grid.NodeRadius/1.5f;
         
+        //Manager set up
+        _gameStateManager = GameManager.Instance.GameStateManager;
+        _roadManager =  GameManager.Instance.RoadManager;
+        
+        //Obsever set up
+        ObserversSetup();
+        
+        //Threshold set up:
+        _baseThreshold = _grid.NodeRadius / 1.5f;
+
     }
     
     private void Update()
@@ -67,6 +78,9 @@ public class PlacingSystem : MonoBehaviour
         {
             _isPlacing = true;
             _selectedNodes.Clear();
+            
+            //Notify obsevers:
+            Notify(true, NotificationFlags.PlacingState);
 
             // Start with the initial node
             _curNode = _grid.NodeFromWorldPosition(_mousePos);
@@ -76,6 +90,8 @@ public class PlacingSystem : MonoBehaviour
         if (Input.GetMouseButtonUp(0)) // Stop placing when mouse button is released
         {
             _isPlacing = false;
+            Notify(false, NotificationFlags.PlacingState);
+            Notify(true, NotificationFlags.CheckingConnection);
         }
 
         if (_isPlacing)
@@ -94,11 +110,10 @@ public class PlacingSystem : MonoBehaviour
 
             if (newNode != _curNode) 
             {
-                _roadManager.PlaceNode(newNode, BuildingType.None);
+                _roadManager.PlaceNode(newNode, null);
                 _roadManager.SetAdjList(_curNode, newNode);
                 _selectedNodes.Add(newNode);
                 _roadManager.CreateMesh(newNode);
-
                 _curNode = newNode;
             }
         }
@@ -106,7 +121,22 @@ public class PlacingSystem : MonoBehaviour
         _lastMousePos = _mousePos;
     }
 
-  
+    #region Obsever
+    
+ 
+    public override void ObserversSetup()
+    {
+        _observers.Add(_gameStateManager);
+        _observers.Add(_roadManager);
+
+        foreach (var observer in _observers)
+        {
+            Attach(observer);
+        }
+        
+    }
+    #endregion
+    
     
     #region Input Helpers
     

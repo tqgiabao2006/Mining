@@ -3293,7 +3293,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2fe648d0484484860ad8d4815c771217, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isGizmos: 0
+  isGizmos: 1
 --- !u!114 &1726331173
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -15,14 +15,12 @@ public abstract class UnitBase:MonoBehaviour
 
     
     protected Path _path;
-    protected GameManager _gameManager;
     protected PathRequestManager _requestManager;
     protected PathFinding _pathFinding;
 	void Start()
 	{
-		_gameManager = GameManager.Instance;
-		_requestManager = _gameManager.PathRequestManager;
-		_pathFinding = _gameManager.PathFinding;
+		_requestManager = GameManager.Instance.PathRequestManager;
+		_pathFinding = GameManager.Instance.PathFinding;
 	}
 
 	protected void StartUpdatePath(Transform target)

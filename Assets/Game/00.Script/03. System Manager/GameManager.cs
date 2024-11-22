@@ -18,15 +18,16 @@ namespace Game._00.Script._05._Manager
         {
             // Initialize components
             Grid = FindObjectOfType<Grid>();
-            
             GameStateManager = GetComponent<GameStateManager>();
             ObjectPooling = GetComponent<ObjectPooling>();
             RoadManager = GetComponent<RoadManager>();
             PathRequestManager = GetComponent<PathRequestManager>();
-            
             PathFinding = FindObjectOfType<PathFinding>();
-            
             BuildingManager = GetComponent<BuildingManager>();
+            
+            //Initialize all references after
+            GameStateManager.Initialize();
+
         }
     }
 }

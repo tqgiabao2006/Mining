@@ -49,7 +49,8 @@ public class RoadMesh : MonoBehaviour
     private MeshRenderer _meshRenderer;
     private MeshCollider _meshCollider;
     private Material _material;
-    private GameManager _gameManager;
+    
+    //Class
     private RoadManager _roadManager;
     private Grid _grid;
     
@@ -75,9 +76,8 @@ public class RoadMesh : MonoBehaviour
         _meshCollider = GetComponent<MeshCollider>();
         _meshRenderer = GetComponent<MeshRenderer>();
         
-        _gameManager = GameManager.Instance;    
-        _grid = _gameManager.Grid;
-        _roadManager = _gameManager.RoadManager;
+        _grid = GameManager.Instance.Grid;
+        _roadManager =GameManager.Instance.RoadManager;
             
         // Initialize lists for the mesh data
         _vertices = new List<Vector3>();

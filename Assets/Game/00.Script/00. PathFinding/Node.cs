@@ -25,6 +25,18 @@ public class Node : IHeapItem<Node>
 	public bool IsBuilding;
 	
 	public int NodeIndex = -1; //its index of ALL MAP
+	
+	private int _graphIndex; //Use for check connection
+
+	public int GraphIndex
+	{
+		get{return _graphIndex;}
+		set
+		{
+			_graphIndex = value;
+		} 
+	}
+
 
 	public Grid grid;
 	public Node(bool _walkable, Vector3 _worldPos, int _gridX, int _gridY, int _penalty, Grid grid) {
@@ -33,6 +45,7 @@ public class Node : IHeapItem<Node>
 		this.GridX = _gridX;
 		this.GridY = _gridY;
 		this.MovementPenalty = _penalty;
+		this._graphIndex = -1;
 		this.grid = grid;
 	}
 
@@ -45,7 +58,6 @@ public class Node : IHeapItem<Node>
 	{
 		IsBuilding = isBuilding;
 	}
-	
 	
 	public List<Node> GetNeighbours()
 	{

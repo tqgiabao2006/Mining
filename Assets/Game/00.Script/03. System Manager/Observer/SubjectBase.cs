@@ -5,10 +5,10 @@ using UnityEngine;
 
 namespace Game._00.Script._05._Manager
 {
-    public class SubjectBase: ISubject
+    public abstract class SubjectBase: MonoBehaviour, ISubject
     {
-        private readonly List<IObserver> _observers = new();
-
+        protected List<IObserver> _observers = new();
+        
         public void Attach(IObserver observer)
         {
             if (!_observers.Contains(observer))
@@ -17,6 +17,23 @@ namespace Game._00.Script._05._Manager
             }
         }
 
+        private void OnDisable()
+        {
+            var observersCopy = new List<IObserver>(_observers);
+            
+            foreach (var observer in observersCopy)
+            {
+                Detach(observer);
+            }
+            
+        }
+
+        /// <summary>
+        /// Attach all observers
+        /// Call in start after attack full
+        /// </summary>
+        public abstract void ObserversSetup();
+        
         public void Detach(IObserver observer)
         {
             if (_observers.Contains(observer))
@@ -24,13 +41,18 @@ namespace Game._00.Script._05._Manager
                 _observers.Remove(observer);
             }
         }
-
-        public void Notify(object data)
+        
+        public virtual void Notify(object data, string flag)
         {
             foreach (var observer in _observers)
             {
-                observer.OnNotified(data);
+                observer.OnNotified(data, flag);
             }
+        }
+
+        public void NotifySpecific(object data, string flag, IObserver observer)
+        {
+            observer.OnNotified(data, flag);
         }
     }
 }

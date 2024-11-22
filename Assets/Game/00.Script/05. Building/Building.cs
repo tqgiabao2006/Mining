@@ -7,32 +7,38 @@ using Random = UnityEngine.Random;
 
 
 [RequireComponent(typeof(BoxCollider2D), typeof(Rigidbody2D))]
-public class Building : MonoBehaviour
+public class Building : MonoBehaviour, IObserver
 {
     private RoadManager _roadManager;
-    private GameManager _gameManager;
     private Grid _grid;
     private Vector2 _worldPosition;
+    private Node _node;
+    public Node Node
+    {
+        get { return _node; }
+    }
+
     public Vector2 WorldPosition
     {
         get { return _worldPosition; }
         set { _worldPosition = value; }
     }
 
+   
     public BuildingType BuildingType { get; private set; }  // Make it a property
     [SerializeField] public float LifeTime = 2f;
     [SerializeField] public float buildingSize = 0.25f;
     
     public void Initialize (Node node, Grid grid, BuildingType buildingType, Vector2 worldPosition)
     {
-        this._gameManager = GameManager.Instance;
-        this._roadManager = _gameManager.RoadManager;
+        this._roadManager = GameManager.Instance.RoadManager;
         this._grid = grid;  
         
         this.BuildingType = buildingType;
         this._worldPosition = worldPosition;
+        this._node = _grid.NodeFromWorldPosition(worldPosition);
         
-        SpawnBuildingNode(node, buildingType);
+        SpawnBuildingNode(node);
         
         // Invoke("DeactivateBuilding", LifeTime);
         SpawnRoad(node);
@@ -43,17 +49,17 @@ public class Building : MonoBehaviour
         this.gameObject.SetActive(false);
     }
 
-    private void SpawnBuildingNode(Node node, BuildingType buildingType)
+    private void SpawnBuildingNode(Node node)
     {
         //Place building node
         node.SetBuilding(true);
-        _roadManager.PlaceNode(node, buildingType);
+        _roadManager.PlaceNode(node, this);
     }
 
     private void SpawnRoad(Node buildingNode)
     {
         Node roadNode = GetRoadNode();
-        _roadManager.PlaceNode(roadNode, BuildingType.None);
+        _roadManager.PlaceNode(roadNode, null);
         _roadManager.SetAdjList(roadNode, buildingNode);
         _roadManager.CreateMesh(roadNode);
     }
@@ -78,5 +84,20 @@ public class Building : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.DrawWireSphere(this.transform.position, buildingSize);
+    }
+
+    public void OnNotified(object data, string flag)
+    {
+        if (data is bool b && flag == NotificationFlags.SpawnCar)
+        {
+            if (!b) return;
+            StartCoroutine(SpawnCar(b));
+        }
+    }
+
+    IEnumerator SpawnCar(bool canSpawn)
+    {
+        Debug.Log("Spawning car");
+        yield return null;
     }
 }
