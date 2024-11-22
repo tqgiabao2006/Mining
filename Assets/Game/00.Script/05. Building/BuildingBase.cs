@@ -2,17 +2,20 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Game._00.Script._05._Manager;
+using Game._03._Scriptable_Object;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 
 [RequireComponent(typeof(BoxCollider2D), typeof(Rigidbody2D))]
-public abstract class BuildingBase : MonoBehaviour, IObserver
+public abstract class BuildingBase : MonoBehaviour
 {
     private RoadManager _roadManager;
     private Grid _grid;
     private Vector2 _worldPosition;
     private Node _node;
+    public PrefabManager prefabManager;
     public Node Node
     {
         get { return _node; }
@@ -26,14 +29,13 @@ public abstract class BuildingBase : MonoBehaviour, IObserver
 
    
     public BuildingType BuildingType { get; private set; }  // Make it a property
-    [SerializeField] public float LifeTime = 2f;
+    [SerializeField] public float lifeTime = 2f;
     [SerializeField] public float buildingSize = 0.25f;
     
     public void Initialize (Node node, Grid grid, BuildingType buildingType, Vector2 worldPosition)
     {
         this._roadManager = GameManager.Instance.RoadManager;
-        this._grid = grid;  
-        
+        this._grid = grid; 
         this.BuildingType = buildingType;
         this._worldPosition = worldPosition;
         this._node = _grid.NodeFromWorldPosition(worldPosition);
@@ -85,19 +87,6 @@ public abstract class BuildingBase : MonoBehaviour, IObserver
     {
         Gizmos.DrawWireSphere(this.transform.position, buildingSize);
     }
-
-    public void OnNotified(object data, string flag)
-    {
-        if (data is bool b && flag == NotificationFlags.SpawnCar)
-        {
-            if (!b) return;
-            StartCoroutine(SpawnCar(b));
-        }
-    }
-
-    IEnumerator SpawnCar(bool canSpawn)
-    {
-        Debug.Log("Spawning car");
-        yield return null;
-    }
+    
+    protected abstract IEnumerator SpawnCar(bool canSpawn);
 }

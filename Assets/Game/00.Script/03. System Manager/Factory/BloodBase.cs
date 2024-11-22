@@ -1,12 +1,26 @@
 namespace Game._00.Script._05._Manager.Factory
 {
-    public abstract class BloodBase:UnitBase, IBlood
+    public class BlueBlood: UnitBase, IBlood
     {
-        public void SpawnBlood()
+        public float Speed { get; set; }
+        public float MaxSpeed { get; set; }
+        public bool IsFinishedPath { get; set; }
+        public void Intialize(float speed, float maxSpeed)
         {
-            
+            this.Speed = speed;
+            this.MaxSpeed = maxSpeed;
         }
-        public abstract IBlood CreateBlood();
-
+    }
+    
+    public class RedBlood: UnitBase, IBlood
+    {
+        public float Speed { get; set; }
+        public float MaxSpeed { get; set; }
+        public bool IsFinishedPath { get; set; }
+        public void Intialize(float speed, float maxSpeed)
+        {
+            this.Speed = speed;
+            this.MaxSpeed = maxSpeed;
+        }
     }
 }
