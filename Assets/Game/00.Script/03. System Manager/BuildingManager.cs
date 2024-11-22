@@ -26,14 +26,14 @@ namespace Game._00.Script._05._Manager
         //Directed graph => adjacent list => building type + its output
         private Dictionary<BuildingType, List<BuildingType>> _outputMap = new Dictionary<BuildingType, List<BuildingType>>();
        
-        private Dictionary<BuildingType, List<Building>> _currentBuildings = new Dictionary<BuildingType, List<Building>>();
-        public Dictionary<BuildingType, List<Building>> CurrentBuildings
+        private Dictionary<BuildingType, List<BuildingBase>> _currentBuildings = new Dictionary<BuildingType, List<BuildingBase>>();
+        public Dictionary<BuildingType, List<BuildingBase>> CurrentBuildings
         {
             get => _currentBuildings;
         } 
         
-        private List<Building> _unconnectedBuildings = new List<Building>();
-        private List<Building> _connectedBuildings = new List<Building>();
+        private List<BuildingBase> _unconnectedBuildings = new List<BuildingBase>();
+        private List<BuildingBase> _connectedBuildings = new List<BuildingBase>();
         private void Awake()
         {
             InitialInputOutputMap();
@@ -45,22 +45,22 @@ namespace Game._00.Script._05._Manager
             _outputMap.Add(BuildingType.NormalCell, new List<BuildingType>() { BuildingType.Heart });
         }
         
-        public void RegisterBuilding(Building building)
+        public void RegisterBuilding(BuildingBase buildingBase)
         {
-            if (_currentBuildings.ContainsKey(building.BuildingType))
+            if (_currentBuildings.ContainsKey(buildingBase.BuildingType))
             {
-                _currentBuildings[building.BuildingType].Add(building);
+                _currentBuildings[buildingBase.BuildingType].Add(buildingBase);
             }
             else
             {
-                _currentBuildings.Add(building.BuildingType, new List<Building>() { building });
+                _currentBuildings.Add(buildingBase.BuildingType, new List<BuildingBase>() { buildingBase });
             }
-            _unconnectedBuildings.Add(building);
+            _unconnectedBuildings.Add(buildingBase);
         }
 
-        public List<Building> GetOutputBuildings(BuildingType buildingType)
+        public List<BuildingBase> GetOutputBuildings(BuildingType buildingType)
         {
-            List<Building> buildings = new List<Building>();
+            List<BuildingBase> buildings = new List<BuildingBase>();
             List<BuildingType> buildingTypes = _outputMap[buildingType];
             foreach (BuildingType type in buildingTypes)
             {
@@ -95,15 +95,15 @@ namespace Game._00.Script._05._Manager
         {
             
             if (flag != NotificationFlags.CheckingConnection ||
-                data is not (ValueTuple<Func<List<Building>, Building, bool>, Building>)) return;
+                data is not (ValueTuple<Func<List<BuildingBase>, BuildingBase, bool>, BuildingBase>)) return;
             
-            ValueTuple<Func<List<Building>, Building, bool>, Building> givenData = (ValueTuple<Func<List<Building>, Building, bool>, Building>) data;
+            ValueTuple<Func<List<BuildingBase>, BuildingBase, bool>, BuildingBase> givenData = (ValueTuple<Func<List<BuildingBase>, BuildingBase, bool>, BuildingBase>) data;
             
             if(givenData.Item2== null) //Check all
             { 
-                List<Building> removedNodes = new List<Building>();
+                List<BuildingBase> removedNodes = new List<BuildingBase>();
                 
-                foreach (Building building in _unconnectedBuildings)
+                foreach (BuildingBase building in _unconnectedBuildings)
                 {
                     if (givenData.Item1(GetOutputBuildings(building.BuildingType), building))
                     {
@@ -114,7 +114,7 @@ namespace Game._00.Script._05._Manager
                 }
 
                 //Remove connected building
-                foreach (Building building in removedNodes)
+                foreach (BuildingBase building in removedNodes)
                 {
                     _unconnectedBuildings.Remove(building);
                 }

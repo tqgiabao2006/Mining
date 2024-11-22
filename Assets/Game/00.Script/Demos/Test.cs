@@ -44,7 +44,7 @@ public class Test : MonoBehaviour
         // CreateMesh();
         // UpdateMesh();
         // StartCoroutine(Spawn());
-        // CreateBuilding(30, 10);
+        // CreateBlood(30, 10);
         
         mesh = CreateDiagionalMesh(_grid.NodeFromWorldPosition(new Vector2(-0.5f, -0.5f)), 45f, 1 / 4f, vertices, triangles,0.5f);
         meshFilter.mesh = mesh; 

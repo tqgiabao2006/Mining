@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7369202895784469775}
   - component: {fileID: -7650261240360639310}
   - component: {fileID: 8592810586081017998}
-  - component: {fileID: 1596597711788867782}
+  - component: {fileID: 1908866948732430818}
   m_Layer: 0
   m_Name: Lung
   m_TagString: Untagged
@@ -159,7 +159,7 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &1596597711788867782
+--- !u!114 &1908866948732430818
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -168,8 +168,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 2527342892843654057}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fc7618953979348189fa7a6c807bffc5, type: 3}
+  m_Script: {fileID: 11500000, guid: 05bb57d88c634c189ce7f1d903a7ad71, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LifeTime: 10
-  buildingSize: 1
+  LifeTime: 2
+  buildingSize: 0.25

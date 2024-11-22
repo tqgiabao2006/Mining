@@ -7,7 +7,7 @@ using Random = UnityEngine.Random;
 
 
 [RequireComponent(typeof(BoxCollider2D), typeof(Rigidbody2D))]
-public class Building : MonoBehaviour, IObserver
+public abstract class BuildingBase : MonoBehaviour, IObserver
 {
     private RoadManager _roadManager;
     private Grid _grid;

@@ -39,11 +39,11 @@ public class RoadManager : SubjectBase, IObserver
 
 
     /// <summary>
-    /// Check the placed node repersent building node => to check if building is connected by road later
+    /// Check the placed node repersent buildingBase node => to check if buildingBase is connected by road later
     /// </summary>
     /// <param name="node"></param>
     /// <param name="buildingType"></param>
-    public void PlaceNode(Node node, Building building)
+    public void PlaceNode(Node node, BuildingBase buildingBase)
     {
         if (!_nodeList.Contains(node))
         {
@@ -51,10 +51,10 @@ public class RoadManager : SubjectBase, IObserver
             _nodeList.Add(node);
         }
 
-        if (building != null)
+        if (buildingBase != null)
         {
-            //Notify building manager to check
-            // Notify((CheckConnectionDelegate, building), NotificationFlags.CheckingConnection);
+            //Notify buildingBase manager to check
+            // Notify((CheckConnectionDelegate, buildingBase), NotificationFlags.CheckingConnection);
         }
     }
 
@@ -62,11 +62,11 @@ public class RoadManager : SubjectBase, IObserver
     /// Check if a building is connected to one of its outputs
     /// Return: (bool isConnected)
     /// </summary>
-    private Func<List<Building>, Building, bool> CheckConnectionDelegate = (outputBuilding, mainBuilding) =>
+    private Func<List<BuildingBase>, BuildingBase, bool> CheckConnectionDelegate = (outputBuilding, mainBuilding) =>
     {
         Node mainNode = mainBuilding.Node;
         bool isConnected = false;
-        foreach (Building building in outputBuilding)
+        foreach (BuildingBase building in outputBuilding)
         {
             if (building.Node.GraphIndex == mainNode.GraphIndex)
             {
@@ -124,8 +124,8 @@ public class RoadManager : SubjectBase, IObserver
                     }
                 }
                 
-                Building nullBuilding = null;
-                NotifySpecific((CheckConnectionDelegate, nullBuilding), NotificationFlags.CheckingConnection, _buildingManager);
+                BuildingBase nullBuildingBase = null;
+                NotifySpecific((CheckConnectionDelegate, nullBuildingBase), NotificationFlags.CheckingConnection, _buildingManager);
 
             }
         }
@@ -250,9 +250,9 @@ public class RoadManager : SubjectBase, IObserver
         }
         if (data is bool && (bool)data)
         {
-            //Notify building manager to check
-            Building nullBuilding = null; //Check all buildings
-            Notify((CheckConnectionDelegate, nullBuilding), NotificationFlags.CheckingConnection);
+            //Notify buildingBase manager to check
+            BuildingBase nullBuildingBase = null; //Check all buildings
+            Notify((CheckConnectionDelegate, nullBuildingBase), NotificationFlags.CheckingConnection);
         }
     }
     #endregion

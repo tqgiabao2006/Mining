@@ -57,13 +57,13 @@ public class BuildingSpawner : MonoBehaviour
     private Dictionary<Vector3, float> _zoneDictionary = new Dictionary<Vector3, float>();
     [Header("Gizmos")] 
     [SerializeField] public bool isGizmos = false;
-    [Header("Building Prefabs")]
+    [Header("BuildingBase Prefabs")]
     public List<BuildingPrefabPair> BuildingPrefabs = new List<BuildingPrefabPair>();
     
     [SerializeField] public int maxWaves = 2;
     private SpawningWaveInfo[] _waveInfos;
 
-    [Header("Building Settings")] [SerializeField]
+    [Header("BuildingBase Settings")] [SerializeField]
     public float buildingBoundary = 0.5f;
     public int currentWave = 0;
     private Coroutine _spawnWaveCoroutine;
@@ -157,13 +157,13 @@ public class BuildingSpawner : MonoBehaviour
                 
                 //Spawned object
                 GameObject building = _objectPooling.GetObj(buildingPrefab);
-                Building buildingComponent = building.GetComponent<Building>();
+                BuildingBase buildingBaseComponent = building.GetComponent<BuildingBase>();
                 
                 Vector2 spawnedPos = GetRandomPosition(ref maxRoadLength, waveInfo.ZoneRadius, usedPositions);
                 Node buildingNode = _grid.NodeFromWorldPosition(spawnedPos);
 
-                buildingComponent.Initialize(buildingNode,_grid, buildingType, spawnedPos);
-                _buildingManager.RegisterBuilding(buildingComponent);
+                buildingBaseComponent.Initialize(buildingNode,_grid, buildingType, spawnedPos);
+                _buildingManager.RegisterBuilding(buildingBaseComponent);
                 building.transform.position = spawnedPos;
                 building.SetActive(true);   
                 

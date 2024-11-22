@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1043784235339881857}
   - component: {fileID: 8936415846036388770}
   - component: {fileID: 4837569150714318710}
-  - component: {fileID: -3915522452616997916}
+  - component: {fileID: 2752351698262650912}
   m_Layer: 0
   m_Name: Normal Cell
   m_TagString: Untagged
@@ -159,7 +159,7 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &-3915522452616997916
+--- !u!114 &2752351698262650912
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -168,8 +168,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 3949733121163879824}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fc7618953979348189fa7a6c807bffc5, type: 3}
+  m_Script: {fileID: 11500000, guid: 18c22277a8764aafacc0c60925c6556c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LifeTime: 10
-  buildingSize: 1
+  LifeTime: 2
+  buildingSize: 0.25

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8270115175449218645}
   - component: {fileID: 2705719870195111475}
   - component: {fileID: 425123970154730626}
-  - component: {fileID: -95263070486125999}
+  - component: {fileID: 703494325618199009}
   m_Layer: 0
   m_Name: Heart
   m_TagString: Untagged
@@ -159,7 +159,7 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &-95263070486125999
+--- !u!114 &703494325618199009
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -168,8 +168,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 3689738951310742799}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fc7618953979348189fa7a6c807bffc5, type: 3}
+  m_Script: {fileID: 11500000, guid: 74f663175a2542ad83b94bbbad6d74c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LifeTime: 10
-  buildingSize: 1
+  LifeTime: 2
+  buildingSize: 0.25
