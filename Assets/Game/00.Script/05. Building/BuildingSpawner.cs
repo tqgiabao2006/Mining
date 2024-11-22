@@ -51,7 +51,7 @@ public class BuildingPrefabPair
     }
 }
 
-public class Spawner : MonoBehaviour
+public class BuildingSpawner : MonoBehaviour
 {
     //Vector3 zone center, float radius
     private Dictionary<Vector3, float> _zoneDictionary = new Dictionary<Vector3, float>();
