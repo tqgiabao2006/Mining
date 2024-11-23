@@ -52,6 +52,7 @@ public class Node : IHeapItem<Node>
 	public void SetRoad(bool isRoad)
 	{ 
 		IsRoad = isRoad;
+		Walkable = true;
 	}
 
 	public void SetBuilding(bool isBuilding)

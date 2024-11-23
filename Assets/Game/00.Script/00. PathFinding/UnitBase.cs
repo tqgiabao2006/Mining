@@ -3,30 +3,27 @@ using System.Collections.Generic;
 using Game._00.Script._05._Manager;
 using UnityEngine;
 
-public abstract class UnitBase:MonoBehaviour
+public abstract class UnitBase: MonoBehaviour
 {
 	const float minPathUpdateTime = .2f;
 	const float pathUpdateMoveThreshold = .5f;
-	
-	[SerializeField] protected float speed = 20;
-	[SerializeField] protected float turnDistance = 5;
-	[SerializeField] protected float turnSpeed = 3;
-	[SerializeField] protected float stoppingDistance = 5; //how far from the finish that the object start slowing down
 
-    
-    protected Path _path;
-    protected PathRequestManager _requestManager;
+	private float speed = 2;
+	private float turnDistance = 5;
+	private float turnSpeed = 3;
+	private float stoppingDistance = 0; //how far from the finish that the object start slowing down
+
+	private Path _path;
+	private PathRequestManager _requestManager;
     protected PathFinding _pathFinding;
-	void Start()
+    
+	public void Initialize()
 	{
 		_requestManager = GameManager.Instance.PathRequestManager;
 		_pathFinding = GameManager.Instance.PathFinding;
 	}
 
-	protected void StartUpdatePath(Transform target)
-	{
-		StartCoroutine(UpdatePath(target));
-	}
+	public abstract void StartUpdatePath(Transform target);
 	
 	protected IEnumerator UpdatePath(Transform target)
 	{

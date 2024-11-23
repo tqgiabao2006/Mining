@@ -102,9 +102,9 @@ namespace Game._00.Script._05._Manager
         {
             
             if (flag != NotificationFlags.CheckingConnection ||
-                data is not (ValueTuple<Func<List<BuildingBase>, BuildingBase, bool>, BuildingBase>)) return;
+                data is not (ValueTuple<Func<List<BuildingBase>, BuildingBase, BuildingBase>, BuildingBase>)) return;
             
-            ValueTuple<Func<List<BuildingBase>, BuildingBase, bool>, BuildingBase> givenData = (ValueTuple<Func<List<BuildingBase>, BuildingBase, bool>, BuildingBase>) data;
+            ValueTuple<Func<List<BuildingBase>, BuildingBase, BuildingBase>, BuildingBase> givenData = (ValueTuple<Func<List<BuildingBase>, BuildingBase,BuildingBase>, BuildingBase>) data;
             
             if(givenData.Item2== null) //Check all
             { 
@@ -112,14 +112,14 @@ namespace Game._00.Script._05._Manager
                 
                 foreach (BuildingBase building in _unconnectedBuildings)
                 {
-                    if (givenData.Item1(GetOutputBuildings(building.BuildingType), building))
+                    BuildingBase closestBuilding = givenData.Item1(GetOutputBuildings(building.BuildingType), building);
+                    if (closestBuilding)
                     {
-                        NotifySpecific(true, NotificationFlags.SpawnCar, building.GetComponent<IObserver>());
+                        NotifySpecific((building, closestBuilding), NotificationFlags.SpawnCar, building.GetComponent<IObserver>());
                         removedNodes.Add(building);
                         _connectedBuildings.Add(building);
                     }
                 }
-
                 //Remove connected building
                 foreach (BuildingBase building in removedNodes)
                 {
@@ -128,9 +128,10 @@ namespace Game._00.Script._05._Manager
             }
             else //Check specific
             {
-                if (givenData.Item1(_unconnectedBuildings, givenData.Item2))
+                BuildingBase closestBuilding = givenData.Item1(GetOutputBuildings(givenData.Item2.BuildingType), givenData.Item2);
+                if (closestBuilding)
                 {
-                    NotifySpecific(true, NotificationFlags.SpawnCar, givenData.Item2.GetComponent<IObserver>());
+                    NotifySpecific((givenData.Item2, closestBuilding), NotificationFlags.SpawnCar, givenData.Item2.GetComponent<IObserver>());
                     _connectedBuildings.Remove(givenData.Item2);
                     _connectedBuildings.Add(givenData.Item2);
                 }

@@ -2,28 +2,25 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using Game._00.Script._05._Manager;
 
 public class PathFinding:MonoBehaviour
 {
-    private Grid _grid;
-
-    private void Start()
-    {
-        _grid = GetComponent<Grid>();
-    }
+   
 
     public void FindPath(PathRequest request, Action<PathResult> callBack)
     {
+        Grid grid = GameManager.Instance.Grid;
 
         Vector2[] waypoints = new Vector2[0];
         bool pathSuccess = false;
 
-        Node startNode = _grid.NodeFromWorldPosition(request.pathStart);
-        Node targetNode = _grid.NodeFromWorldPosition(request.pathEnd);
+        Node startNode = grid.NodeFromWorldPosition(request.pathStart);
+        Node targetNode = grid.NodeFromWorldPosition(request.pathEnd);
         
         if (startNode.Walkable && targetNode.Walkable)
         {
-            Heap<Node> openSet = new Heap<Node>(_grid.MaxSize);
+            Heap<Node> openSet = new Heap<Node>(grid.MaxSize);
             HashSet<Node> closedSet = new HashSet<Node>();
 
             openSet.Add(startNode);

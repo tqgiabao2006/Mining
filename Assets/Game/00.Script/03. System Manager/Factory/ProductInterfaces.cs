@@ -5,7 +5,7 @@ namespace Game._00.Script._05._Manager.Factory
         float Speed { get; set; }
         float MaxSpeed { get; set; }
         bool IsFinishedPath { get; set; }
-        void Intialize(float speed, float maxSpeed);
+        public void Intialize(float speed, float maxSpeed, BuildingBase startBuilding, BuildingBase endBuilding);
     }
 
     public interface INutrients

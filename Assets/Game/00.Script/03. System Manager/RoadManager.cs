@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Game._00.Script._05._Manager;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEditor;
 
@@ -62,21 +63,38 @@ public class RoadManager : SubjectBase, IObserver
     /// Check if a building is connected to one of its outputs
     /// Return: (bool isConnected)
     /// </summary>
-    private Func<List<BuildingBase>, BuildingBase, bool> CheckConnectionDelegate = (outputBuilding, mainBuilding) =>
+    private Func<List<BuildingBase>, BuildingBase, BuildingBase> CheckConnectionDelegate = (outputBuilding, mainBuilding) =>
     {
         Node mainNode = mainBuilding.Node;
         bool isConnected = false;
+        float closestDistance = float.MaxValue;
+        BuildingBase closestBuilding = null;
+        
+        List<BuildingBase> connectedBuildings = new List<BuildingBase>();
         foreach (BuildingBase building in outputBuilding)
         {
             if (building.Node.GraphIndex == mainNode.GraphIndex)
             {
-
-            isConnected = true;
-                break;
+                connectedBuildings.Add(building);
             }
         }
-        Debug.Log("Check connection: " + isConnected);  
-        return isConnected;
+
+        //Get closest building to main building
+        if (connectedBuildings.Count > 0)
+        {
+            foreach (BuildingBase building in connectedBuildings)
+            {
+                float distance = Vector3.Distance(mainBuilding.transform.position, building.transform.position);
+            
+                // Check if this building is the closest one
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closestBuilding = building;
+                }
+            }
+        }
+        return closestBuilding;
     };
     
     #region Graph helper

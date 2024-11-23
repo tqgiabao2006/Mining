@@ -171,5 +171,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74f663175a2542ad83b94bbbad6d74c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LifeTime: 2
+  prefabManager: {fileID: 11400000, guid: 334d699d64f73417ab0c85d4afe90590, type: 2}
+  lifeTime: 2
   buildingSize: 0.25

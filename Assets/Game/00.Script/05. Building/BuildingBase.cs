@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Game._00.Script._05._Manager;
+using Game._00.Script._05._Manager.Factory;
 using Game._03._Scriptable_Object;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -16,6 +17,8 @@ public abstract class BuildingBase : MonoBehaviour
     private Vector2 _worldPosition;
     private Node _node;
     public PrefabManager prefabManager;
+    public BloodFactory bloodFactory;
+
     public Node Node
     {
         get { return _node; }
@@ -39,9 +42,7 @@ public abstract class BuildingBase : MonoBehaviour
         this.BuildingType = buildingType;
         this._worldPosition = worldPosition;
         this._node = _grid.NodeFromWorldPosition(worldPosition);
-        
         SpawnBuildingNode(node);
-        
         // Invoke("DeactivateBuilding", LifeTime);
         SpawnRoad(node);
     }
@@ -88,5 +89,5 @@ public abstract class BuildingBase : MonoBehaviour
         Gizmos.DrawWireSphere(this.transform.position, buildingSize);
     }
     
-    protected abstract IEnumerator SpawnCar(bool canSpawn);
+    protected abstract IEnumerator SpawnCar(ValueTuple<BuildingBase, BuildingBase> startEndBuildings);
 }

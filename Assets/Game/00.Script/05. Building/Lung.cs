@@ -1,5 +1,8 @@
+using System;
 using System.Collections;
 using Game._00.Script._05._Manager;
+using Game._00.Script._05._Manager.Factory;
+using UnityEngine;
 
 namespace Game._00.Script._05._Building
 {
@@ -7,16 +10,26 @@ namespace Game._00.Script._05._Building
     {
         public void OnNotified(object data, string flag)
         {
-            if (data is bool b && flag == NotificationFlags.SpawnCar)
+            if (data is ValueTuple<BuildingBase, BuildingBase> && flag == NotificationFlags.SpawnCar)
             {
-                if (!b) return;
-                StartCoroutine(SpawnCar(b));
+                ValueTuple<BuildingBase, BuildingBase> startEndBuildings = (ValueTuple<BuildingBase, BuildingBase>)data;
+                StartCoroutine(SpawnCar(startEndBuildings));
             }
         }
-
-        protected override IEnumerator SpawnCar(bool canSpawn)
+        // <summary>
+        /// Start Building -> End Building
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        protected override IEnumerator SpawnCar(ValueTuple<BuildingBase, BuildingBase> startEndBuildings)
         {
-            throw new System.NotImplementedException();
+            bloodFactory = new BloodFactory(prefabManager.redBlood, prefabManager.blueBlood, startEndBuildings.Item1, startEndBuildings.Item2);
+            GameObject redBlood = bloodFactory.CreateBlood(prefabManager.redBlood);
+            if (!redBlood) yield return null;
+            
+            redBlood.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, -0.1f);
+            redBlood.SetActive(true);
+            yield return null;
         }
     }
 }

@@ -229,20 +229,23 @@ public class Grid: MonoBehaviour
    
    #region Gizmos and UI
    public List<Node> path;
-   void OnDrawGizmos() {
-   Gizmos.DrawWireCube(gridCenter, new UnityEngine.Vector2(GridWorldSize.x, GridWorldSize.y));
-   if (grid != null && displayOnGizmos) {
+   void OnDrawGizmos() 
+   {
+    Gizmos.DrawWireCube(gridCenter, new UnityEngine.Vector2(GridWorldSize.x, GridWorldSize.y));
+    
+    if (grid != null && displayOnGizmos) 
+    {
        foreach (Node n in grid) {
            // Compute the color based on the movement penalty
            float normalizedPenalty = Mathf.InverseLerp(penaltyMin, penaltyMax, n.MovementPenalty);
            Color penaltyColor = Color.Lerp(Color.white, Color.black, normalizedPenalty);
-           // Set the gizmo color based on walkability
+           // Set the gizmo color based on walk ability
            Gizmos.color = n.Walkable ? penaltyColor : Color.red;
            // Draw the gizmo cube at the node's position
            Gizmos.DrawWireCube(n.WorldPosition, Vector2.one * (NodeDiameter));
        }
+    }
    }
-}
    #endregion
 }
 
