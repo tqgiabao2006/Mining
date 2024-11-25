@@ -13,17 +13,11 @@ namespace Game._00.Script._05._Manager.Factory
         private BuildingBase _endBuilding;
         public void Intialize(float speed, float maxSpeed, BuildingBase startBuilding, BuildingBase endBuilding)
         {
-            base.Initialize();
             this.Speed = speed;
             this.MaxSpeed = maxSpeed;
             this._startBuilding = startBuilding;
             this._endBuilding = endBuilding;
         }
         
-        public override void StartUpdatePath(Transform target)
-        {            
-            StartCoroutine(UpdatePath(target));
-
-        }
     }
 }

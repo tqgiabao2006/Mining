@@ -2,7 +2,7 @@
 
 A* PATH FINDING
 
-PEUSDO CODE;
+PSEUDO CODE;
 OPEN //the set of nodes to be evaluated
 CLOSED //the set of nodes already evaluated add the start node to OPEN
 loop

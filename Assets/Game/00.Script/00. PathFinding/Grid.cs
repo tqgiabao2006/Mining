@@ -242,7 +242,7 @@ public class Grid: MonoBehaviour
            // Set the gizmo color based on walk ability
            Gizmos.color = n.Walkable ? penaltyColor : Color.red;
            // Draw the gizmo cube at the node's position
-           Gizmos.DrawWireCube(n.WorldPosition, Vector2.one * (NodeDiameter));
+           Gizmos.DrawCube(n.WorldPosition, Vector2.one * (NodeDiameter -0.05f));
        }
     }
    }

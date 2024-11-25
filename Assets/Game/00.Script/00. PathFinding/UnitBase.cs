@@ -3,124 +3,95 @@ using System.Collections.Generic;
 using Game._00.Script._05._Manager;
 using UnityEngine;
 
-public abstract class UnitBase: MonoBehaviour
+public abstract class UnitBase : MonoBehaviour
 {
 	const float minPathUpdateTime = .2f;
 	const float pathUpdateMoveThreshold = .5f;
 
-	private float speed = 2;
-	private float turnDistance = 5;
-	private float turnSpeed = 3;
-	private float stoppingDistance = 0; //how far from the finish that the object start slowing down
+	public float speed = 20;
+	public float turnSpeed = 3;
+	public float turnDst = 5;
+	public float stoppingDst = 10;
 
-	private Path _path;
-	private PathRequestManager _requestManager;
-    protected PathFinding _pathFinding;
-    
-	public void Initialize()
+	Path path;
+
+	
+	public void StartUpdatePath(Transform target)
 	{
-		_requestManager = GameManager.Instance.PathRequestManager;
-		_pathFinding = GameManager.Instance.PathFinding;
+		StartCoroutine (UpdatePath (target));
+
 	}
 
-	public abstract void StartUpdatePath(Transform target);
-	
-	protected IEnumerator UpdatePath(Transform target)
-	{
+	public void OnPathFound(Vector3[] waypoints, bool pathSuccessful) {
+		if (pathSuccessful) {
+			// path = new Path(waypoints, transform.position, turnDst, stoppingDst);
 
-		if (Time.timeSinceLevelLoad < .3f)
-		{
-			yield return new WaitForSeconds(.3f);
+			StopCoroutine("FollowPath");
+			StartCoroutine("FollowPath");
 		}
-		_requestManager.RequestPath(new PathRequest( transform.position, target.position, OnPathFound));
-		//Do not call update path every frame, only when object move far a bit from a certain threshold
+	}
+
+	IEnumerator UpdatePath(Transform target) {
+
+		if (Time.timeSinceLevelLoad < .3f) {
+			yield return new WaitForSeconds (.3f);
+		}
+		PathRequestManager.RequestPath(transform.position, target.position, OnPathFound);
+
 		float sqrMoveThreshold = pathUpdateMoveThreshold * pathUpdateMoveThreshold;
-		Vector2 targetPosOld = target.position;
-		while (true)
-		{
-			yield return new WaitForSeconds(minPathUpdateTime);
-			if (((Vector2)target.position - targetPosOld).sqrMagnitude > sqrMoveThreshold)
-			{
-				_requestManager.RequestPath(new PathRequest(transform.position, target.position, OnPathFound));
+		Vector3 targetPosOld = target.position;
+
+		while (true) {
+			yield return new WaitForSeconds (minPathUpdateTime);
+			if ((target.position - targetPosOld).sqrMagnitude > sqrMoveThreshold) {
+				PathRequestManager.RequestPath (transform.position, target.position, OnPathFound);
 				targetPosOld = target.position;
 			}
 		}
 	}
-	
-	protected void OnPathFound(Vector2[] waypoints, bool pathSuccessful, Transform target)
-	{
-		if (pathSuccessful)
-		{
-			_path = new Path(waypoints, transform.position, turnDistance, stoppingDistance);
-			StopCoroutine("FollowPath");
-			StartCoroutine("FollowPath");
-		}
 
+	IEnumerator FollowPath() 
+	{
+
+		// bool followingPath = true;
+		// int pathIndex = 0;
+		// // transform.LookAt(path.lookPoints [0]);
+		//
+		// float speedPercent = 1;
+		//
+		// while (followingPath) {
+		// 	Vector2 pos2D = new Vector2 (transform.position.x, transform.position.y);
+		// 	while (path.turnBoundaries [pathIndex].HasCrossedLine(pos2D)) {
+		// 		if (pathIndex == path.finishLineIndex) {
+		// 			followingPath = false;
+		// 			break;
+		// 		} else {
+		// 			pathIndex++;
+		// 		}
+		// 	}
+		//
+		// 	if (followingPath) {
+		//
+		// 		if (pathIndex >= path.slowDownIndex && stoppingDst > 0) {
+		// 			speedPercent = Mathf.Clamp01 (path.turnBoundaries [path.finishLineIndex].DistanceFromPoint (pos2D) / stoppingDst);
+		// 			if (speedPercent < 0.01f) {
+		// 				followingPath = false;
+		// 			}
+		// 		}
+		//
+		// 		// Quaternion targetRotation = Quaternion.LookRotation (path.lookPoints [pathIndex] - transform.position);
+		// 		// transform.rotation = Quaternion.Lerp (transform.rotation, targetRotation, Time.deltaTime * turnSpeed);
+		// 		transform.Translate (Vector2.up * Time.deltaTime * speed * speedPercent, Space.Self);
+		// 	}
+
+			yield return null;
+
+		
 	}
 	
-	protected IEnumerator FollowPath()
-	{
-		bool followingPath = true;
-		int pathIndex = 0;
-		float speedPercent = 1;
-	    
-		while (followingPath)
-		{
-			//calculate slow down:
-
-			Vector2 pos2D = new UnityEngine.Vector2(transform.position.x, transform.position.y);	
-
-			// Check if we've crossed the current path boundary
-			if (_path.turnBoundaries[pathIndex].HasCrossedLine(pos2D))
-			{
-				if (pathIndex == _path.finishLineIndex)
-				{
-					followingPath = false;
-					break;
-				}
-				pathIndex++;
-				continue;
-			}
-
-			// Calculate the direction and distance to the next point
-			Vector2 targetPoint = _path.lookPoints[pathIndex];
-			Vector2 direction = (targetPoint - pos2D).normalized;
-			float distanceToNextPoint = Vector2.Distance(pos2D, targetPoint);
-
-			// If close to the next point, move to the next pathIndex
-			if (distanceToNextPoint < 0.1f)
-			{
-				pathIndex++;
-				if (pathIndex >= _path.lookPoints.Length)
-				{
-					followingPath = false;
-					break;
-				}
-				continue;
-			}
-
-			if (followingPath) {
-
-				if (pathIndex >= _path.slowDownIndex && stoppingDistance > 0) {
-					speedPercent = Mathf.Clamp01 (_path.turnBoundaries [_path.finishLineIndex].DistanceFromPoint (pos2D) / stoppingDistance);
-					if (speedPercent < 0.01f) {
-						followingPath = false;
-					}
-				}
-			}
-
-			// Move smoothly towards the next point
-			transform.Translate(direction * speed * speedPercent * Time.deltaTime, Space.World);
-
-			// Smooth rotation with -90 degree adjustment
-			float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90;
-			Quaternion targetRotation = Quaternion.Euler(0, 0, angle);
-
-			// Optimize rotation speed for smooth turning
-			transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * turnSpeed);
-
-			yield return null; // Wait until next frame
+	public void OnDrawGizmos() {
+		if (path != null) {
+			path.DrawWithGizmos ();
 		}
 	}
-
 }

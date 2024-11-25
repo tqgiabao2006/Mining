@@ -37,6 +37,7 @@ public class RoadManager : SubjectBase, IObserver
         _graphCount = 0;
         ObserversSetup();
     }
+    
 
 
     /// <summary>
@@ -57,6 +58,16 @@ public class RoadManager : SubjectBase, IObserver
             //Notify buildingBase manager to check
             // Notify((CheckConnectionDelegate, buildingBase), NotificationFlags.CheckingConnection);
         }
+    }
+
+    /// <summary>
+    /// Get graph list for pathfinding
+    /// </summary>
+    /// <param name="node"></param>
+    /// <returns></returns>
+    public List<Node> GetGraphList(Node node)
+    {
+        return _graphList[node.GraphIndex];
     }
 
     /// <summary>
