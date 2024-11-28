@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using Game._00.Script._05._Manager;
 using Game._00.Script._05._Manager.Factory;
+using Game._00.Script.NewPathFinding;
 using Game._03._Scriptable_Object;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -30,9 +31,11 @@ namespace Game._00.Script._05._Building
             
             GameObject redBlood = bloodFactory.CreateBlood(prefabManager.redBlood);
             if (!redBlood) yield return null;
-            redBlood.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, -0.1f);
+            redBlood.transform.position = startEndBuildings.Item1.transform.position;
             redBlood.SetActive(true);
-            redBlood.GetComponent<RedBlood>().StartUpdatePath(startEndBuildings.Item2.transform);
+            
+            NewUnitBase newUnitBase = redBlood.GetComponent<NewUnitBase>();
+            newUnitBase.FollowPath(startEndBuildings.Item1.transform.position, startEndBuildings.Item2.transform.position);
             yield return null;
         }
         

@@ -257,11 +257,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea11bac1d933340609cf864b97853aaa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 802723844}
-  speed: 7.79
-  turnDistance: 1
-  turnSpeed: 3.3
-  stoppingDistance: 4
 --- !u!212 &82195756
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -404,11 +399,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea11bac1d933340609cf864b97853aaa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 802723844}
-  speed: 7.79
-  turnDistance: 1
-  turnSpeed: 3.3
-  stoppingDistance: 4
 --- !u!212 &155272061
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -2208,11 +2198,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea11bac1d933340609cf864b97853aaa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 802723844}
-  speed: 7.79
-  turnDistance: 1
-  turnSpeed: 3.3
-  stoppingDistance: 4
 --- !u!64 &1000441220
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -2827,11 +2812,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea11bac1d933340609cf864b97853aaa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 802723844}
-  speed: 7.79
-  turnDistance: 1
-  turnSpeed: 3.3
-  stoppingDistance: 4
 --- !u!212 &1508391674
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -3236,11 +3216,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea11bac1d933340609cf864b97853aaa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 802723844}
-  speed: 7.79
-  turnDistance: 1
-  turnSpeed: 3.3
-  stoppingDistance: 4
 --- !u!212 &1680073349
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -3308,6 +3283,8 @@ GameObject:
   - component: {fileID: 1726331172}
   - component: {fileID: 1726331173}
   - component: {fileID: 1726331174}
+  - component: {fileID: 1726331175}
+  - component: {fileID: 1726331176}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -3403,6 +3380,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c33af3ba6c784c8397b0030e69ec9ab6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1726331175
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1726331167}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5dcef965b43e44d29107a7f6a6a74092, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1726331176
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1726331167}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c986db57e726454f87291a69114065a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1759929859
 GameObject:
   m_ObjectHideFlags: 0
@@ -3445,7 +3446,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49fe3c293a25c4a709ec8b2499fe01b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  displayOnGizmos: 1
+  displayOnGizmos: 0
   GridWorldSize: {x: 40, y: 22}
   NodeRadius: 0.5
   UnwalkableMask:

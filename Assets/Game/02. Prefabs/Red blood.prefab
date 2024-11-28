@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 356575491802015785}
   - component: {fileID: 5780844785398258117}
-  - component: {fileID: 3263270578289982381}
+  - component: {fileID: -3754970391420667158}
   m_Layer: 0
   m_Name: Red blood
   m_TagString: Untagged
@@ -28,7 +28,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
+  m_LocalScale: {x: 0.2, y: 0.2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -85,7 +85,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &3263270578289982381
+--- !u!114 &-3754970391420667158
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -97,7 +97,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2cee9f0ac05e4797a705a51555febeb4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 20
-  turnDistance: 5
-  turnSpeed: 3
-  stoppingDistance: 5
+  speed: 1

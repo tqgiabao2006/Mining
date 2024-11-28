@@ -210,16 +210,16 @@ public class BuildingSpawner : MonoBehaviour
             spawnedPos = roundedPos;
             
             float dst = Vector3.Distance(usedPosition[usedPosition.Count -1], spawnedPos);
-            if (dst > buildingBoundary + 1f && dst <= maxLength)
+            if (dst > buildingBoundary + 1f && dst <= maxLength && !usedPosition.Contains(spawnedPos))
             {
                 remainRoadLength -= dst;
                 usedPosition.Add(spawnedPos);
                 return spawnedPos;
             }
             attempt++;
+            
         } while (attempt < maxAttempt);
 
-        Debug.Log("Could not find a random place");
         return _grid.NodeFromWorldPosition(Vector2.zero).WorldPosition;
     }
     

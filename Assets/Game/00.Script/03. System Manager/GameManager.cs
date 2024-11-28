@@ -1,3 +1,4 @@
+using Game._00.Script.NewPathFinding;
 using UnityEngine;
 
 namespace Game._00.Script._05._Manager
@@ -13,6 +14,12 @@ namespace Game._00.Script._05._Manager
         public BuildingManager BuildingManager { get; private set; }
         public Grid Grid { get; private set; }
         
+        public NewPathFinding.NewPathFinding  NewPathFinding  { get; private set; }
+        public NewPathRequestManager NewPathRequestManager { get; private set; }
+        
+
+
+        
 
         private void Awake()
         {
@@ -21,9 +28,17 @@ namespace Game._00.Script._05._Manager
             GameStateManager = GetComponent<GameStateManager>();
             ObjectPooling = GetComponent<ObjectPooling>();
             RoadManager = GetComponent<RoadManager>();
-            PathRequestManager = GetComponent<PathRequestManager>();
-            PathFinding = FindObjectOfType<PathFinding>();
+            
+            // PathRequestManager = GetComponent<PathRequestManager>();
+            // PathFinding = FindObjectOfType<PathFinding>();
+            
             BuildingManager = GetComponent<BuildingManager>();
+            
+            //Test:
+            NewPathFinding = GetComponent<NewPathFinding.NewPathFinding>();
+            NewPathFinding.Initialize();
+            NewPathRequestManager = GetComponent<NewPathRequestManager>();
+            NewPathRequestManager.Initialize();
             
             //Initialize all references after
             GameStateManager.Initialize();

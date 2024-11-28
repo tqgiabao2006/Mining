@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Game._00.Script.NewPathFinding
 {
-    public class NewPathFinding 
+    public class NewPathFinding : MonoBehaviour
     {
         private RoadManager _roadManager;
         private Grid _grid;
@@ -16,15 +16,23 @@ namespace Game._00.Script.NewPathFinding
             _roadManager = GameManager.Instance.RoadManager;
             _grid = GameManager.Instance.Grid;
         }
-        
 
-
-        public IEnumerator FindPath(Node startNode, Node endNode)
+        public Func<NewPathRequest, Vector3[]> GetFuncFindPath()
         {
+            return FindPath;
+        }
+        
+        private Vector3[] FindPath(NewPathRequest pathRequest)
+        {
+            
+            Vector3[] waypoints;
+            Node startNode = _grid.NodeFromWorldPosition(pathRequest.StartPos);
+            Node endNode = _grid.NodeFromWorldPosition(pathRequest.EndPos);
+            
             bool pathSuccess = false;
             if (startNode.GraphIndex != endNode.GraphIndex || !startNode.Walkable || !endNode.Walkable)
             {
-                yield return null;
+                return null;
             }
 
             List<Node> graphList = _roadManager.GetGraphList(startNode);
@@ -38,7 +46,6 @@ namespace Game._00.Script.NewPathFinding
 
             while (openSet.Count > 0)
             {
-                
                 Node currentNode = openSet.RemoveFirst();
                 closedSet.Add(currentNode);
 
@@ -48,7 +55,7 @@ namespace Game._00.Script.NewPathFinding
                     break;
                 }
                 
-                List<Node> neighbours = GetNeighboursInGraph(currentNode);
+                List<Node> neighbours = GetNeighboursInAdjList(currentNode);
                 foreach (Node neighbour in neighbours) 
                 {
                     if (!neighbour.Walkable || closedSet.Contains(neighbour)) {
@@ -68,6 +75,17 @@ namespace Game._00.Script.NewPathFinding
                     }
                 }
             }
+
+            if (pathSuccess)
+            {
+                waypoints = RetracePath(startNode, endNode);
+                return waypoints;
+            }
+            else
+            {
+                Debug.Log("Can't find path");
+                return null;
+            }
             
         }
         
@@ -78,33 +96,41 @@ namespace Game._00.Script.NewPathFinding
             while (currentNode != startNode) {
                 path.Add(currentNode);
                 currentNode = currentNode.Parent;
-		
             }
-            Vector3[] waypoints = SimplifyPath(path);
-		
-            Array.Reverse(waypoints);
+            Vector3[] waypoints = SimplifyPath(path, startNode, endNode);
             return waypoints;
-		
         }
 	
-        private Vector3[] SimplifyPath(List<Node> path) {
+        
+        /// <summary>
+        /// Cut out repetitive direction BECAUSE to optimize calculation
+        /// Add start, end node BECAUSE track the angle of road when it changes direction
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="startNode"></param>
+        /// <param name="endNode"></param>
+        /// <returns></returns>
+        private Vector3[] SimplifyPath(List<Node> path, Node startNode, Node endNode) 
+        {
             List<Vector3> waypoints = new List<Vector3>();
+            waypoints.Add(startNode.WorldPosition);
+
             Vector2 directionOld = Vector2.zero;
 		
-            for (int i = 1; i < path.Count -1; i ++) //Avoid simply start node and end node
+            //Only add the last index of a direction  For ex, up, up, top up, we will simply
+            //up _ top up => run outside the road, so we have to simply as _ up, top up
+            for (int i = path.Count - 1; i >=1 ; i --)  //Path start from end to startNode so we loop inversely
             {
                 Vector2 directionNew = new Vector2(path[i-1].GridX - path[i].GridX,path[i-1].GridY - path[i].GridY);
-                if (directionNew != directionOld) 
+                if (Mathf.Abs(Vector2.Dot(directionNew.normalized, directionOld.normalized)) < 0.99f)
                 {
+                    //Add last index of direction 
                     waypoints.Add(path[i].WorldPosition);
-                    if (!waypoints.Contains(path[i - 1].WorldPosition))
-                    { 
-                        waypoints.Add(path[i - 1].WorldPosition);
-
-                    }
                 }
+
                 directionOld = directionNew;
             }
+            waypoints.Add(endNode.WorldPosition);
             return waypoints.ToArray();
         }
         
@@ -117,26 +143,15 @@ namespace Game._00.Script.NewPathFinding
             return 14*dstX + 10 * (dstY-dstX);
         }
         
-        private List<Node> GetNeighboursInGraph(Node node)
+        /// <summary>
+        /// Get node in adj list BECAUSE some road is nearby but not connected, focus on connection 
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
+        private List<Node> GetNeighboursInAdjList(Node node)
         {
-            List<Node> neighbours = new List<Node>();
-            foreach (Node n in node.GetNeighbours())
-            {
-                if(!n.IsRoad) continue;
-                if (n.GraphIndex == node.GraphIndex)
-                {
-                    neighbours.Add(n);
-                }
-            }
-            return neighbours;
-        
+            return _roadManager.GetNodeInAdjList(node);
         }
     }
     
-  
-
-    struct RequestInfo
-    {
-        
-    }
 }

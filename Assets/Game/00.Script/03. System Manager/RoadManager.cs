@@ -206,7 +206,19 @@ public class RoadManager : SubjectBase, IObserver
         
         UpdateMeshForConnection(curNode);
         UpdateMeshForConnection(nextNode);
-    } 
+    }
+
+    public List<Node> GetNodeInAdjList(Node node)
+    {
+        List<Node> adjNodes = new List<Node>();
+        List<int> adjIndexes = _adjList[node.NodeIndex];
+        foreach (int i in adjIndexes)
+        {
+            adjNodes.Add(_nodeList[i]);
+        }
+        return adjNodes;
+        
+    }
 
     private void SetNodeIndex(Node node)
     {

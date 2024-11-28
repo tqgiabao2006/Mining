@@ -35,8 +35,6 @@ namespace Game._00.Script._05._Manager.Factory
             if (prefab == _redBloodPrefab)
             {
                 GameObject redBlood = ObjectPooling.GetObj(_redBloodPrefab);
-                RedBlood redBloodScript = redBlood.GetComponent<RedBlood>();
-                redBloodScript.Intialize(_speed, _maxSpeed, _startBuilding, _endBuilding);
                 redBlood.SetActive(false);
                 return redBlood;
             }
