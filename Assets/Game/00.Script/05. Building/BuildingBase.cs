@@ -13,7 +13,7 @@ using Random = UnityEngine.Random;
 public abstract class BuildingBase : MonoBehaviour
 {
     private RoadManager _roadManager;
-    private Grid _grid;
+    private GridManager _gridManager;
     private Vector2 _worldPosition;
     private Node _node;
     public PrefabManager prefabManager;
@@ -35,13 +35,13 @@ public abstract class BuildingBase : MonoBehaviour
     [SerializeField] public float lifeTime = 2f;
     [SerializeField] public float buildingSize = 0.25f;
     
-    public void Initialize (Node node, Grid grid, BuildingType buildingType, Vector2 worldPosition)
+    public void Initialize (Node node, GridManager gridManager, BuildingType buildingType, Vector2 worldPosition)
     {
         this._roadManager = GameManager.Instance.RoadManager;
-        this._grid = grid; 
+        this._gridManager = gridManager; 
         this.BuildingType = buildingType;
         this._worldPosition = worldPosition;
-        this._node = _grid.NodeFromWorldPosition(worldPosition);
+        this._node = _gridManager.NodeFromWorldPosition(worldPosition);
         SpawnBuildingNode(node);
         // Invoke("DeactivateBuilding", LifeTime);
         SpawnRoad(node);
@@ -81,7 +81,7 @@ public abstract class BuildingBase : MonoBehaviour
         
         //It will be +building size in futured
         Vector2 nodePos = direction + new Vector2(this._worldPosition.x, this._worldPosition.y);
-        Node node = _grid.NodeFromWorldPosition(nodePos);
+        Node node = _gridManager.NodeFromWorldPosition(nodePos);
         return node;
     }
     private void OnDrawGizmos()

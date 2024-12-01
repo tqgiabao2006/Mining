@@ -52,7 +52,7 @@ public class RoadMesh : MonoBehaviour
     
     //Class
     private RoadManager _roadManager;
-    private Grid _grid;
+    private GridManager _gridManager;
     
     private List<Vector3> _vertices;
     private List<int> _triangles; 
@@ -76,7 +76,7 @@ public class RoadMesh : MonoBehaviour
         _meshCollider = GetComponent<MeshCollider>();
         _meshRenderer = GetComponent<MeshRenderer>();
         
-        _grid = GameManager.Instance.Grid;
+        _gridManager = GameManager.Instance.GridManager;
         _roadManager =GameManager.Instance.RoadManager;
             
         // Initialize lists for the mesh data
@@ -172,7 +172,7 @@ public class RoadMesh : MonoBehaviour
 
     private void UpdateWalkable(Vector2 nodePos)
     {
-        _grid.UpdateWalkable(nodePos);
+        _gridManager.UpdateWalkable(nodePos);
     }
 
     private Direction GetBakedDirection(Vector2 nodePos, List<Node> neighbourNodes)
@@ -255,8 +255,8 @@ public class RoadMesh : MonoBehaviour
         {        
            //Vertical line => x = nodePos.x + halfWidth;
            //Diagonal line => y = x - nodePos.x + nodePos.y + halfwidth* sqrt(2)
-            float midPoint = _grid.NodeRadius - halfWidth * 2.414f;
-            center = new Vector3(nodePos.x  + halfWidth+ midPoint/2f, nodePos.y + _grid.NodeRadius, 0.0f);
+            float midPoint = _gridManager.NodeRadius - halfWidth * 2.414f;
+            center = new Vector3(nodePos.x  + halfWidth+ midPoint/2f, nodePos.y + _gridManager.NodeRadius, 0.0f);
             triangleOrigin = new Vector3(nodePos.x + halfWidth, 2.4f*halfWidth+nodePos.y); 
             radius = midPoint/2f;
         }
@@ -436,19 +436,19 @@ public class RoadMesh : MonoBehaviour
         //Horizontal:
         if (direction == DirectionType.Left || direction == DirectionType.Right)
         {
-            rectangleVertices.Add(new Vector3(pivot.x - _grid.NodeRadius * leftScale, pivot.y - halfWidth * downScale, 0));//Bottom left
-            rectangleVertices.Add( new Vector3(pivot.x + _grid.NodeRadius* rightScale, pivot.y - halfWidth * downScale, 0));//Bottom right
-            rectangleVertices.Add(new Vector3(pivot.x + _grid.NodeRadius* rightScale, pivot.y + halfWidth * upScale, 0)); //Top right
-            rectangleVertices.Add(new Vector3(pivot.x - _grid.NodeRadius * leftScale, pivot.y + halfWidth * upScale, 0));// Top left
+            rectangleVertices.Add(new Vector3(pivot.x - _gridManager.NodeRadius * leftScale, pivot.y - halfWidth * downScale, 0));//Bottom left
+            rectangleVertices.Add( new Vector3(pivot.x + _gridManager.NodeRadius* rightScale, pivot.y - halfWidth * downScale, 0));//Bottom right
+            rectangleVertices.Add(new Vector3(pivot.x + _gridManager.NodeRadius* rightScale, pivot.y + halfWidth * upScale, 0)); //Top right
+            rectangleVertices.Add(new Vector3(pivot.x - _gridManager.NodeRadius * leftScale, pivot.y + halfWidth * upScale, 0));// Top left
 
         }
         //Vertical:
         else if (direction == DirectionType.Up || direction == DirectionType.Down)
         {
-            rectangleVertices.Add(new Vector3(pivot.x - halfWidth * leftScale, pivot.y - _grid.NodeRadius * downScale, 0));
-            rectangleVertices.Add(new Vector3(pivot.x + halfWidth * rightScale,pivot.y - _grid.NodeRadius * downScale, 0));
-            rectangleVertices.Add(new Vector3(pivot.x + halfWidth * rightScale, pivot.y + _grid.NodeRadius * upScale, 0));
-            rectangleVertices.Add(new Vector3(pivot.x - halfWidth * leftScale, pivot.y + _grid.NodeRadius * upScale, 0)); 
+            rectangleVertices.Add(new Vector3(pivot.x - halfWidth * leftScale, pivot.y - _gridManager.NodeRadius * downScale, 0));
+            rectangleVertices.Add(new Vector3(pivot.x + halfWidth * rightScale,pivot.y - _gridManager.NodeRadius * downScale, 0));
+            rectangleVertices.Add(new Vector3(pivot.x + halfWidth * rightScale, pivot.y + _gridManager.NodeRadius * upScale, 0));
+            rectangleVertices.Add(new Vector3(pivot.x - halfWidth * leftScale, pivot.y + _gridManager.NodeRadius * upScale, 0)); 
         }
         return rectangleVertices;
     }

@@ -52,7 +52,7 @@
     //     private List<int> _triangles; 
     //     private List<Vector2> _uvs;
     //     
-    //     private Grid _grid;
+    //     private GridManager _gridManager;
     //     
     //     private List<CombineInstance> meshCombineList = new List<CombineInstance>();
     //     
@@ -74,7 +74,7 @@
     //     private void Initial()
     //     {
     //         _meshFilter = GetComponent<MeshFilter>();
-    //         _grid = FindObjectOfType<Grid>();
+    //         _gridManager = FindObjectOfType<GridManager>();
     //         _meshRenderer = GetComponent<MeshRenderer>(); 
     //         _gameManager = GameManager.Instance;    
     //         _roadManager = _gameManager.RoadManager;
@@ -539,7 +539,7 @@
     // private void AddDiagonalPoints(Vector3 center, float halfWidth, float angle, List<Vector3> vertices, List<int> triangles)
     // {
     //     // Distance from the center to the corners of the node
-    //     float dist = Mathf.Sqrt(Mathf.Pow(halfWidth, 2) + Mathf.Pow(_grid.NodeRadius, 2));
+    //     float dist = Mathf.Sqrt(Mathf.Pow(halfWidth, 2) + Mathf.Pow(_gridManager.NodeRadius, 2));
     //
     //     // Angle from the center to the top-left corner
     //     float angleOffset = Mathf.Atan(halfWidth / dist);  // Same angle offset for symmetry
@@ -596,7 +596,7 @@
     // {
     //     if (curveSmoothness <= 0) return;
     //     
-    //     float radius = _grid.NodeRadius - roadWidth/2f - 0.0467f; // -0.05f convert circluar node radius to rectangle
+    //     float radius = _gridManager.NodeRadius - roadWidth/2f - 0.0467f; // -0.05f convert circluar node radius to rectangle
     //     float outerRadius = roadWidth + radius;
     //     
     //     Tuple<int, int> angles = GetCornerAngle(roadDetails);
@@ -721,22 +721,22 @@
     //     switch (direction)
     //     {
     //         case DirectionType.TopLeft:
-    //             Vector2 topLeftCenter = new Vector2(node.WorldPosition.x - _grid.NodeRadius * extraEdge, node.WorldPosition.y + _grid.NodeRadius* extraEdge);
+    //             Vector2 topLeftCenter = new Vector2(node.WorldPosition.x - _gridManager.NodeRadius * extraEdge, node.WorldPosition.y + _gridManager.NodeRadius* extraEdge);
     //             Vector3 topLeftTriangleOr = new Vector3(node.WorldPosition.x - halfWidth, node.WorldPosition.y + halfWidth, 0);
     //             return new Tuple<Vector2, Vector3>(topLeftCenter, topLeftTriangleOr);
     //         
     //         case DirectionType.TopRight:
-    //             Vector2 topRightCenter = new Vector2(node.WorldPosition.x + _grid.NodeRadius * extraEdge, node.WorldPosition.y + _grid.NodeRadius * extraEdge);
+    //             Vector2 topRightCenter = new Vector2(node.WorldPosition.x + _gridManager.NodeRadius * extraEdge, node.WorldPosition.y + _gridManager.NodeRadius * extraEdge);
     //             Vector3 topRightTriangleOr = new Vector3(node.WorldPosition.x + halfWidth, node.WorldPosition.y + halfWidth, 0);
     //             return new Tuple<Vector2, Vector3>(topRightCenter, topRightTriangleOr);
     //         
     //         case DirectionType.BottomRight:     
-    //             Vector2 bottomRightCenter = new Vector2(node.WorldPosition.x + _grid.NodeRadius * extraEdge, node.WorldPosition.y - _grid.NodeRadius * extraEdge);
+    //             Vector2 bottomRightCenter = new Vector2(node.WorldPosition.x + _gridManager.NodeRadius * extraEdge, node.WorldPosition.y - _gridManager.NodeRadius * extraEdge);
     //             Vector3 bottomRightTriangleOr = new Vector3(node.WorldPosition.x + halfWidth, node.WorldPosition.y - halfWidth, 0);
     //             return new Tuple<Vector2, Vector3>(bottomRightCenter, bottomRightTriangleOr);
     //         
     //         case DirectionType.BottomLeft:
-    //             Vector2 bottomLeftCenter = new Vector2(node.WorldPosition.x - _grid.NodeRadius * extraEdge, node.WorldPosition.y - _grid.NodeRadius * extraEdge);
+    //             Vector2 bottomLeftCenter = new Vector2(node.WorldPosition.x - _gridManager.NodeRadius * extraEdge, node.WorldPosition.y - _gridManager.NodeRadius * extraEdge);
     //             Vector3 bottomLeftTriangleOr = new Vector3(node.WorldPosition.x - halfWidth, node.WorldPosition.y - halfWidth, 0);
     //             return new Tuple<Vector2, Vector3>(bottomLeftCenter, bottomLeftTriangleOr);
     //     }
@@ -892,19 +892,19 @@
     //     //Horizontal:
     //     if (direction == DirectionType.Left || direction == DirectionType.Right)
     //     {
-    //         rectangleVertices.Add(new Vector3(pivot.x - _grid.NodeRadius * leftScale, pivot.y - halfWidth * downScale, 0));//Bottom left
-    //         rectangleVertices.Add( new Vector3(pivot.x + _grid.NodeRadius * rightScale, pivot.y - halfWidth * downScale, 0));//Bottom right
-    //         rectangleVertices.Add(new Vector3(pivot.x + _grid.NodeRadius * rightScale, pivot.y + halfWidth * upScale, 0)); //Top right
-    //         rectangleVertices.Add(new Vector3(pivot.x - _grid.NodeRadius * leftScale, pivot.y + halfWidth * upScale, 0));// Top left
+    //         rectangleVertices.Add(new Vector3(pivot.x - _gridManager.NodeRadius * leftScale, pivot.y - halfWidth * downScale, 0));//Bottom left
+    //         rectangleVertices.Add( new Vector3(pivot.x + _gridManager.NodeRadius * rightScale, pivot.y - halfWidth * downScale, 0));//Bottom right
+    //         rectangleVertices.Add(new Vector3(pivot.x + _gridManager.NodeRadius * rightScale, pivot.y + halfWidth * upScale, 0)); //Top right
+    //         rectangleVertices.Add(new Vector3(pivot.x - _gridManager.NodeRadius * leftScale, pivot.y + halfWidth * upScale, 0));// Top left
     //
     //     }
     //     //Vertical:
     //     else if (direction == DirectionType.Up || direction == DirectionType.Down)
     //     {
-    //         rectangleVertices.Add(new Vector3(pivot.x - halfWidth * leftScale, pivot.y - _grid.NodeRadius * downScale, 0));
-    //         rectangleVertices.Add(new Vector3(pivot.x + halfWidth * rightScale,pivot.y - _grid.NodeRadius * downScale, 0));
-    //         rectangleVertices.Add(new Vector3(pivot.x + halfWidth * rightScale, pivot.y + _grid.NodeRadius * upScale, 0));
-    //         rectangleVertices.Add(new Vector3(pivot.x - halfWidth * leftScale, pivot.y + _grid.NodeRadius * upScale, 0)); 
+    //         rectangleVertices.Add(new Vector3(pivot.x - halfWidth * leftScale, pivot.y - _gridManager.NodeRadius * downScale, 0));
+    //         rectangleVertices.Add(new Vector3(pivot.x + halfWidth * rightScale,pivot.y - _gridManager.NodeRadius * downScale, 0));
+    //         rectangleVertices.Add(new Vector3(pivot.x + halfWidth * rightScale, pivot.y + _gridManager.NodeRadius * upScale, 0));
+    //         rectangleVertices.Add(new Vector3(pivot.x - halfWidth * leftScale, pivot.y + _gridManager.NodeRadius * upScale, 0)); 
     //     }
     //     return rectangleVertices;
     // }

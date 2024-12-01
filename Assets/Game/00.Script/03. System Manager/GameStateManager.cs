@@ -43,7 +43,7 @@ public class GameStateManager : MonoBehaviour, IObserver
     }
 
     /// <summary>
-    /// Is placing => triggered => grid effect
+    /// Is placing => triggered => _gridManager effect
     /// If new build are spawned or end of placing state => union find check if roads are connected
     /// All classes stop in this, this class will notify all other class
     /// </summary>

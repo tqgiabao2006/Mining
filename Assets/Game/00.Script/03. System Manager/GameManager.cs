@@ -12,7 +12,7 @@ namespace Game._00.Script._05._Manager
         public RoadManager RoadManager { get; private set; }
         public PathRequestManager PathRequestManager { get; private set; }
         public BuildingManager BuildingManager { get; private set; }
-        public Grid Grid { get; private set; }
+        public GridManager GridManager { get; private set; }
         
         public NewPathFinding.NewPathFinding  NewPathFinding  { get; private set; }
         public NewPathRequestManager NewPathRequestManager { get; private set; }
@@ -24,7 +24,7 @@ namespace Game._00.Script._05._Manager
         private void Awake()
         {
             // Initialize components
-            Grid = FindObjectOfType<Grid>();
+            GridManager = FindObjectOfType<GridManager>();
             GameStateManager = GetComponent<GameStateManager>();
             ObjectPooling = GetComponent<ObjectPooling>();
             RoadManager = GetComponent<RoadManager>();

@@ -81,7 +81,7 @@ public abstract class UnitBase : MonoBehaviour
 		//
 		// 		// Quaternion targetRotation = Quaternion.LookRotation (path.lookPoints [pathIndex] - transform.position);
 		// 		// transform.rotation = Quaternion.Lerp (transform.rotation, targetRotation, Time.deltaTime * turnSpeed);
-		// 		transform.Translate (Vector2.up * Time.deltaTime * speed * speedPercent, Space.Self);
+		// 		transform.Translate (Vector2.up * Time.deltaTime * Speed * speedPercent, Space.Self);
 		// 	}
 
 			yield return null;

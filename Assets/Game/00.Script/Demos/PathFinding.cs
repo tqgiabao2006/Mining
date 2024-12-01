@@ -9,12 +9,12 @@ using Debug = UnityEngine.Debug;
 public class PathFinding : MonoBehaviour {
 	
 	PathRequestManager requestManager;
-	Grid grid;
+	GridManager _gridManager;
 	
 	void Awake()
 	{
 		requestManager = GameManager.Instance.PathRequestManager;
-		grid = GameManager.Instance.Grid;
+		_gridManager = GameManager.Instance.GridManager;
 	}
 	
 	
@@ -27,13 +27,13 @@ public class PathFinding : MonoBehaviour {
 		Vector3[] waypoints = new Vector3[0];
 		bool pathSuccess = false;
 		
-		Node startNode = grid.NodeFromWorldPosition(startPos);
-		Node targetNode = grid.NodeFromWorldPosition(targetPos);
+		Node startNode = _gridManager.NodeFromWorldPosition(startPos);
+		Node targetNode = _gridManager.NodeFromWorldPosition(targetPos);
 		startNode.Parent = startNode;
 		
 		
 		if (startNode.Walkable && targetNode.Walkable) {
-			Heap<Node> openSet = new Heap<Node>(grid.MaxSize);
+			Heap<Node> openSet = new Heap<Node>(_gridManager.MaxSize);
 			HashSet<Node> closedSet = new HashSet<Node>();
 			openSet.Add(startNode);
 			

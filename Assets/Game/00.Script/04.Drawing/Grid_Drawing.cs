@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Serialization;
 
-[RequireComponent(typeof(Grid))] 
+[RequireComponent(typeof(GridManager))] 
 public class Grid_Drawing : MonoBehaviour
 {
     // Drawing:
@@ -11,8 +11,8 @@ public class Grid_Drawing : MonoBehaviour
     private static readonly int DstBlend = Shader.PropertyToID("_DstBlend");
     private static readonly int SrcBlend = Shader.PropertyToID("_SrcBlend");
 
-    // Grid:
-    public Grid Grid { get; private set; }
+    // GridManager:
+    public GridManager GridManager { get; private set; }
     [FormerlySerializedAs("_gridColor")] 
     [SerializeField] private Color gridColor;
     private int _gridSizeX;
@@ -34,11 +34,11 @@ public class Grid_Drawing : MonoBehaviour
 
     private void InitializeGrid()
     {
-        // Grid initialization:
-        Grid = GetComponent<Grid>();
-        _gridSizeX = Grid.GridSizeX;
-        _gridSizeY = Grid.GridSizeY;
-        _nodeDiameter = Grid.NodeDiameter; 
+        // GridManager initialization:
+        GridManager = GetComponent<GridManager>();
+        _gridSizeX = GridManager.GridSizeX;
+        _gridSizeY = GridManager.GridSizeY;
+        _nodeDiameter = GridManager.NodeDiameter; 
         _rows = Mathf.RoundToInt(_gridSizeY / _nodeDiameter);
         _cols = Mathf.RoundToInt(_gridSizeX / _nodeDiameter);
     }
@@ -72,7 +72,7 @@ public class Grid_Drawing : MonoBehaviour
 
     private void OnRenderObject()
     {
-        // Ensure we set the pass for drawing the grid lines
+        // Ensure we set the pass for drawing the _gridManager lines
         _lineMaterial.SetPass(0);
         DrawGrid(_rows, _cols);
     }
@@ -88,9 +88,9 @@ public class Grid_Drawing : MonoBehaviour
             }
         }
 
-        // Then draw the grid lines
+        // Then draw the _gridManager lines
         GL.Begin(GL.LINES);
-        GL.Color(Color.white); // Color for the grid lines
+        GL.Color(Color.white); // Color for the _gridManager lines
 
         // Horizontal lines
         for (int i = 0; i <= rows; i++)

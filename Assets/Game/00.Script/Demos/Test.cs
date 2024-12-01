@@ -8,7 +8,7 @@ using Random = UnityEngine.Random;
 
 public class Test : MonoBehaviour
 {
-    private Grid _grid;
+    private GridManager _gridManager;
     private Mesh mesh;
     private MeshRenderer meshRenderer;
     private MeshFilter meshFilter;
@@ -46,7 +46,7 @@ public class Test : MonoBehaviour
         // StartCoroutine(Spawn());
         // CreateBlood(30, 10);
         
-        mesh = CreateDiagionalMesh(_grid.NodeFromWorldPosition(new Vector2(-0.5f, -0.5f)), 45f, 1 / 4f, vertices, triangles,0.5f);
+        mesh = CreateDiagionalMesh(_gridManager.NodeFromWorldPosition(new Vector2(-0.5f, -0.5f)), 45f, 1 / 4f, vertices, triangles,0.5f);
         meshFilter.mesh = mesh; 
     }
     private Mesh CreateDiagionalMesh(Node node, float angle, float extraPer,  List<Vector3> vertices, List<int> triangles, float roadWidth = 0.5f)
@@ -68,7 +68,7 @@ public class Test : MonoBehaviour
     private void AddDiagonalPoints(Vector3 center, float halfWidth, float angle, List<Vector3> vertices, List<int> triangles)
     {
         // Distance from the center to the corners of the node
-        float dist = Mathf.Sqrt(Mathf.Pow(halfWidth, 2) + Mathf.Pow(_grid.NodeRadius, 2));
+        float dist = Mathf.Sqrt(Mathf.Pow(halfWidth, 2) + Mathf.Pow(_gridManager.NodeRadius, 2));
 
         // Angle from the center to the top-left corner
         float angleOffset = Mathf.Atan(halfWidth / dist);  // Same angle offset for symmetry
@@ -329,7 +329,7 @@ public class Test : MonoBehaviour
     private void AddRectangleMesh(List<Vector3> vertices, List<int> triangles, DirectionType direction, Vector2 pivot, float roadWidth = 1f, float leftScale = 1f , float rightScale = 1f, float upScale = 1f, float downScale = 1f)
     {
         Debug.Log("Pivot: " + pivot);
-        List<Vector3> rectangleVertices = CreateRectangleVertices(direction, pivot, roadWidth, _grid.NodeRadius,leftScale, rightScale, upScale, downScale);
+        List<Vector3> rectangleVertices = CreateRectangleVertices(direction, pivot, roadWidth, _gridManager.NodeRadius,leftScale, rightScale, upScale, downScale);
 
         int startIndex = vertices.Count; // Get the starting index of the new vertices
         

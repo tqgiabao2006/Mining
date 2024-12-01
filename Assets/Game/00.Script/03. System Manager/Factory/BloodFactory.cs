@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Game._00.Script._05._Manager.Factory
 {
-    public class BloodFactory:IFactory
+    public class BloodFactory: IFactory
     {
         private readonly float _speed = 0.2f;
         private readonly float _maxSpeed = 0.5f;

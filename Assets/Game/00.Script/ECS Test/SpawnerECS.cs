@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Burst;
@@ -11,6 +12,7 @@ public class SpawnerECS : MonoBehaviour
 {
     public GameObject prefab;
     public int numbSpawn;
+
     private class Baker : Baker<SpawnerECS>
     {
         public override void Bake(SpawnerECS spawner)
@@ -26,32 +28,24 @@ public class SpawnerECS : MonoBehaviour
     }
 }
 
-partial struct SpawnSystem : ISystem
+partial class SpawnSystem : SystemBase 
 {
-    public void OnCreate(ref SystemState state)
-    {
-        state.RequireForUpdate<ConfigSpawnerComponent>();
-    }
-
+    
     [BurstCompile]
-    public void OnUpdate(ref SystemState state)
+    protected override void OnUpdate()
     {
-
         ConfigSpawnerComponent spawnerConfig = SystemAPI.GetSingleton<ConfigSpawnerComponent>();
         for (int i = 0; i < spawnerConfig.NumbSpawn; i++)
         {
-           Entity prefabEntity =  state.EntityManager.Instantiate(spawnerConfig.PrefabEntity);
-           SystemAPI.SetComponent(prefabEntity, new LocalTransform()
-           {
-               Position = new float3(UnityEngine.Random.Range(-10,10), UnityEngine.Random.Range(-6,6), 0),
-               Rotation =  Quaternion.identity,
-               Scale =  0.5f
-           });
+            Entity prefabEntity =  EntityManager.Instantiate(spawnerConfig.PrefabEntity);
+            SystemAPI.SetComponent(prefabEntity, new LocalTransform()
+            {
+                Position = new float3(UnityEngine.Random.Range(-10,10), UnityEngine.Random.Range(-6,6), 0),
+                Rotation =  Quaternion.identity,
+                Scale =  0.5f
+            });
         }
-
-        state.Enabled = false;
     }
-    
 }
 
 

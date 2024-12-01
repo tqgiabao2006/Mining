@@ -4,12 +4,12 @@ using UnityEngine;
 using Vector2 = UnityEngine.Vector2;
 
 
-public class Grid: MonoBehaviour
+public class GridManager: MonoBehaviour
 {
    [SerializeField] bool displayOnGizmos;
 
    #region Variables
-   //1. Grid:
+   //1. GridManager:
    public Node[,] grid { get; private set; }
    
    private Vector2 gridCenter = Vector2.zero;
@@ -62,7 +62,7 @@ public class Grid: MonoBehaviour
    {
        // diameter = 2R
        NodeDiameter = NodeRadius * 2;
-       // Calculate how many nodes (horizontally) the grid can have, return int value so Round To Int 
+       // Calculate how many nodes (horizontally) the _gridManager can have, return int value so Round To Int 
        GridSizeX = Mathf.RoundToInt(GridWorldSize.x / NodeDiameter);
        GridSizeY = Mathf.RoundToInt(GridWorldSize.y / NodeDiameter);
 
@@ -202,7 +202,7 @@ public class Grid: MonoBehaviour
        // Check for the zero vector case
        if (worldPosition == Vector2.zero)
        {
-           // Return the center node of the grid
+           // Return the center node of the _gridManager
            int centerX = GridSizeX / 2;
            int centerY = GridSizeY / 2;
            return grid[centerX, centerY];
@@ -216,7 +216,7 @@ public class Grid: MonoBehaviour
 
        percentX = Mathf.Clamp01(percentX);
        percentY = Mathf.Clamp01(percentY);
-       //Make sure it not outsize the grid
+       //Make sure it not outsize the _gridManager
 
 
        int x = Mathf.FloorToInt(Mathf.Clamp((GridSizeX) * percentX, 0, GridSizeX - 1));

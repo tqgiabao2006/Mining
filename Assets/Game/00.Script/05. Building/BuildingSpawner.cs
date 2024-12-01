@@ -57,6 +57,7 @@ public class BuildingSpawner : MonoBehaviour
     private Dictionary<Vector3, float> _zoneDictionary = new Dictionary<Vector3, float>();
     [Header("Gizmos")] 
     [SerializeField] public bool isGizmos = false;
+    
     [Header("BuildingBase Prefabs")]
     public List<BuildingPrefabPair> BuildingPrefabs = new List<BuildingPrefabPair>();
     
@@ -67,9 +68,11 @@ public class BuildingSpawner : MonoBehaviour
     public float buildingBoundary = 0.5f;
     public int currentWave = 0;
     private Coroutine _spawnWaveCoroutine;
+
+    private List<Vector2> _usedPositions; //Check current building positions to avoid spawn in the same place
     
     private ObjectPooling _objectPooling;
-    private Grid _grid;
+    private GridManager _gridManager;
     private RoadMesh _roadMesh;
     private Invertory _invertory;
     private BuildingManager _buildingManager;
@@ -85,11 +88,13 @@ public class BuildingSpawner : MonoBehaviour
     private void IntialSetUp()
     {
         _objectPooling = GameManager.Instance.ObjectPooling;
-        _grid =GameManager.Instance.Grid;  
+        _gridManager =GameManager.Instance.GridManager;  
         _invertory = FindObjectOfType<Invertory>();
         _buildingManager = GameManager.Instance.BuildingManager;
         _roadMesh = FindObjectOfType<RoadMesh>();
         _waveInfos = new SpawningWaveInfo[maxWaves];
+        
+        _usedPositions = new List<Vector2>();
     }
     private void WaveSetUp()
     {
@@ -125,11 +130,10 @@ public class BuildingSpawner : MonoBehaviour
     }
      private IEnumerator SpawnCoroutine(SpawningWaveInfo waveInfo)
     {
-        List<Vector2> usedPositions = new List<Vector2>(); // Track used positions
         float startTime = Time.time + waveInfo.WaveDelay; // Set the start time with wave delay
         int turnCount = 0;
         int roadNumb = _invertory.GetPossitiveNumbRoad();
-        float maxRoadLength = roadNumb * _grid.NodeDiameter;
+        float maxRoadLength = roadNumb * _gridManager.NodeDiameter;
         
         // Wait for the wave delay to pass
         yield return new WaitForSeconds(waveInfo.WaveDelay);
@@ -159,10 +163,10 @@ public class BuildingSpawner : MonoBehaviour
                 GameObject building = _objectPooling.GetObj(buildingPrefab);
                 BuildingBase buildingBaseComponent = building.GetComponent<BuildingBase>();
                 
-                Vector2 spawnedPos = GetRandomPosition(ref maxRoadLength, waveInfo.ZoneRadius, usedPositions);
-                Node buildingNode = _grid.NodeFromWorldPosition(spawnedPos);
+                Vector2 spawnedPos = GetRandomPosition(ref maxRoadLength, waveInfo.ZoneRadius, _usedPositions);
+                Node buildingNode = _gridManager.NodeFromWorldPosition(spawnedPos);
 
-                buildingBaseComponent.Initialize(buildingNode,_grid, buildingType, spawnedPos);
+                buildingBaseComponent.Initialize(buildingNode,_gridManager, buildingType, spawnedPos);
                 _buildingManager.RegisterBuilding(buildingBaseComponent);
                 building.transform.position = spawnedPos;
                 building.SetActive(true);   
@@ -192,7 +196,7 @@ public class BuildingSpawner : MonoBehaviour
         if (usedPosition.Count == 0)
         {
             Vector2 firstPos = Random.insideUnitCircle * currentZoneRadius;
-            Vector2 roundedPos = _grid.NodeFromWorldPosition(firstPos).WorldPosition;
+            Vector2 roundedPos = _gridManager.NodeFromWorldPosition(firstPos).WorldPosition;
             usedPosition.Add(roundedPos);
            return roundedPos;
         }
@@ -201,12 +205,12 @@ public class BuildingSpawner : MonoBehaviour
         int attempt = 0;
         Vector3 spawnedPos;
         
-        float maxLength = Random.Range(buildingBoundary + _grid.NodeRadius, remainRoadLength/ 2f);
+        float maxLength = Random.Range(buildingBoundary + _gridManager.NodeRadius, remainRoadLength/ 2f);
        
         do
         {
             spawnedPos = Random.insideUnitCircle * currentZoneRadius;
-            Vector2 roundedPos = _grid.NodeFromWorldPosition(spawnedPos).WorldPosition;
+            Vector2 roundedPos = _gridManager.NodeFromWorldPosition(spawnedPos).WorldPosition;
             spawnedPos = roundedPos;
             
             float dst = Vector3.Distance(usedPosition[usedPosition.Count -1], spawnedPos);
@@ -220,7 +224,7 @@ public class BuildingSpawner : MonoBehaviour
             
         } while (attempt < maxAttempt);
 
-        return _grid.NodeFromWorldPosition(Vector2.zero).WorldPosition;
+        return _gridManager.NodeFromWorldPosition(Vector2.zero).WorldPosition;
     }
     
     private int GetBuildingNumbByWave(SpawningWaveInfo waveInfo)

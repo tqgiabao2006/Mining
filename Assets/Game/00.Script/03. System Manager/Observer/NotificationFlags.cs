@@ -11,5 +11,7 @@ namespace Game._00.Script._05._Manager
     {
         public const string RedBlood = "Red Blood";
         public const string BlueBlood = "Blue Blood";
+
+        public const string Car = "Car";
     }
 }

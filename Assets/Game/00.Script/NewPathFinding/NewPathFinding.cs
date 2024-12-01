@@ -9,12 +9,11 @@ namespace Game._00.Script.NewPathFinding
     public class NewPathFinding : MonoBehaviour
     {
         private RoadManager _roadManager;
-        private Grid _grid;
+        private GridManager _gridManager;
 
         public void Initialize()
         {
-            _roadManager = GameManager.Instance.RoadManager;
-            _grid = GameManager.Instance.Grid;
+            _gridManager = GameManager.Instance.GridManager;
         }
 
         public Func<NewPathRequest, Vector3[]> GetFuncFindPath()
@@ -24,10 +23,9 @@ namespace Game._00.Script.NewPathFinding
         
         private Vector3[] FindPath(NewPathRequest pathRequest)
         {
-            
             Vector3[] waypoints;
-            Node startNode = _grid.NodeFromWorldPosition(pathRequest.StartPos);
-            Node endNode = _grid.NodeFromWorldPosition(pathRequest.EndPos);
+            Node startNode = _gridManager.NodeFromWorldPosition(pathRequest.StartPos);
+            Node endNode = _gridManager.NodeFromWorldPosition(pathRequest.EndPos);
             
             bool pathSuccess = false;
             if (startNode.GraphIndex != endNode.GraphIndex || !startNode.Walkable || !endNode.Walkable)

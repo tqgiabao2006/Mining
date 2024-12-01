@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Game._00.Script.ECS_Test
 {
-    public class RotateECS:MonoBehaviour
+    public class RotateECS: MonoBehaviour
     {
         public float Speed = 3f;
 
@@ -27,7 +27,6 @@ namespace Game._00.Script.ECS_Test
         public void OnCreate(ref SystemState state)
         {
             state.RequireForUpdate<RotateSpeedComponennt>();
-            
         }
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
@@ -37,11 +36,11 @@ namespace Game._00.Script.ECS_Test
                 rotateAspect.RotateObjet(SystemAPI.Time.DeltaTime);
             }
 
-            // RotateJob rotateJob = new RotateJob
-            // {
-            //     DeltaTime = SystemAPI.Time.DeltaTime
-            // };
-            // rotateJob.Schedule();
+            RotateJob rotateJob = new RotateJob
+            {
+                DeltaTime = SystemAPI.Time.DeltaTime
+            };
+            rotateJob.Schedule();
         }
 
         public partial struct RotateJob : IJobEntity
@@ -51,7 +50,6 @@ namespace Game._00.Script.ECS_Test
             {
                 localTransform = localTransform.RotateZ(rotateSpeed.Value * DeltaTime);
             }
-            
         }
     }
 

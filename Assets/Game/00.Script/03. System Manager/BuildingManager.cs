@@ -71,8 +71,6 @@ namespace Game._00.Script._05._Manager
             }
             return buildings;   
         }
-
-
         public override void ObserversSetup()
         {
             // Sync the observers list and currentbuilding list

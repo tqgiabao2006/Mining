@@ -10,7 +10,7 @@
 // 	const float pathUpdateMoveThreshold = .5f;
 //
 // 	public Transform target;
-// 	[SerializeField] public float speed = 20;
+// 	[SerializeField] public float Speed = 20;
 // 	[SerializeField] public float turnDistance = 5;
 // 	[SerializeField] public float turnSpeed = 3;
 // 	[SerializeField] public float stoppingDistance = 5; //how far from the finish that the object start slowing down
@@ -110,13 +110,13 @@
 // 			}
 //
 // 			// Move smoothly towards the next point
-// 			transform.Translate(direction * speed * speedPercent * Time.deltaTime, Space.World);
+// 			transform.Translate(direction * Speed * speedPercent * Time.deltaTime, Space.World);
 //
 // 			// Smooth rotation with -90 degree adjustment
 // 			float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90;
 // 			Quaternion targetRotation = Quaternion.Euler(0, 0, angle);
 //
-// 			// Optimize rotation speed for smooth turning
+// 			// Optimize rotation Speed for smooth turning
 // 			transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * turnSpeed);
 //
 // 			yield return null; // Wait until next frame

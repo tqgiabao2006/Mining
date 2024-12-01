@@ -38,15 +38,15 @@ public class Node : IHeapItem<Node>
 	}
 
 
-	public Grid grid;
-	public Node(bool _walkable, Vector3 _worldPos, int _gridX, int _gridY, int _penalty, Grid grid) {
+	public GridManager GridManager;
+	public Node(bool _walkable, Vector3 _worldPos, int _gridX, int _gridY, int _penalty, GridManager gridManager) {
 		this.Walkable = _walkable;
 		this.WorldPosition = _worldPos;
 		this.GridX = _gridX;
 		this.GridY = _gridY;
 		this.MovementPenalty = _penalty;
 		this._graphIndex = -1;
-		this.grid = grid;
+		this.GridManager = gridManager;
 	}
 
 	public void SetRoad(bool isRoad)
@@ -64,7 +64,7 @@ public class Node : IHeapItem<Node>
 	{
 		List<Node> neighbours = new List<Node>();
     
-		// Search the 3x3 grid with the current node as the center
+		// Search the 3x3 _gridManager with the current node as the center
 		for (int x = -1; x <= 1; x++)
 		{
 			for (int y = -1; y <= 1; y++)
@@ -75,9 +75,9 @@ public class Node : IHeapItem<Node>
 				int checkY = this.GridY + y; // Calculate the neighboring node's y position
 
 				// Ensure the neighbor's position is within bounds
-				if (checkX >= 0 && checkY >= 0 && checkX < grid.GridSizeX && checkY < grid.GridSizeY)
+				if (checkX >= 0 && checkY >= 0 && checkX < GridManager.GridSizeX && checkY < GridManager.GridSizeY)
 				{
-					neighbours.Add(grid.grid[checkX, checkY]); // Add the neighbor node to the list
+					neighbours.Add(GridManager.grid[checkX, checkY]); // Add the neighbor node to the list
 				}
 			}
 		}
