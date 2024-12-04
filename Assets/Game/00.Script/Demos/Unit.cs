@@ -16,10 +16,10 @@
 // 	[SerializeField] public float stoppingDistance = 5; //how far from the finish that the object start slowing down
 //
 // 	private Path _path;
-// 	private PathRequestManager _requestManager;
+// 	private TestRequestManager _requestManager;
 // 	void Start()
 // 	{
-// 		_requestManager =  GameManager.Instance.PathRequestManager;
+// 		_requestManager =  GameManager.Instance.TestRequestManager;
 // 		StartCoroutine(UpdatePath());
 // 	}
 //

@@ -53,11 +53,12 @@ public class RoadManager : SubjectBase, IObserver
             _nodeList.Add(node);
         }
 
-        if (buildingBase != null)
+        if (buildingBase != null) //Check when new building is spawned
         {
-            //Notify buildingBase manager to check
-            // Notify((CheckConnectionDelegate, buildingBase), NotificationFlags.CheckingConnection);
-        }
+            //Check all
+            BuildingBase nullBuildingBase = null;
+            NotifySpecific((CheckConnectionDelegate, nullBuildingBase), NotificationFlags.CheckingConnection, _buildingManager);
+        }   
     }
 
     /// <summary>
@@ -152,10 +153,6 @@ public class RoadManager : SubjectBase, IObserver
                         AssignNodeToGraph(adjNode, node, nodeGraphIndex, adjGraphIndex);
                     }
                 }
-                
-                BuildingBase nullBuildingBase = null;
-                NotifySpecific((CheckConnectionDelegate, nullBuildingBase), NotificationFlags.CheckingConnection, _buildingManager);
-
             }
         }
     }

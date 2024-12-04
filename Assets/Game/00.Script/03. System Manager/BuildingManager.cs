@@ -3,6 +3,8 @@ using System.Linq;
 using Unity.VisualScripting;
 using System.Collections;
 using System.Collections.Generic;
+using Game._00.Script.ECS_Test.FactoryECS;
+using Unity.Entities;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -23,6 +25,8 @@ namespace Game._00.Script._05._Manager
     
     public class BuildingManager: SubjectBase, IObserver
     {
+        public GameObject Prefab;
+        public SpawnSystem spawnSystem;
         //Directed graph => adjacent list => building type + its output
         private Dictionary<BuildingType, List<BuildingType>> _outputMap = new Dictionary<BuildingType, List<BuildingType>>();
        
@@ -34,9 +38,11 @@ namespace Game._00.Script._05._Manager
         
         private List<BuildingBase> _unconnectedBuildings = new List<BuildingBase>();
         private List<BuildingBase> _connectedBuildings = new List<BuildingBase>();
+        
         private void Awake()
         {
             InitialInputOutputMap();
+            ObserversSetup();
         }
         private void InitialInputOutputMap()
         {
@@ -73,32 +79,21 @@ namespace Game._00.Script._05._Manager
         }
         public override void ObserversSetup()
         {
-            // Sync the observers list and currentbuilding list
-            var observerSet = new HashSet<IObserver>(_observers);
-
-            foreach (var buildingList in _currentBuildings.Values)
+            // Get the SpawnSystem
+            IObserver spawnSystemInstance = World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<SpawnSystem>();
+            if (spawnSystemInstance != null)
             {
-                foreach (var building in buildingList)
-                {
-                    // Ensure building is an IObserver
-                    if (building is IObserver observer)
-                    {
-                        if (observerSet.Add(observer))
-                        {
-                            _observers.Add(observer);
-                            Attach(observer);
-                        }
-                    }
-                }
+                _observers.Add(spawnSystemInstance);
             }
-            
-            _observers.Clear();
-            _observers.AddRange(observerSet);
         }
 
+        /// <summary>
+        /// Notify ECS Spawner System to spawn car find path direction in it
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="flag"></param>
         public void OnNotified(object data, string flag)
         {
-            
             if (flag != NotificationFlags.CheckingConnection ||
                 data is not (ValueTuple<Func<List<BuildingBase>, BuildingBase, BuildingBase>, BuildingBase>)) return;
             
@@ -111,9 +106,10 @@ namespace Game._00.Script._05._Manager
                 foreach (BuildingBase building in _unconnectedBuildings)
                 {
                     BuildingBase closestBuilding = givenData.Item1(GetOutputBuildings(building.BuildingType), building);
-                    if (closestBuilding)
+                    if (closestBuilding && !_connectedBuildings.Contains(closestBuilding)) //Avoid double check 2 building connected
                     {
-                        NotifySpecific((building, closestBuilding), NotificationFlags.SpawnCar, building.GetComponent<IObserver>());
+                        Debug.Log("Notify ECS Spawner");
+                        Notify((building, closestBuilding), NotificationFlags.SpawnCar);
                         removedNodes.Add(building);
                         _connectedBuildings.Add(building);
                     }
@@ -126,10 +122,12 @@ namespace Game._00.Script._05._Manager
             }
             else //Check specific
             {
+                Debug.Log("Check specific");
+
                 BuildingBase closestBuilding = givenData.Item1(GetOutputBuildings(givenData.Item2.BuildingType), givenData.Item2);
                 if (closestBuilding)
                 {
-                    NotifySpecific((givenData.Item2, closestBuilding), NotificationFlags.SpawnCar, givenData.Item2.GetComponent<IObserver>());
+                    Notify((givenData.Item2, closestBuilding), NotificationFlags.SpawnCar);
                     _connectedBuildings.Remove(givenData.Item2);
                     _connectedBuildings.Add(givenData.Item2);
                 }

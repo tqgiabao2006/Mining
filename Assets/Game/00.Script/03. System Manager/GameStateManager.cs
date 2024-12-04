@@ -49,18 +49,18 @@ public class GameStateManager : MonoBehaviour, IObserver
     /// </summary>
     public void OnNotified(object data, string flag)
     {
-        if (flag == NotificationFlags.PlacingState && (bool)data)
-        {
-            _currentState = _buildingState;
-            _currentState.Enter();
-            _currentState.Do();
-
-        }
-        else
-        {
-            _currentState.Exit();
-            _currentState = _normalState;
-        }
+        // if (flag == NotificationFlags.PlacingState && (bool)data)
+        // {
+        //     _currentState = _buildingState;
+        //     _currentState.Enter();
+        //     _currentState.Do();
+        //
+        // }
+        // else
+        // {
+        //     _currentState.Exit();
+        //     _currentState = _normalState;
+        // }
     }
 }
 
