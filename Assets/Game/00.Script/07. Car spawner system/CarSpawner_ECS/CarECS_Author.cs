@@ -18,18 +18,25 @@ using UnityEngine.Serialization;
 
 namespace Game._00.Script.ECS_Test.FactoryECS
 {
-    public class CarECS_Authoring: MonoBehaviour
+    public class CarECS_Author: MonoBehaviour
     { 
         [SerializeField] public float speed;
         [SerializeField] public float miningTime;
-        private class Baker: Baker<CarECS_Authoring>
+        private class Baker: Baker<CarECS_Author>
         {
-            public override void Bake(CarECS_Authoring authoring)
+            public override void Bake(CarECS_Author author)
             {
-                Entity entity = GetEntity(TransformUsageFlags.Dynamic);
+                Entity entity = GetEntity(TransformUsageFlags.Renderable);
+                DependsOn(author.transform);
+
+                if (author.speed == 0 || author.miningTime == 0)
+                {
+                    Debug.LogError("Speed and miningTime variables can not be null");
+                }
+                
                 AddComponent(entity, new Speed()
                 {
-                    Value = authoring.speed
+                    Value = author.speed
                 });
                 AddComponent(entity, new LocalTransform()
                 {

@@ -39,11 +39,9 @@ namespace Game._00.Script.ECS_Test.FactoryECS
     {
         private PathRequestManager _pathRequestManager;
         private bool _isNotified = false;
-        private BeginSimulationEntityCommandBufferSystem _commandBufferSystemHandle;
         protected override void OnCreate()
         {
             RequireForUpdate<SpawnGameObjectHolder>();
-            _commandBufferSystemHandle = World.GetOrCreateSystemManaged<BeginSimulationEntityCommandBufferSystem>();
         }
         
         public void OnNotified(object data, string flag)
@@ -89,31 +87,41 @@ namespace Game._00.Script.ECS_Test.FactoryECS
             }
         }
         
+        /// <summary>
+        /// Using entity manager to run this in main thread, moving car in jobs => more optimized
+        /// </summary>
+        /// <param name="objectFlags"></param>
+        /// <param name="spawnData"></param>
         public void SpawnCarEntity(string objectFlags, SpawnData spawnData)
         {  
-               SpawnGameObjectHolder objectHolder = SystemAPI.GetSingleton<SpawnGameObjectHolder>();
-               //Structural change => use ECB
-               var ecb = _commandBufferSystemHandle.CreateCommandBuffer();
-                if (objectFlags == ObjectFlags.Car)
+            SpawnGameObjectHolder objectHolder = SystemAPI.GetSingleton<SpawnGameObjectHolder>();
+
+            if (objectFlags == ObjectFlags.Car)
+            {
+                Entity spawnedEntity = EntityManager.Instantiate(objectHolder.Entity1);
+
+                float3 spawnPosition = new float3(spawnData.StartPos.x, spawnData.StartPos.y, 0);
+
+                // Set components directly using EntityManager
+                EntityManager.SetComponentData(spawnedEntity, new LocalTransform
                 {
-                    Entity spawnedEntity = ecb.Instantiate(objectHolder.Entity1);
-                    float3 spawnPosition = new float3(spawnData.StartPos.x, spawnData.StartPos.y, 0);
-                    ecb.SetComponent(spawnedEntity, new LocalTransform
-                    {
-                        Position = spawnPosition,
-                        Rotation = quaternion.identity,
-                        Scale = 1f
-                    });
-                    ecb.AddComponent(spawnedEntity, new FollowPathData()
-                    {
-                        WaypointsBlob = spawnData.Waypoints
-                    });
-                    ecb.SetComponent(spawnedEntity, new CanRun()
-                    {
-                        Value = true,
-                    });
-                }
+                    Position = spawnPosition,
+                    Rotation = quaternion.identity,
+                    Scale = 1f
+                });
+
+                EntityManager.AddComponentData(spawnedEntity, new FollowPathData()
+                {
+                    WaypointsBlob = spawnData.Waypoints
+                });
+
+                EntityManager.SetComponentData(spawnedEntity, new CanRun()
+                {
+                    Value = true,
+                });
+            }
         }
+
         
         
         
