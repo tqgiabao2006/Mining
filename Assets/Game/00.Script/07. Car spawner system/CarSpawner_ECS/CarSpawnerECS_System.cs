@@ -19,20 +19,7 @@ using UnityEngine.Rendering;
 using UnityEngine.SocialPlatforms;
 namespace Game._00.Script.ECS_Test.FactoryECS
 {
-   public struct SpawnGameObjectHolder : IComponentData
-    {
-        public Entity Entity1;
-        public Entity Entity2;
-    }
-    
-    public struct SpawnData 
-    {
-        public float3 StartPos;
-        public float3 EndPos;
-        public BlobAssetReference<BlobArray<float3>>  Waypoints;
-    }
 
-   
    [BurstCompile]
    [UpdateInGroup (typeof(SimulationSystemGroup))]
    public partial class SpawnSystem : SystemBase, IObserver
@@ -121,9 +108,6 @@ namespace Game._00.Script.ECS_Test.FactoryECS
                 });
             }
         }
-
-        
-        
         
         /// <summary>
         /// Convert Vector3[] waypoints to BlobAsset more optimized for ECS and Job system
