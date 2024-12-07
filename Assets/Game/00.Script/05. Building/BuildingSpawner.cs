@@ -12,8 +12,49 @@ using Random = UnityEngine.Random;
 
 
 
+struct SpawningWaveInfo
+{
+    public int waveIndex; //Current level (game phase) 
+    public List<BuildingInfo> BuildingInfos;
+    public float WaveDelay; //Delay after one wave
+    public float ZoneRadius;
 
-public class BuildingSpawner : MonoBehaviour
+
+    public SpawningWaveInfo(int waveIndex, float waveDelay, float zoneRadius, List <BuildingInfo> buildingsInfos)
+    {
+        this.waveIndex = waveIndex;
+        this.BuildingInfos = buildingsInfos;
+        this.WaveDelay = waveDelay;
+        this.ZoneRadius = zoneRadius; 
+    }
+
+}
+
+struct BuildingInfo
+{
+    public BuildingType BuildingType;
+    public int Amount;
+    public float SpawnTime;
+    public BuildingInfo(BuildingType buildingType, int amount, float spawnTime)
+    {
+        this.BuildingType = buildingType;
+        this.Amount = amount; 
+        this.SpawnTime = spawnTime;
+    }
+}
+[System.Serializable]
+public class BuildingPrefabPair
+{
+    public BuildingType BuildingType;
+    public GameObject Prefab;
+    public BuildingPrefabPair(BuildingType buildingType, GameObject prefab)
+    {
+        this.BuildingType = buildingType;
+        this.Prefab = prefab;
+    }
+}
+
+public class BuildingSpawner : MonoBehaviour, IObserver
 {
     //Vector3 zone center, float radius
     private Dictionary<Vector3, float> _zoneDictionary = new Dictionary<Vector3, float>();
@@ -32,6 +73,8 @@ public class BuildingSpawner : MonoBehaviour
     private Coroutine _spawnWaveCoroutine;
 
     private List<Vector2> _usedPositions; //Check current building positions to avoid spawn in the same place
+    
+    private bool _isProcessingWave = false; //Avoid being notified multiple times when processing
     
     private ObjectPooling _objectPooling;
     private GridManager _gridManager;
@@ -78,6 +121,21 @@ public class BuildingSpawner : MonoBehaviour
     }
     #endregion
     
+    /// <summary>
+    /// ISubject: GameStateManager
+    /// GameStateManager manage the current level
+    /// </summary>
+    /// <param name="data"> int currentLevel</param>
+    /// <param name="flag"> NotificationsFlag: Update Level</param>
+    public void OnNotified(object data, string flag)
+    {
+        if(flag != NotificationFlags.UpdateLevel || data is not int ) return;
+        if (!_isProcessingWave)
+        {
+            ProcessWave((int) data);
+        }
+    }
+    
      private void ProcessWave(int currentLevel)
     {
        SpawningWaveInfo waveInfo = _waveInfos[currentLevel];
@@ -92,6 +150,8 @@ public class BuildingSpawner : MonoBehaviour
     }
      private IEnumerator SpawnCoroutine(SpawningWaveInfo waveInfo)
     {
+        _isProcessingWave = true;
+        
         float startTime = Time.time + waveInfo.WaveDelay; // Set the start time with wave delay
         int turnCount = 0;
         int roadNumb = _invertory.GetPossitiveNumbRoad();
@@ -137,6 +197,7 @@ public class BuildingSpawner : MonoBehaviour
 
             turnCount++; // Move to the next building info
         }
+        _isProcessingWave = false;
     }
      
     #region Helper
@@ -217,8 +278,9 @@ public class BuildingSpawner : MonoBehaviour
     }
 
     #endregion
-   
-    }
+
+
+}
 
     
 

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Game._00.Script._05._Manager;
 using UnityEngine;
 
-public class GameStateManager : MonoBehaviour, IObserver
+public class GameStateManager : SubjectBase, IObserver
 {
     private int _currentLevel;
     private IState _currentState;
@@ -14,12 +14,16 @@ public class GameStateManager : MonoBehaviour, IObserver
     
     //Chained notifications:
     private RoadManager _roadManager;
+    
+    //Observesrs:
+   private BuildingSpawner _buildingSpawner;
 
     public void Initialize()
     {
         _buildingState = new BuildingState();
         _normalState = new NormalState();
         _roadManager = GameManager.Instance.RoadManager;
+        ObserversSetup();
         
     }
     
@@ -42,6 +46,27 @@ public class GameStateManager : MonoBehaviour, IObserver
         _currentLevel += exp;
     }
 
+    private float _lateupdate = 5.0f;
+    private float _currentTime = 0.0f;
+
+    private void Start()
+    {
+        _currentTime = _lateupdate;
+    }
+
+    private void Update()
+    {
+        _currentTime -= Time.deltaTime;
+        if (_currentTime <= 0)
+        {
+            Test();
+        }
+    }
+    private void Test()
+    {
+        Notify(0, NotificationFlags.UpdateLevel);
+    }
+
     /// <summary>
     /// Is placing => triggered => _gridManager effect
     /// If new build are spawned or end of placing state => union find check if roads are connected
@@ -62,6 +87,15 @@ public class GameStateManager : MonoBehaviour, IObserver
         //     _currentState = _normalState;
         // }
     }
+
+    public override void ObserversSetup()
+    {
+        _buildingSpawner = FindObjectOfType<BuildingSpawner>();
+        _observers.Add(_buildingSpawner);
+    }
+    
+    
+    
 }
 
 public interface IState
