@@ -26,7 +26,7 @@ namespace Game._00.Script._05._Manager
     public class BuildingManager: SubjectBase, IObserver
     {
         public GameObject Prefab;
-        public SpawnSystem spawnSystem;
+        public CarSpawnSystem CarSpawnSystem;
         //Directed graph => adjacent list => building type + its output
         private Dictionary<BuildingType, List<BuildingType>> _outputMap = new Dictionary<BuildingType, List<BuildingType>>();
        
@@ -79,8 +79,8 @@ namespace Game._00.Script._05._Manager
         }
         public override void ObserversSetup()
         {
-            // Get the SpawnSystem
-            IObserver spawnSystemInstance = World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<SpawnSystem>();
+            // Get the CarSpawnSystem
+            IObserver spawnSystemInstance = World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<CarSpawnSystem>();
             if (spawnSystemInstance != null)
             {
                 _observers.Add(spawnSystemInstance);

@@ -22,7 +22,7 @@ namespace Game._00.Script.ECS_Test.FactoryECS
 
    [BurstCompile]
    [UpdateInGroup (typeof(SimulationSystemGroup))]
-   public partial class SpawnSystem : SystemBase, IObserver
+   public partial class CarSpawnSystem : SystemBase, IObserver
     {
         private PathRequestManager _pathRequestManager;
         private bool _isNotified = false;
