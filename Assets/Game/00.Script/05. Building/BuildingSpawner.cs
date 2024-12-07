@@ -2,54 +2,16 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Game._00.Script._05._Manager;
+using Game._00.Script._07._Car_spawner_system.Building_Spawner_ECS;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
-struct SpawningWaveInfo
-{
-    public int waveIndex; //Current level (game phase) 
-    public List<BuildingInfo> BuildingInfos;
-    public float WaveDelay; //Delay after one wave
-    public float ZoneRadius;
 
 
-    public SpawningWaveInfo(int waveIndex, float waveDelay, float zoneRadius, List <BuildingInfo> buildingsInfos)
-    {
-        this.waveIndex = waveIndex;
-        this.BuildingInfos = buildingsInfos;
-        this.WaveDelay = waveDelay;
-        this.ZoneRadius = zoneRadius; 
-    }
 
-}
 
-struct BuildingInfo
-{
-    public BuildingType BuildingType;
-    public int Amount;
-    public float SpawnTime;
-    public BuildingInfo(BuildingType buildingType, int amount, float spawnTime)
-    {
-        this.BuildingType = buildingType;
-        this.Amount = amount; 
-        this.SpawnTime = spawnTime;
-    }
-}
-
-[System.Serializable]
-public class BuildingPrefabPair
-{
-   public BuildingType BuildingType;
-    public GameObject Prefab;
-
-    public BuildingPrefabPair(BuildingType buildingType, GameObject prefab)
-    {
-        this.BuildingType = buildingType;
-        this.Prefab = prefab;
-    }
-}
 
 public class BuildingSpawner : MonoBehaviour
 {

@@ -34,7 +34,6 @@ namespace Game._00.Script._07._Car_spawner_system.Building_Spawner_ECS
                 }
                 Entity entity = GetEntity(TransformUsageFlags.Renderable);
                 AddComponent<BuildingData>(entity);
-                AddComponent<NodeData>(entity);
                 AddComponent(entity, new Size()
                 {
                     Value = author._size
@@ -51,12 +50,6 @@ namespace Game._00.Script._07._Car_spawner_system.Building_Spawner_ECS
     {
         public BuildingType Value;
     }
-
-    public struct NodeData : IComponentData
-    {
-        public Node Value;
-    }
-
     public struct Size : IComponentData
     {
         public float Value;
