@@ -8,7 +8,7 @@ namespace Game._00.Script.NewPathFinding
     /// <summary>
     /// Working as a bridge from pathfinding, and unit base to try create new thread => optimize, decoupling
     /// </summary>
-    public class PathRequestManager:MonoBehaviour
+    public class PathRequestManager: MonoBehaviour
     {
         private PathFinding _pathFinding;
         private bool _isProcessingPath;

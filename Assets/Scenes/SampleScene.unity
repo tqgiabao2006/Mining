@@ -815,9 +815,8 @@ GameObject:
   m_Component:
   - component: {fileID: 438669542}
   - component: {fileID: 438669544}
-  - component: {fileID: 438669543}
   m_Layer: 0
-  m_Name: Spawner
+  m_Name: BuildingSpawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -831,25 +830,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 438669541}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1560514643}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &438669543
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 438669541}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c33af3ba6c784c8397b0030e69ec9ab6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &438669544
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -863,13 +850,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isGizmos: 0
-  BuildingPrefabs:
-  - BuildingType: 0
-    Prefab: {fileID: 3689738951310742799, guid: 3981291a478a34a83a6052f1b5e891bd, type: 3}
-  - BuildingType: 1
-    Prefab: {fileID: 2527342892843654057, guid: 5d667563bd6694db594e97164024ed31, type: 3}
-  - BuildingType: 3
-    Prefab: {fileID: 3949733121163879824, guid: 4360d03e5d28b479c9d0df8f23db0f54, type: 3}
   maxWaves: 4
   buildingBoundary: 0.5
   currentWave: 0
@@ -1781,10 +1761,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 882a0a6510004436a0d973f0123d9c6a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roadWidth: 0.79
-  spacing: 0.1
-  autoUpdate: 1
-  tilling: 1
 --- !u!23 &875087518
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1847,22 +1823,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01fd09c4a2aa4784aee7aa6f0b986743, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  path:
-    points:
-    - {x: -1.585983, y: 0.1084}
-    - {x: -1.085983, y: 0.6084}
-    - {x: -0.08598304, y: -0.3916}
-    - {x: 0.41401696, y: 0.1084}
-    isClosed: 0
-    autoSetControlPoints: 0
-  anchorCol: {r: 1, g: 0, b: 0, a: 1}
-  controlCol: {r: 1, g: 1, b: 1, a: 1}
-  segmentCol: {r: 0, g: 1, b: 0, a: 1}
-  selectedSegmentCol: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  anchorDiameter: 0.1
-  controlDiameter: 0.075
-  displayControlPoints: 1
-  curveWidth: 2
 --- !u!4 &875087521
 Transform:
   m_ObjectHideFlags: 0
@@ -3121,7 +3081,6 @@ Transform:
   - {fileID: 1759929862}
   - {fileID: 1726331168}
   - {fileID: 1473992426}
-  - {fileID: 438669542}
   - {fileID: 52351230}
   - {fileID: 776481158}
   m_Father: {fileID: 0}
@@ -4020,28 +3979,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01fd09c4a2aa4784aee7aa6f0b986743, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  path:
-    points:
-    - {x: -1, y: 0}
-    - {x: -0.08967978, y: -0.76224744}
-    - {x: 0.82064044, y: -1.5244949}
-    - {x: 1.9744458, y: -0.5470578}
-    - {x: 3.041614, y: 0.3569852}
-    - {x: 3.14284, y: 1.5574889}
-    - {x: 1.9275794, y: 2.249792}
-    - {x: 0.60135436, y: 3.005309}
-    - {x: -0.06132576, y: 1.8712751}
-    - {x: -0.7240059, y: 0.737241}
-    isClosed: 0
-    autoSetControlPoints: 0
-  anchorCol: {r: 1, g: 0, b: 0, a: 1}
-  controlCol: {r: 1, g: 1, b: 1, a: 1}
-  segmentCol: {r: 0, g: 1, b: 0, a: 1}
-  selectedSegmentCol: {r: 1, g: 0.14452161, b: 0.015686274, a: 1}
-  anchorDiameter: 0.05
-  controlDiameter: 0.05
-  displayControlPoints: 1
-  curveWidth: 4
 --- !u!114 &2105575401
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4054,8 +3991,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29adfdc4c949430fa152f77cf2fe08d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spacing: 0.1
-  resolution: 1
 --- !u!114 &2105575402
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4193,4 +4128,5 @@ SceneRoots:
   - {fileID: 1226807145}
   - {fileID: 1801514605}
   - {fileID: 1511267244}
+  - {fileID: 438669542}
   - {fileID: 1580521467}

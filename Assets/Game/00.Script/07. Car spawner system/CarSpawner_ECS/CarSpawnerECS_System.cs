@@ -94,7 +94,7 @@ namespace Game._00.Script.ECS_Test.FactoryECS
                 {
                     Position = spawnPosition,
                     Rotation = quaternion.identity,
-                    Scale = 1f
+                    Scale =  1f,
                 });
 
                 EntityManager.AddComponentData(spawnedEntity, new FollowPathData()

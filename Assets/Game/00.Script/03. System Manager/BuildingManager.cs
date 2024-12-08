@@ -21,11 +21,8 @@ namespace Game._00.Script._05._Manager
         NormalCell,
         None
     }
-
-    
     public class BuildingManager: SubjectBase, IObserver
     {
-        public GameObject Prefab;
         public CarSpawnSystem CarSpawnSystem;
         //Directed graph => adjacent list => building type + its output
         private Dictionary<BuildingType, List<BuildingType>> _outputMap = new Dictionary<BuildingType, List<BuildingType>>();
@@ -108,7 +105,6 @@ namespace Game._00.Script._05._Manager
                     BuildingBase closestBuilding = givenData.Item1(GetOutputBuildings(building.BuildingType), building);
                     if (closestBuilding && !_connectedBuildings.Contains(closestBuilding)) //Avoid double check 2 building connected
                     {
-                        Debug.Log("Notify ECS Spawner");
                         Notify((building, closestBuilding), NotificationFlags.SpawnCar);
                         removedNodes.Add(building);
                         _connectedBuildings.Add(building);

@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Game._00.Script._05._Manager;
-using Game._00.Script._07._Car_spawner_system.Building_Spawner_ECS;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -283,4 +282,3 @@ public class BuildingSpawner : MonoBehaviour, IObserver
 }
 
     
-

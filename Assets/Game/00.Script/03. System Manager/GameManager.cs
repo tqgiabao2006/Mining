@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Game._00.Script._05._Manager
 {
-    [RequireComponent(typeof(ObjectPooling), typeof(RoadManager), typeof(TestRequestManager))]
+    [RequireComponent(typeof(ObjectPooling), typeof(RoadManager))]
     public class GameManager : Singleton<GameManager>
     {
         public GameStateManager GameStateManager { get; private set; }

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Game._00.Script._05._Manager;
+using Unity.Entities;
 using UnityEngine;
 
 public class GameStateManager : SubjectBase, IObserver
@@ -46,8 +47,9 @@ public class GameStateManager : SubjectBase, IObserver
         _currentLevel += exp;
     }
 
-    private float _lateupdate = 5.0f;
+    private float _lateupdate = 1.0f;
     private float _currentTime = 0.0f;
+    private bool callSpawn;
 
     private void Start()
     {
@@ -57,13 +59,15 @@ public class GameStateManager : SubjectBase, IObserver
     private void Update()
     {
         _currentTime -= Time.deltaTime;
-        if (_currentTime <= 0)
+        if (_currentTime <= 0 && !callSpawn)
         {
-            Test();
+            Notify(0, NotificationFlags.UpdateLevel);
+            callSpawn = true; 
         }
     }
     private void Test()
     {
+        Debug.Log("Notify");
         Notify(0, NotificationFlags.UpdateLevel);
     }
 
@@ -91,7 +95,7 @@ public class GameStateManager : SubjectBase, IObserver
     public override void ObserversSetup()
     {
         _buildingSpawner = FindObjectOfType<BuildingSpawner>();
-        _observers.Add(_buildingSpawner);
+       _observers.Add(_buildingSpawner);
     }
     
     

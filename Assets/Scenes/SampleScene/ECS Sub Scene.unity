@@ -134,7 +134,7 @@ GameObject:
   - component: {fileID: 1266524556}
   - component: {fileID: 1266524555}
   m_Layer: 0
-  m_Name: NewSpawner
+  m_Name: CarSpawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -170,8 +170,60 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1465680995
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1465680997}
+  - component: {fileID: 1465680996}
+  m_Layer: 0
+  m_Name: BuildingSpawnerECS
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1465680996
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1465680995}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 355959ac6fc54e57b73691ca803a29d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  BuildingPrefabs:
+  - BuildingType: 0
+    Prefab: {fileID: 3689738951310742799, guid: 3981291a478a34a83a6052f1b5e891bd, type: 3}
+  - BuildingType: 1
+    Prefab: {fileID: 2527342892843654057, guid: 5d667563bd6694db594e97164024ed31, type: 3}
+  - BuildingType: 3
+    Prefab: {fileID: 3949733121163879824, guid: 4360d03e5d28b479c9d0df8f23db0f54, type: 3}
+--- !u!4 &1465680997
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1465680995}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 1465680997}
   - {fileID: 1266524556}

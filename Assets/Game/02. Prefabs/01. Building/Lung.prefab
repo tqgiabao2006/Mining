@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7369202895784469775}
   - component: {fileID: -7650261240360639310}
   - component: {fileID: 8592810586081017998}
-  - component: {fileID: 1908866948732430818}
+  - component: {fileID: 7446113546328703719}
   m_Layer: 0
   m_Name: Lung
   m_TagString: Untagged
@@ -159,7 +159,7 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &1908866948732430818
+--- !u!114 &7446113546328703719
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -171,6 +171,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05bb57d88c634c189ce7f1d903a7ad71, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  prefabManager: {fileID: 11400000, guid: 334d699d64f73417ab0c85d4afe90590, type: 2}
+  prefabManager: {fileID: 0}
   lifeTime: 2
   buildingSize: 0.25
