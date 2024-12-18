@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Game._00.Script._05._Manager;
+using Game._00.Script._07._Mesh_Generator;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -23,7 +24,6 @@ public
     private RoadMesh _roadMesh;
 
     //Input handle:
-    [Header("Input Setting")] private GridManager _gridManager;
     private Vector2 _mousePos;
     private bool _isPlacing = false;
     private Node _curNode = null; //After applying threshold
@@ -49,7 +49,6 @@ public
 
     private void Initialize()
     {
-        _gridManager = GetComponentInParent<GridManager>();
         _roadMesh = FindObjectOfType<RoadMesh>();
         
         //Manager set up
@@ -60,8 +59,7 @@ public
         ObserversSetup();
         
         //Threshold set up:
-        _baseThreshold = _gridManager.NodeRadius / 1.5f;
-
+        _baseThreshold = GridManager.NodeRadius / 1.5f;
     }
     
     private void Update()
@@ -74,7 +72,7 @@ public
     {
         _mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
-        if (Input.GetMouseButtonDown(0) && isInGrid() && isInRoadOrBuilding())
+        if (Input.GetMouseButtonDown(0) && isInGrid() && IsInWalkableNode())
         {
             _isPlacing = true;
             _selectedNodes.Clear();
@@ -83,7 +81,7 @@ public
             Notify(true, NotificationFlags.PlacingState);
 
             // Start with the initial node
-            _curNode = _gridManager.NodeFromWorldPosition(_mousePos);
+            _curNode = GridManager.NodeFromWorldPosition(_mousePos);
             _selectedNodes.Add(_curNode);
         }
 
@@ -151,37 +149,37 @@ public
     private Node NodeFromWorldPositionWithSnapping(Vector2 mousePos, Node curNode, float diagonalThreshold, float dynamicThreshold)
     {
         //Diagonal corner
-        Vector2 botLeft = new Vector2(curNode.WorldPosition.x - _gridManager.NodeRadius + diagonalThreshold, curNode.WorldPosition.y - _gridManager.NodeRadius + diagonalThreshold);
-        Vector2 botRight= new Vector2(curNode.WorldPosition.x + _gridManager.NodeRadius - diagonalThreshold, curNode.WorldPosition.y - _gridManager.NodeRadius + diagonalThreshold);
-        Vector2 topLeft = new Vector2(curNode.WorldPosition.x - _gridManager.NodeRadius + diagonalThreshold, curNode.WorldPosition.y + _gridManager.NodeRadius - diagonalThreshold);
-        Vector2 topRight = new Vector2(curNode.WorldPosition.x + _gridManager.NodeRadius - diagonalThreshold, curNode.WorldPosition.y + _gridManager.NodeRadius - diagonalThreshold);
+        Vector2 botLeft = new Vector2(curNode.WorldPosition.x -GridManager.NodeRadius + diagonalThreshold, curNode.WorldPosition.y -GridManager.NodeRadius + diagonalThreshold);
+        Vector2 botRight= new Vector2(curNode.WorldPosition.x +GridManager.NodeRadius - diagonalThreshold, curNode.WorldPosition.y - GridManager.NodeRadius+ diagonalThreshold);
+        Vector2 topLeft = new Vector2(curNode.WorldPosition.x - GridManager.NodeRadius + diagonalThreshold, curNode.WorldPosition.y + GridManager.NodeRadius - diagonalThreshold);
+        Vector2 topRight = new Vector2(curNode.WorldPosition.x + GridManager.NodeRadius - diagonalThreshold, curNode.WorldPosition.y +GridManager.NodeRadius - diagonalThreshold);
         
-        float nodeDiamater = _gridManager.NodeDiameter;
-        if (isInThreshold(botLeft, diagonalThreshold, mousePos))
+        float nodeDiamater =GridManager.NodeDiameter;
+        if (IsInThreshold(botLeft, diagonalThreshold, mousePos))
         {
-            return _gridManager.NodeFromWorldPosition(new Vector2(curNode.WorldPosition.x - nodeDiamater, curNode.WorldPosition.y - nodeDiamater));
+            return GridManager.NodeFromWorldPosition(new Vector2(curNode.WorldPosition.x - nodeDiamater, curNode.WorldPosition.y - nodeDiamater));
         }
         
-        if (isInThreshold(botRight, diagonalThreshold, mousePos))
+        if (IsInThreshold(botRight, diagonalThreshold, mousePos))
         {
-            return _gridManager.NodeFromWorldPosition(new Vector2(curNode.WorldPosition.x + nodeDiamater, curNode.WorldPosition.y - nodeDiamater));
+            return GridManager.NodeFromWorldPosition(new Vector2(curNode.WorldPosition.x + nodeDiamater, curNode.WorldPosition.y - nodeDiamater));
         }
         
-        if (isInThreshold(topLeft, diagonalThreshold, mousePos))
+        if (IsInThreshold(topLeft, diagonalThreshold, mousePos))
         {
-            return _gridManager.NodeFromWorldPosition(new Vector2(curNode.WorldPosition.x - nodeDiamater, curNode.WorldPosition.y + nodeDiamater));
+            return GridManager.NodeFromWorldPosition(new Vector2(curNode.WorldPosition.x - nodeDiamater, curNode.WorldPosition.y + nodeDiamater));
         }
         
-        if (isInThreshold(topRight, diagonalThreshold, mousePos))
+        if (IsInThreshold(topRight, diagonalThreshold, mousePos))
         {
-            return _gridManager.NodeFromWorldPosition(new Vector2(curNode.WorldPosition.x + nodeDiamater, curNode.WorldPosition.y + nodeDiamater));
+            return GridManager.NodeFromWorldPosition(new Vector2(curNode.WorldPosition.x + nodeDiamater, curNode.WorldPosition.y + nodeDiamater));
         }
         
         float distance = Vector2.Distance(curNode.WorldPosition, mousePos);
-        Node nextNode = _gridManager.NodeFromWorldPosition(mousePos);
+        Node nextNode = GridManager.NodeFromWorldPosition(mousePos);
         
         //Vertical and horizontal threshold
-        if (distance >= dynamicThreshold + _gridManager.NodeRadius && nextNode != curNode)
+        if (distance >= dynamicThreshold + GridManager.NodeRadius && nextNode != curNode)
         {
             return nextNode;
         }
@@ -189,21 +187,21 @@ public
         return curNode;
     }
 
-    public bool isInThreshold(Vector2 center, float radius, Vector2 checkPos)
+    public bool IsInThreshold(Vector2 center, float radius, Vector2 checkPos)
     {
         return Vector2.Distance(center, checkPos) <= radius;
     }
 
-    private bool isInRoadOrBuilding()
+    private bool IsInWalkableNode()
     {
-        Node node = _gridManager.NodeFromWorldPosition(_mousePos);
-        return node.IsRoad || node.IsBuilding;
+        Node node = GridManager.NodeFromWorldPosition(_mousePos);
+        return node.Walkable;
     }
 
     private bool isInGrid()
     {
-        return _mousePos.x >= -_gridManager.GridSizeX / 2 && _mousePos.x <= _gridManager.GridSizeX / 2 &&
-               _mousePos.y >= -_gridManager.GridSizeY / 2 && _mousePos.y <= _gridManager.GridSizeY / 2;
+        return _mousePos.x >= -GridManager.GridSizeX / 2 && _mousePos.x <= GridManager.GridSizeX / 2 &&
+               _mousePos.y >= -GridManager.GridSizeY / 2 && _mousePos.y <= GridManager.GridSizeY / 2;
     }
     #endregion
 
@@ -211,7 +209,7 @@ public
     #region Gizmos
     private void OnDrawGizmosSelected()
     {
-        if(!showGizmos || _curNode == null || _gridManager != null) return;
+        if(!showGizmos || _curNode == null ) return;
     }
 
     #endregion

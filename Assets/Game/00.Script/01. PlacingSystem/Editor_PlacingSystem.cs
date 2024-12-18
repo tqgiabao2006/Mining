@@ -23,8 +23,8 @@ public class Editor_PlacingSystem : Editor
     {
         
         // if (placingSystem == null || placingSystem.NodeList == null || placingSystem.NodeDictionary == null || !placingSystem.showHandles) return;
-        // List<Node> nodes = placingSystem.NodeList;
-        // Dictionary<int, List<Node>> dictNodes = placingSystem.NodeDictionary;
+        // List<OriginBuildingNode> nodes = placingSystem.NodeList;
+        // Dictionary<int, List<OriginBuildingNode>> dictNodes = placingSystem.NodeDictionary;
         // for (int i = 0; i < nodes.Count; i++)
         // {
         //     Handles.color = placingSystem.handleColor;

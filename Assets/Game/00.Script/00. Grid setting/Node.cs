@@ -2,16 +2,33 @@ using UnityEngine;
 using System.Collections;
 using System;
 using System.Collections.Generic;
-
+using Game._00.Script._03._Building;
 
 
 public class Node : IHeapItem<Node>
 {
 	
-	public bool Walkable;
+	
+	private BuildingBase _belongedBuilding;
+	public BuildingBase BelongedBuilding { get { return _belongedBuilding; } }
+	
+	private bool _walkable;
+
+	public bool Walkable
+	{
+		get { return _walkable; }
+	}
+
+	private bool _canDraw; //Used to tag a node can be drawn a road on, there is 1 case: parking lot that the road connect but not a road
+
+	public bool CanDraw
+	{
+		get { return _canDraw; }
+	}
+
 	public Vector3 WorldPosition {private set; get;}
-	public int GridX {private set; get;}
-	public int GridY {private set; get;}
+	public int GridX { get;}
+	public int GridY { get;}
 
 	public int MovementPenalty;
 
@@ -21,8 +38,23 @@ public class Node : IHeapItem<Node>
 	
 	int heapIndex;
 
-	public bool IsRoad;
-	public bool IsBuilding;
+	private bool _isEmpty; //Used to avoid spawning road in buildings, parking lots, or other roads
+	public bool IsEmpty {get {return _isEmpty;}}
+	
+	private bool _isRoad;
+
+	public bool IsRoad
+	{
+		get { return _isRoad; }
+	}
+
+
+	private bool _isBuilding;
+
+	public bool IsBuilding
+	{
+	   get { return _isBuilding; }
+	}
 	
 	public int NodeIndex = -1; //its index of ALL MAP
 	
@@ -36,30 +68,59 @@ public class Node : IHeapItem<Node>
 			_graphIndex = value;
 		} 
 	}
-
-
 	public GridManager GridManager;
-	public Node(bool _walkable, Vector3 _worldPos, int _gridX, int _gridY, int _penalty, GridManager gridManager) {
-		this.Walkable = _walkable;
-		this.WorldPosition = _worldPos;
-		this.GridX = _gridX;
-		this.GridY = _gridY;
-		this.MovementPenalty = _penalty;
+	public Node(bool walkable, Vector3 worldPos, int gridX, int gridY, int penalty, GridManager gridManager) 
+	{
+		this._walkable = walkable;
+		this.WorldPosition = worldPos;
+		this.GridX = gridX;
+		this.GridY = gridY;
+		this.MovementPenalty = penalty;
 		this._graphIndex = -1;
 		this.GridManager = gridManager;
+		this._isEmpty = true;
+
+		_canDraw = true;
 	}
 
 	public void SetRoad(bool isRoad)
-	{ 
-		IsRoad = isRoad;
-		Walkable = true;
+	{
+		_isRoad = isRoad;
+		if (isRoad)
+		{
+			_isEmpty = false;
+		}
+		_walkable = isRoad;
+	}
+
+	public void SetEmpty(bool isEmpty)
+	{
+		_isEmpty = isEmpty;
 	}
 
 	public void SetBuilding(bool isBuilding)
 	{
-		IsBuilding = isBuilding;
+		_isBuilding = isBuilding;
+		if (isBuilding)
+		{
+			_isEmpty = false;
+		}
 	}
-	
+
+	public void SetDrawable(bool isDrawable)
+	{
+		_canDraw = isDrawable;
+	}
+
+	public void SetWalkable(bool walkable)
+	{
+		_walkable = walkable;
+	}
+
+	public void SetBelongedBuilding(BuildingBase building)
+	{
+		_belongedBuilding = building;
+	}
 	public List<Node> GetNeighbours()
 	{
 		List<Node> neighbours = new List<Node>();
@@ -77,7 +138,7 @@ public class Node : IHeapItem<Node>
 				// Ensure the neighbor's position is within bounds
 				if (checkX >= 0 && checkY >= 0 && checkX < GridManager.GridSizeX && checkY < GridManager.GridSizeY)
 				{
-					neighbours.Add(GridManager.grid[checkX, checkY]); // Add the neighbor node to the list
+					neighbours.Add(GridManager.Grid[checkX, checkY]); // Add the neighbor node to the list
 				}
 			}
 		}

@@ -22,12 +22,12 @@
     // public struct RoadDetails
     // {
     //     public RoadType Type { get; set; }
-    //     public DirectionType Direction { get; set; }
+    //     public DirectionType BitwiseDirection { get; set; }
     //
     //     public RoadDetails(RoadType type, DirectionType direction)
     //     {
     //         Type = type;
-    //         Direction = direction;
+    //         BitwiseDirection = direction;
     //     }
     // }
     // [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
@@ -56,7 +56,7 @@
     //     
     //     private List<CombineInstance> meshCombineList = new List<CombineInstance>();
     //     
-    //     private Dictionary<Node, CombineInstance> nodeCombineInstances = new Dictionary<Node, CombineInstance>();
+    //     private Dictionary<OriginBuildingNode, CombineInstance> nodeCombineInstances = new Dictionary<OriginBuildingNode, CombineInstance>();
     //     
     //     private GameManager _gameManager;
     //     private RoadManager _roadManager;
@@ -89,7 +89,7 @@
     //     /// <summary>
     //     /// Call to intialize road for building
     //     /// </summary>
-    //     public void SetBuildingRoadMesh(Node node, RoadDetails roadDetails)
+    //     public void SetBuildingRoadMesh(OriginBuildingNode node, RoadDetails roadDetails)
     //     {
     //         var generatedMesh = GenerateMesh(node, roadDetails); 
     //         if (generatedMesh != null)
@@ -104,7 +104,7 @@
     //     /// </summary>
     //     /// <param name="node"></param>
     //     /// <param name="isPlacing"></param>
-    //     public void ChangeRoadMesh(Node node)
+    //     public void ChangeRoadMesh(OriginBuildingNode node)
     //     {
     //         var roadDetails = GetRoadDetails(node);
     //         var generatedMesh = GenerateMesh(node, roadDetails);
@@ -115,7 +115,7 @@
     //         }
     //     }
     //     
-    //     private void StoreMeshData(Node node, Mesh generatedMesh)
+    //     private void StoreMeshData(OriginBuildingNode node, Mesh generatedMesh)
     //     {
     //         node.SetRoad(true);
     //
@@ -162,7 +162,7 @@
     //         }
     //     }
     //     
-    //     private Mesh GenerateMesh(Node node, RoadDetails roadDetails)
+    //     private Mesh GenerateMesh(OriginBuildingNode node, RoadDetails roadDetails)
     //     {
     //         // Generate a mesh based on the road type and properties
     //         switch (roadDetails.Type)
@@ -170,9 +170,9 @@
     //             case RoadType.DeadEnd:
     //                 return CreateDeadEndMesh(roadDetails, node, roadWidth, curveSmoothness);
     //             case RoadType.Connection:
-    //                 if (roadDetails.Direction == DirectionType.Diagonal)
+    //                 if (roadDetails.BitwiseDirection == DirectionType.Diagonal)
     //                 {
-    //                     List<Node> neighborsNodes = node.GetNeighbours();
+    //                     List<OriginBuildingNode> neighborsNodes = node.GetNeighbours();
     //                     Vector2 dir = neighborsNodes[0].WorldPosition - neighborsNodes[1].WorldPosition;
     //                     float angle = GetVectorAngle(dir, Vector2.right);
     //                     Mesh diagMesh = CreateDiagionalMesh(roadDetails, node, angle, extraPer, roadWidth);
@@ -197,10 +197,10 @@
     //
     // #region Road Details
     // // ReSharper disable Unity.PerformanceAnalysis
-    // private RoadDetails GetRoadDetails(Node mainNode)
+    // private RoadDetails GetRoadDetails(OriginBuildingNode mainNode)
     // {
     //     float tolerance = 0.01f;
-    //     List<Node> affectedNodes = _roadManager.GetRoadList(mainNode);
+    //     List<OriginBuildingNode> affectedNodes = _roadManager.GetRoadList(mainNode);
     //     
     //     switch (affectedNodes.Count)
     //     { 
@@ -370,13 +370,13 @@
     //
     // #region Create Mesh
     //
-    // private Mesh CreateContinueMesh(RoadDetails roadDetails, Node node, float roadWidth = 0.5f)
+    // private Mesh CreateContinueMesh(RoadDetails roadDetails, OriginBuildingNode node, float roadWidth = 0.5f)
     // {
     //     Mesh continueMesh = new Mesh();
     //     // Use roadWidth to adjust the size of the mesh
     //     List<Vector3> vertices = new List<Vector3>();
     //     List<int> triangles = new List<int>();
-    //     AddRectangleMesh(vertices, triangles,roadDetails.Direction, node.WorldPosition, roadWidth);
+    //     AddRectangleMesh(vertices, triangles,roadDetails.BitwiseDirection, node.WorldPosition, roadWidth);
     //     // Define the triangles to form the two faces of the quad
     //
     //     // Clear and update the mesh with vertices and triangles
@@ -392,7 +392,7 @@
     // /// <param name="roadWidth"></param>
     // /// <param name="curveSmoothness"></param>
     // /// <returns></returns>
-    // private Mesh CreateDeadEndMesh(RoadDetails roadDetails, Node node, float roadWidth = 0.5f, int curveSmoothness = 10)
+    // private Mesh CreateDeadEndMesh(RoadDetails roadDetails, OriginBuildingNode node, float roadWidth = 0.5f, int curveSmoothness = 10)
     // {
     //     Mesh deadEndMesh = new Mesh();
     //     float halfWidth = roadWidth / 2;    
@@ -400,10 +400,10 @@
     //     List<int> triangles = new List<int>();
     //     
     //     Tuple<int, int> angles = GetDeadEndAngle(roadDetails);
-    //     float[] rectangleScale = GetDeadEndScale(roadDetails.Direction);
+    //     float[] rectangleScale = GetDeadEndScale(roadDetails.BitwiseDirection);
     //     Vector3 curveCenter = node.WorldPosition;
     //     
-    //     AddRectangleMesh(vertices, triangles, roadDetails.Direction, node.WorldPosition ,this.roadWidth, rectangleScale[0], rectangleScale[1], rectangleScale[2], rectangleScale[3]);
+    //     AddRectangleMesh(vertices, triangles, roadDetails.BitwiseDirection, node.WorldPosition ,this.roadWidth, rectangleScale[0], rectangleScale[1], rectangleScale[2], rectangleScale[3]);
     //     AddCurveMesh(vertices, triangles, curveCenter, curveSmoothness, halfWidth, angles ); 
     //     UpdateMesh(deadEndMesh,vertices.ToArray(),triangles.ToArray());
     //     return deadEndMesh;
@@ -414,7 +414,7 @@
     // /// </summary>
     // /// <param name="roadDetails"></param>
     // /// <returns></returns>
-    // private Mesh CreateTJunctionMesh(RoadDetails roadDetails, Node node, float extraPer, float oppositeCornerSmoothness,float roadWidth = 0.5f, int curveSmoothnes = 10)
+    // private Mesh CreateTJunctionMesh(RoadDetails roadDetails, OriginBuildingNode node, float extraPer, float oppositeCornerSmoothness,float roadWidth = 0.5f, int curveSmoothnes = 10)
     // {
     //     Mesh TJunctionMesh = new Mesh();
     //     float halfWidth = roadWidth / 2;    
@@ -425,7 +425,7 @@
     //     return TJunctionMesh;
     // }
     //
-    // private Mesh CreateDiagionalMesh(RoadDetails roadDetails, Node node, float angle, float extraPer,float roadWidth = 0.5f)
+    // private Mesh CreateDiagionalMesh(RoadDetails roadDetails, OriginBuildingNode node, float angle, float extraPer,float roadWidth = 0.5f)
     // {
     //     // Variables:
     //     Mesh diagionalMesh = new Mesh();
@@ -442,7 +442,7 @@
     //     
     // }  
     //
-    // private Mesh CreateCrossRoadMesh(RoadDetails roadDetails, Node node,float extraPer, float oppositeCornerSmoothness ,float roadWidth = 0.5f, int curveSmoothness = 20 )
+    // private Mesh CreateCrossRoadMesh(RoadDetails roadDetails, OriginBuildingNode node,float extraPer, float oppositeCornerSmoothness ,float roadWidth = 0.5f, int curveSmoothness = 20 )
     // { 
     //     //Variables:
     //     Mesh crossRoadMesh = new Mesh();
@@ -468,7 +468,7 @@
     // /// <summary>
     // /// Curve = 1/4 circle, extended rectangle = 1/4 center, count -> bottom left -> bottom right -> top right -> top left
     // /// </summary>
-    // private Mesh CreateCornerMesh(RoadDetails roadDetails, Node node,  float smoothProportion, float roadWidth = 0.5f, int curveSmoothness = 10)
+    // private Mesh CreateCornerMesh(RoadDetails roadDetails, OriginBuildingNode node,  float smoothProportion, float roadWidth = 0.5f, int curveSmoothness = 10)
     // {
     //     //Variables:
     //     Mesh cornerMesh = new Mesh();
@@ -511,7 +511,7 @@
     // private Tuple<int, int> GetDeadEndAngle(RoadDetails roadDetails)
     // {
     //     //Tuple<startAngle,endAngle>;
-    //     switch (roadDetails.Direction)
+    //     switch (roadDetails.BitwiseDirection)
     //     {
     //         case DirectionType.Left:
     //            return new Tuple<int, int>(90, 270);
@@ -592,7 +592,7 @@
     // #region Corner Helper
     //
     // //Corner
-    // private void CreateCorner(List<Vector3> vertices, List<int> triangles, Node node, RoadDetails roadDetails, float roadWidth, int curveSmoothness, float extraEdge)
+    // private void CreateCorner(List<Vector3> vertices, List<int> triangles, OriginBuildingNode node, RoadDetails roadDetails, float roadWidth, int curveSmoothness, float extraEdge)
     // {
     //     if (curveSmoothness <= 0) return;
     //     
@@ -645,12 +645,12 @@
     //         triangles.Add(arcVertices[i + 1]);   // Inner arc vertex
     //     }
     // }
-    // private Vector3 GetInnerCenter(RoadDetails roadDetails, Node node, float extraEdge)
+    // private Vector3 GetInnerCenter(RoadDetails roadDetails, OriginBuildingNode node, float extraEdge)
     // {
     //     float halfWidth = roadWidth / 2f;
     //     
     //     
-    //     switch (roadDetails.Direction)
+    //     switch (roadDetails.BitwiseDirection)
     //     {
     //         case DirectionType.TopLeft:
     //             return new Vector3(node.WorldPosition.x - halfWidth * extraEdge, node.WorldPosition.y - halfWidth * extraEdge, 0);
@@ -666,7 +666,7 @@
     //     }
     //     return Vector3.zero;
     // }
-    // private void AddOppositeCorner(Node node, DirectionType directionType,List<Vector3> vertices, List<int> triangles ,int curveSmoothness, float halfWidth, float extraPer, float oppositeCornerSmoothness)
+    // private void AddOppositeCorner(OriginBuildingNode node, DirectionType directionType,List<Vector3> vertices, List<int> triangles ,int curveSmoothness, float halfWidth, float extraPer, float oppositeCornerSmoothness)
     // {
     //     Tuple<Vector2, Vector3> centerData = GetOppositeInnerCenter(directionType, node,  halfWidth, extraPer);
     //     Tuple<int, int> angleData = GetOppositeAngle(directionType);
@@ -714,7 +714,7 @@
     // /// <param name="node"></param>
     // /// <param name="extraPer"></param>
     // /// <returns></returns>
-    // private Tuple<Vector2,Vector3>GetOppositeInnerCenter(DirectionType direction, Node node,float halfWidth, float extraPer = 0.35f)
+    // private Tuple<Vector2,Vector3>GetOppositeInnerCenter(DirectionType direction, OriginBuildingNode node,float halfWidth, float extraPer = 0.35f)
     // {
     //     float extraEdge = 1 + extraPer;
     //
@@ -768,7 +768,7 @@
     // private Tuple<int,int> GetCornerAngle(RoadDetails roadDetails)
     // {
     //     //Tuple<startAngle, endAngle>
-    //     switch (roadDetails.Direction)
+    //     switch (roadDetails.BitwiseDirection)
     //     {
     //         case DirectionType.TopLeft:
     //             return new Tuple<int,int>(0,90);
@@ -793,11 +793,11 @@
     // /// <summary>
     // /// The center mesh => extends , the perdencular mesh => create new
     // /// </summary>
-    // private void AddTJunctionMesh(Node node, List<Vector3> vertices, List<int> triangles, RoadDetails roadDetails ,float oppositeCornerSmoothness,float extraPer, int curveSmoothness, float halfWidth)
+    // private void AddTJunctionMesh(OriginBuildingNode node, List<Vector3> vertices, List<int> triangles, RoadDetails roadDetails ,float oppositeCornerSmoothness,float extraPer, int curveSmoothness, float halfWidth)
     // {
     //     float extraEdge = 1f + extraPer;
     //         
-    //     switch (roadDetails.Direction)
+    //     switch (roadDetails.BitwiseDirection)
     //     {
     //         case DirectionType.Left:
     //             //Add rectangle:

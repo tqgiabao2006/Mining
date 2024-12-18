@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Numerics;
+using Game._00.Script._06._Custom_Editor;
 using UnityEngine;
 using Vector2 = UnityEngine.Vector2;
 
@@ -7,19 +8,26 @@ using Vector2 = UnityEngine.Vector2;
 public class GridManager: MonoBehaviour
 {
    [SerializeField] bool displayOnGizmos;
+   [SerializeField] private bool walkableDisplay;
+   [SerializeField] private bool drawableDisplay;
 
    #region Variables
    //1. GridManager:
-   public Node[,] grid { get; private set; }
+   public static Node[,] Grid { get; private set; }
    
-   private Vector2 gridCenter = Vector2.zero;
-   public float NodeDiameter{get; private set;}
-   public int GridSizeX {get; private set;}
-   public int GridSizeY{get; private set;}
+   private readonly Vector2 _gridCenter = Vector2.zero;
+   public static float NodeDiameter {
+       get
+       {
+           return NodeRadius * 2;
+       }
+   }
+   public static int GridSizeX {get; private set;}
+   public static int GridSizeY{get; private set;}
 
 
-   public UnityEngine.Vector2 GridWorldSize; 
-   [SerializeField]public float NodeRadius;
+   [CustomReadOnly] public static readonly Vector2 GridWorldSize = new Vector2(40,40); 
+   [CustomReadOnly] public static readonly float NodeRadius = 0.5f;
 
    public int NodeCount
    {
@@ -60,8 +68,6 @@ public class GridManager: MonoBehaviour
 
    private void Initialize()
    {
-       // diameter = 2R
-       NodeDiameter = NodeRadius * 2;
        // Calculate how many nodes (horizontally) the _gridManager can have, return int value so Round To Int 
        GridSizeX = Mathf.RoundToInt(GridWorldSize.x / NodeDiameter);
        GridSizeY = Mathf.RoundToInt(GridWorldSize.y / NodeDiameter);
@@ -86,9 +92,9 @@ public class GridManager: MonoBehaviour
    }
    private void CreateGrid()
    {
-       grid = new Node[GridSizeX, GridSizeY];
+       Grid = new Node[GridSizeX, GridSizeY];
        //Get bottom left node position
-       UnityEngine.Vector2 worldBottomLeft = (UnityEngine.Vector2)gridCenter
+       UnityEngine.Vector2 worldBottomLeft = (UnityEngine.Vector2)_gridCenter
        - UnityEngine.Vector2.right * GridWorldSize.x / 2 // substact the length of a half square
        - UnityEngine.Vector2.up * GridWorldSize.y / 2;
 
@@ -119,7 +125,7 @@ public class GridManager: MonoBehaviour
                        walkableRegionsDictionary.TryGetValue(hit.collider.gameObject.layer, out movementPenalty);
                    }
                }
-               grid[x, y] = new Node(walkable, worldPoint, x, y, movementPenalty, this); //Create new node
+               Grid[x, y] = new Node(walkable, worldPoint, x, y, movementPenalty, this); //Create new node
                        // the (y * nodeDiamter + nodeRadius is calculate the offset of 1 point to the origin)
                        //if P(0,1) => it is 1 * node parament + the radius (diamete/2) is the right center of the point
            }
@@ -131,7 +137,7 @@ public class GridManager: MonoBehaviour
    public void UpdateWalkable(Vector2 roadMesh)
    {
        Node roadNode = NodeFromWorldPosition(roadMesh);
-       roadNode.Walkable = true;
+       roadNode.SetWalkable(true);
    }
 
 
@@ -149,7 +155,7 @@ public class GridManager: MonoBehaviour
        for (int y = 0; y < GridSizeY; y++) {
            for (int x = -kernelExtents; x <= kernelExtents; x++) {
                int sampleX = Mathf.Clamp (x, 0, kernelExtents);
-               penaltiesHorizontalPass [0, y] += grid [sampleX, y].MovementPenalty;
+               penaltiesHorizontalPass [0, y] += Grid [sampleX, y].MovementPenalty;
            }
 
 
@@ -158,7 +164,7 @@ public class GridManager: MonoBehaviour
                int addIndex = Mathf.Clamp(x + kernelExtents, 0, GridSizeX-1);
 
 
-               penaltiesHorizontalPass [x, y] = penaltiesHorizontalPass [x - 1, y] - grid [removeIndex, y].MovementPenalty + grid [addIndex, y].MovementPenalty;
+               penaltiesHorizontalPass [x, y] = penaltiesHorizontalPass [x - 1, y] - Grid [removeIndex, y].MovementPenalty + Grid [addIndex, y].MovementPenalty;
            }
        }
        
@@ -171,7 +177,7 @@ public class GridManager: MonoBehaviour
 
 
            int blurredPenalty = Mathf.RoundToInt((float)penaltiesVerticalPass [x, 0] / (kernelSize * kernelSize));
-           grid [x, 0].MovementPenalty = blurredPenalty;
+           Grid [x, 0].MovementPenalty = blurredPenalty;
 
 
            for (int y = 1; y < GridSizeY; y++) {
@@ -181,7 +187,7 @@ public class GridManager: MonoBehaviour
 
                penaltiesVerticalPass [x, y] = penaltiesVerticalPass [x, y-1] - penaltiesHorizontalPass [x,removeIndex] + penaltiesHorizontalPass [x, addIndex];
                blurredPenalty = Mathf.RoundToInt((float)penaltiesVerticalPass [x, y] / (kernelSize * kernelSize));
-               grid [x, y].MovementPenalty = blurredPenalty;
+               Grid [x, y].MovementPenalty = blurredPenalty;
               
               
                //GetMaxMin ----> Gizmos
@@ -197,7 +203,7 @@ public class GridManager: MonoBehaviour
 
    }
    
-   public Node NodeFromWorldPosition(Vector2 worldPosition)
+   public static Node NodeFromWorldPosition(Vector2 worldPosition)
    {
        // Check for the zero vector case
        if (worldPosition == Vector2.zero)
@@ -205,13 +211,13 @@ public class GridManager: MonoBehaviour
            // Return the center node of the _gridManager
            int centerX = GridSizeX / 2;
            int centerY = GridSizeY / 2;
-           return grid[centerX, centerY];
+           return Grid[centerX, centerY];
        }
        
        float percentX = worldPosition.x / GridWorldSize.x + 0.5f;
        float percentY = worldPosition.y / GridWorldSize.y + 0.5f;
-       //if worldPoision = (0,y) percentX = 0, (x, y) = 1, in center = 0.5x
-       // worldpoint.x/worldsize.x = the index x-axis of it, + 0.5f is center of it;
+       //if worldPosition = (0,y) percentX = 0, (x, y) = 1, in center = 0.5x
+       // worldPoint.x/worldSize.x = the index x-axis of it, + 0.5f is center of it;
 
 
        percentX = Mathf.Clamp01(percentX);
@@ -222,7 +228,7 @@ public class GridManager: MonoBehaviour
        int x = Mathf.FloorToInt(Mathf.Clamp((GridSizeX) * percentX, 0, GridSizeX - 1));
        //gridSizeX - 1 because in the array system, count from 0, so do it avoid out range of array
        int y = Mathf.FloorToInt(Mathf.Clamp((GridSizeY) * percentY, 0, GridSizeY - 1));
-       return grid[x, y];
+       return Grid[x, y];
    }
    #endregion
 
@@ -231,16 +237,23 @@ public class GridManager: MonoBehaviour
    public List<Node> path;
    void OnDrawGizmos() 
    {
-    Gizmos.DrawWireCube(gridCenter, new UnityEngine.Vector2(GridWorldSize.x, GridWorldSize.y));
+    Gizmos.DrawWireCube(_gridCenter, new UnityEngine.Vector2(GridWorldSize.x, GridWorldSize.y));
     
-    if (grid != null && displayOnGizmos) 
+    if (Grid != null && displayOnGizmos) 
     {
-       foreach (Node n in grid) {
+       foreach (Node n in Grid) {
            // Compute the color based on the movement penalty
            float normalizedPenalty = Mathf.InverseLerp(penaltyMin, penaltyMax, n.MovementPenalty);
            Color penaltyColor = Color.Lerp(Color.white, Color.black, normalizedPenalty);
            // Set the gizmo color based on walk ability
-           Gizmos.color = n.Walkable ? penaltyColor : Color.red;
+           if (walkableDisplay)
+           {
+               Gizmos.color = n.Walkable ? penaltyColor : Color.red;
+
+           }else if (drawableDisplay)
+           {
+               Gizmos.color = n.CanDraw ? Color.white : Color.gray;
+           }
            // Draw the gizmo cube at the node's position
            Gizmos.DrawCube(n.WorldPosition, Vector2.one * (NodeDiameter -0.05f));
        }
@@ -255,6 +268,7 @@ public class TerrainType
    public LayerMask terrainMask;
    public int terrainPenalty;
 }
+
 
 
 
