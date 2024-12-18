@@ -182,19 +182,45 @@ public class BuildingSpawner : MonoBehaviour, IObserver
                 }
                 
                 //Spawned object
-                GameObject building = _objectPooling.GetObj(buildingPrefab);
-                BuildingBase buildingBaseComponent = building.GetComponent<BuildingBase>();
+                GameObject buildingObj = _objectPooling.GetObj(buildingPrefab);
+                BuildingBase buildingComp = buildingObj.GetComponent<BuildingBase>();
                 
                 Vector2 spawnedPos = GetRandomPosition(ref maxRoadLength, waveInfo.ZoneRadius, _usedPositions);
                 
-                //Set z position to -0.5 to make it appears above the road because Camera is perspective
-                Vector3 position = new Vector3(spawnedPos.x,  spawnedPos.y, -0.5f);
-                Node buildingNode =GridManager.NodeFromWorldPosition(spawnedPos);
+                Vector3 position = new Vector3(spawnedPos.x,  spawnedPos.y, 0);
+                Node buildingNode = GridManager.NodeFromWorldPosition(spawnedPos);
 
-                buildingBaseComponent.Initialize(buildingNode, buildingType, spawnedPos);
-                _buildingManager.RegisterBuilding(buildingBaseComponent);
-                building.transform.position = position;
-                building.SetActive(true);   
+                buildingComp.Initialize(buildingNode, buildingType, spawnedPos);
+                _buildingManager.RegisterBuilding(buildingComp);
+                buildingObj.transform.position = SetTransformOnSize(buildingComp.parkingLotSize, buildingComp.Direction);
+                buildingObj.transform.rotation = SetRotationOnDirection(buildingComp.Direction);
+                buildingObj.SetActive(true);
+
+                Quaternion SetRotationOnDirection(DirectionType direction) =>
+                    direction switch
+                    {
+                        DirectionType.Left or DirectionType.Right => Quaternion.Euler(0, 0, -90),
+                        _ => Quaternion.Euler(0, 0, 0)
+                    };
+
+                Vector3 SetTransformOnSize(ParkingLotSize parkingLotSize, DirectionType direction)
+                {
+                    switch (parkingLotSize)
+                    {
+                        case ParkingLotSize._1x1 : //Return original position, no need to rotat
+                            return spawnedPos;
+                        case ParkingLotSize._2x2:
+                        case ParkingLotSize._2x3:
+                            Vector2 offset = direction switch
+                            {
+                                DirectionType.Up or DirectionType.Down => Vector2.left,
+                                DirectionType.Right or DirectionType.Left => Vector2.up,
+                                _ => Vector2.zero
+                            };
+                            return spawnedPos + offset * GridManager.NodeRadius;
+                    }
+                    return spawnedPos;
+                }
                 
             }
 

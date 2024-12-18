@@ -58,7 +58,8 @@ namespace Game._00.Script._03._Building
     
         public BuildingType BuildingType { get; private set; }  // Make it a property
         [SerializeField] protected float lifeTime = 2f;
-        [SerializeField] protected ParkingLotSize parkingLotSize = ParkingLotSize._1x1;
+        [SerializeField] public ParkingLotSize parkingLotSize = ParkingLotSize._1x1;
+        public DirectionType Direction { get; private set; }
         public void Initialize (Node node, BuildingType buildingType, Vector2 worldPosition)
         {
             _parkingMesh = FindObjectOfType<ParkingMesh> ();
@@ -76,10 +77,13 @@ namespace Game._00.Script._03._Building
                 { DirectionType.Down, DirectionType.Up, DirectionType.Left, DirectionType.Right };
             
             int randomIndex = Random.Range(0, directionTypes.Length);
+            Direction = directionTypes[3];
             //This has to be called first to set up for the next function, save parking nodes to set adj list to road nodes later
-            SetBuildingAndInsideRoads(node, parkingLotSize,directionTypes[randomIndex]);
+            SetBuildingAndInsideRoads(node, parkingLotSize,Direction);
             // Invoke("DeactivateBuilding", LifeTime);
-            SpawnRoad(node, parkingLotSize, directionTypes[randomIndex]);
+            SpawnRoad(node, parkingLotSize, Direction);
+            Debug.Log(directionTypes[3]);
+            Debug.Log(OriginBuildingNode.WorldPosition);
             _roadManager.FinishSpawningRoad(this);
         }
 

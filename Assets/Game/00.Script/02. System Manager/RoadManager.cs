@@ -97,14 +97,19 @@ public class RoadManager : SubjectBase, IObserver
         List<Node> connectedNodes = new List<Node>();
         foreach (Node node in outputNode)
         {
-            if (node.GraphIndex == startNode.GraphIndex)
+            if (node.GraphIndex == startNode.GraphIndex && node.WorldPosition != startNode.WorldPosition)
             {
                 connectedNodes.Add(node);
             }
         }
 
+        if (connectedNodes.Count == 1)
+        {
+            return connectedNodes[0];
+        }
+       
         //Get closest building to main building
-        if (connectedNodes.Count > 0)
+        if (connectedNodes.Count > 1)
         {
             foreach (Node building in connectedNodes)
             {
@@ -116,6 +121,15 @@ public class RoadManager : SubjectBase, IObserver
                     closestDistance = distance;
                     closestOutputNode = building;
                 }
+            }
+        }
+
+        if (closestOutputNode != null)
+        {
+            Debug.Log("Closest" + closestOutputNode.WorldPosition);
+            foreach (Node building in connectedNodes)
+            {
+                Debug.Log("Building " + building.WorldPosition);
             }
         }
         return closestOutputNode;

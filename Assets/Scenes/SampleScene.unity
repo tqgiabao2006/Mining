@@ -495,7 +495,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49fe3c293a25c4a709ec8b2499fe01b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  displayOnGizmos: 1
+  displayOnGizmos: 0
+  walkableDisplay: 0
+  drawableDisplay: 0
   UnwalkableMask:
     serializedVersion: 2
     m_Bits: 503
@@ -548,7 +550,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2fe648d0484484860ad8d4815c771217, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isGizmos: 0
+  isGizmos: 1
 --- !u!1 &353573754
 GameObject:
   m_ObjectHideFlags: 0
@@ -2135,6 +2137,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   displayOnGizmos: 0
+  walkableDisplay: 0
+  drawableDisplay: 0
   UnwalkableMask:
     serializedVersion: 2
     m_Bits: 0
@@ -3997,6 +4001,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   displayOnGizmos: 0
+  walkableDisplay: 0
+  drawableDisplay: 0
   UnwalkableMask:
     serializedVersion: 2
     m_Bits: 0

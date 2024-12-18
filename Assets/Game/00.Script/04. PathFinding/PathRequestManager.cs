@@ -24,8 +24,14 @@ namespace Game._00.Script.NewPathFinding
         {
             PathRequest pathRequest = new PathRequest(startPos, endPos);
             Vector3[] waypoints = _pathFinding.GetFuncFindPath()?.Invoke(pathRequest);
-            Vector3[] ellipseWaypoints = EllipsePath(waypoints, RoadManager.RoadWidth / 4f);
-            return ellipseWaypoints;
+            if (waypoints != null && waypoints.Length > 0)
+            {
+               Vector3[] ellipseWaypoints = EllipsePath(waypoints, RoadManager.RoadWidth / 4f);
+               return ellipseWaypoints;
+
+            }
+
+            return new Vector3[]{};
         }
 
         /// <summary>

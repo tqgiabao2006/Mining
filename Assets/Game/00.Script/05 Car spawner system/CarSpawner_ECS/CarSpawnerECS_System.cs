@@ -30,7 +30,7 @@ namespace Game._00.Script._05_Car_spawner_system.CarSpawner_ECS
         
         public void OnNotified(object data, string flag)
         {
-            if (data is ValueTuple<BuildingBase, BuildingBase, string> && flag == NotificationFlags.SpawnCar)
+            if (data is ValueTuple<Node, Node, string> && flag == NotificationFlags.SpawnCar)
             {
                 Debug.Log("On notified");
                 if (!_isNotified) //To avoid duplicate OnNotified call
@@ -42,7 +42,7 @@ namespace Game._00.Script._05_Car_spawner_system.CarSpawner_ECS
                     return;
                 }    
                 
-                ValueTuple<BuildingBase, BuildingBase, string> startEndBuildings = (ValueTuple<BuildingBase, BuildingBase, string>)data;
+                ValueTuple<Node, Node, string> startEndBuildings = (ValueTuple<Node, Node, string>)data;
                 Vector3[] waypoints = _pathRequestManager.GetPathWaypoints(startEndBuildings.Item1.WorldPosition, startEndBuildings.Item2.WorldPosition);
                 BlobAssetReference<BlobArray<float3>> waypointsBlob = CreateWaypointsBlob(waypoints);
                 SpawnCarEntity(startEndBuildings.Item3, new SpawnData()

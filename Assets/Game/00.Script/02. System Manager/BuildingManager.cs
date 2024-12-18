@@ -139,29 +139,45 @@ namespace Game._00.Script._02._System_Manager
             if (flag == NotificationFlags.CheckingConnection &&
                 data is (Func<List<Node>, Node, Node>))
             {
-                Debug.Log("Building OnNotified");
                 //Check all in unconnected graph:
                 Func<List<Node>, Node, Node> givenData = (Func<List<Node>, Node, Node>)data;
                 List<BuildingBase> removedNodes = new List<BuildingBase>();
             
                 foreach (BuildingBase building in _unconnectedBuildings.Keys)
                 {
+                    //Get all ouput buildings' parking nodes
                     List<Node> parkingNodes = new List<Node>();
                     foreach (BuildingBase b in GetOutputBuildings(building.BuildingType))
                     {
-                        parkingNodes.AddRange(b.ParkingNodes);
+                        if (b.parkingLotSize == ParkingLotSize._1x1) //The 1x1 building the car move to the building
+                        {
+                            parkingNodes.Add(GridManager.NodeFromWorldPosition(b.transform.position));
+                        }
+                        else
+                        {
+                            parkingNodes.AddRange(b.ParkingNodes);
+                        }
                     }
+
+                    if (parkingNodes.Count == 0)
+                    {
+                        return;
+                    }
+
+                    Node startNode = building.ParkingNodes[0];
+                    Node endNode = givenData(parkingNodes, building.ParkingNodes[0]);
                     
-                    Node closestNode = givenData(parkingNodes, building.ParkingNodes[0]);
-                    if (closestNode != null) 
+                    if (endNode != null)
                     {
                         CarSpawnInfo carSpawnInfo = _carSpawnInfos[building.BuildingType];
-                        StartCoroutine(SpawnCarWaves(parkingNodes[0], closestNode, carSpawnInfo));
+                        Debug.Log("Start: " + startNode.WorldPosition);
+                        Debug.Log("End: " + endNode.WorldPosition);
+                        StartCoroutine(SpawnCarWaves(startNode, endNode, carSpawnInfo));
                        
                         //Add to remove list to remove later
-                        if (_unconnectedBuildings.ContainsKey(closestNode.BelongedBuilding))
+                        if (_unconnectedBuildings.ContainsKey(endNode.BelongedBuilding))
                         {
-                            removedNodes.Add(closestNode.BelongedBuilding);
+                            removedNodes.Add(endNode.BelongedBuilding);
                         }
                         removedNodes.Add(building);
                         
@@ -171,7 +187,7 @@ namespace Game._00.Script._02._System_Manager
                            _connectedBuildings.Add(building.OriginBuildingNode.GraphIndex, new List<BuildingBase>());
                         }
                         _connectedBuildings[building.OriginBuildingNode.GraphIndex].Add(building);
-                        _connectedBuildings[building.OriginBuildingNode.GraphIndex].Add(closestNode.BelongedBuilding);
+                        _connectedBuildings[building.OriginBuildingNode.GraphIndex].Add(endNode.BelongedBuilding);
                     }
                 }
                 //Remove unconnected building
