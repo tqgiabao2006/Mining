@@ -83,6 +83,11 @@ namespace Game._00.Script._05_Car_spawner_system.CarSpawner_ECS
             }
             float3 spawnPosition = new float3(spawnData.StartPos.x, spawnData.StartPos.y, 0);
 
+            if (!EntityManager.HasComponent<ParkingWaypoints>(spawnedEntity))
+            {
+                EntityManager.AddBuffer<ParkingWaypoints>(spawnedEntity);
+            }
+            
             // Set components directly using EntityManager
             EntityManager.SetComponentData(spawnedEntity, new LocalTransform
             {
@@ -95,7 +100,7 @@ namespace Game._00.Script._05_Car_spawner_system.CarSpawner_ECS
             {
                 WaypointsBlob = spawnData.Waypoints
             });
-
+            
             EntityManager.SetComponentData(spawnedEntity, new CanRun()
             {
                 Value = true,

@@ -71,6 +71,12 @@ namespace Game._00.Script.ECS_Test.FactoryECS
         public int CurrentIndex;
     }
 
+    [InternalBufferCapacity(6)] //Max element is 6 ways point from the road node to parking lot to road node
+    public struct ParkingWaypoints : IBufferElementData
+    {
+        public float3 Value;
+    }
+    
     public struct CanRun : IComponentData
     {
         public bool Value;
