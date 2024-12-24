@@ -99,22 +99,22 @@ namespace Game._00.Script._03._Building
             //This has to be called first to set up for the next function, save parking nodes to set adj list to road nodes later
             SetBuildingAndInsideRoads(node, parkingLotSize,Direction);
             // Invoke("DeactivateBuilding", LifeTime);
-            SpawnRoad(node, parkingLotSize, Direction, 0);
+            SpawnRoad(node, parkingLotSize, Direction, 3);
             
             //After finish initialize parking lots, initlize bool[] to track if the parking lot is available
             _parkingResquest = new Queue<Entity>();
             _availableParking = new bool[_parkingNodes.Count];
             _roadManager.FinishSpawningRoad(this);
             
-            _parkingPoint = new float3(_originBuildingNode.WorldPosition.x - GridManager.NodeDiameter, _originBuildingNode.WorldPosition.y + GridManager.NodeRadius, 0f);
-            float3[] waypoints = GetParkingWaypoints(Direction, parkingLotSize,
-                _parkingPoint, _roadNode);
-            
+            float3 centerPoint= new float3(_originBuildingNode.WorldPosition.x - GridManager.NodeDiameter, _originBuildingNode.WorldPosition.y + GridManager.NodeRadius, 0f);
+            _parkingPoint = centerPoint;
+            float3[] waypoints = GetParkingWaypoints(OriginBuildingNode,Direction, parkingLotSize, _parkingPoint, centerPoint,_roadNode);
             _test_Waypoints = new List<Vector3>();
             foreach (float3 waypoint in waypoints)
             {
                 _test_Waypoints.Add(new Vector3(waypoint.x, waypoint.y, waypoint.z));
             }
+            PrintWaypoints(waypoints);
         }
 
         private void DeactivateBuilding()
@@ -523,191 +523,226 @@ namespace Game._00.Script._03._Building
          /// Get way points to direct the car to park following these rules:
          /// 1/ Always go from the right of a lane. If it is an outward lane, it = 1/4f Node radius (divided) Radius 2 lane, road. If it inward lane (lane close to building), it = 1/2 Node radius, 1 lane road
          /// 2/ Bot corner = corner close to the street, top corner = corner close to the building. Each = 1/2 node radius
-         /// 3/ Normally, go from bot corner to parking lot to top corner, there is 1 special situation on each direction that it reverses the route, from top to bot
+         /// 3/ Normally, go from bot corner to parking lot to top corner, there is 1 special situation on each buildingDirection that it reverses the route, from top to bot
          /// 4/ Step in, step out corner is to make sure to set car in the right lane of road outside, transStep is transition step between each corner and step in, step out
+         /// 5/ Parking Pos 
          /// </summary>
-         /// <param name="direction"></param>
+         /// <param name="buildingDirection>
          /// <param name="parkingLotSize"></param>
          /// <param name="parkingPos"></param>
          /// <param name="roadNode"></param>
+         /// <param name = "center point"></param> in the center of vertical (or horizontal if Right,Left) of parking (2 nodes)
          /// <returns></returns>
-         private float3[] GetParkingWaypoints(DirectionType direction, ParkingLotSize parkingLotSize, float3 parkingPos, Node roadNode)
+         private float3[] GetParkingWaypoints(Node originNode, DirectionType buildingDirection, ParkingLotSize parkingLotSize, float3 parkingPos, float3 centerPoint,Node roadNode)
          {
-            float3 originPos = new float3(OriginBuildingNode.WorldPosition.x, OriginBuildingNode.WorldPosition.y, 0);
-            float3 roadPos = new float3(RoadNode.WorldPosition.x, RoadNode.WorldPosition.y, 0);
-            Vector2 roadDir = GetRoadNodeDirection(roadNode);
-            
-            if (direction == DirectionType.Up || direction == DirectionType.Down)
-            {
-                float directionMultipler = direction == DirectionType.Up ? 1 : -1;
-                float sizeMultipler = parkingLotSize == ParkingLotSize._2x2 ? 1: 2; //Multipler to Node Diameter
-                
-                //This makes sure car entry completely to parking nodes before moving to 
-                float3 stepInCorner = float3.zero;
-                if ((direction == DirectionType.Up && roadDir == Vector2.left) ||
-                    (direction == DirectionType.Down && roadDir == Vector2.right)) //Special situation, when the direction multipler is wrong
-                {
-                    stepInCorner = new float3(roadPos.x + roadDir.x * GridManager.NodeRadius * 5/4f, roadPos.y + directionMultipler * RoadManager.RoadWidth/4f,0); //5/4f make it closest to the border of parking lot, making space for the leaving car 
-                }
-                else if ((direction == DirectionType.Up &&roadDir == Vector2.right) || (direction == DirectionType.Down &&roadDir == Vector2.left))
-                {
-                   stepInCorner = new float3(roadPos.x + roadDir.x * GridManager.NodeRadius * 5/4f, roadPos.y - directionMultipler * RoadManager.RoadWidth/4f,0); 
-                }
-                else
-                {
-                    stepInCorner = new float3(roadPos.x - directionMultipler * RoadManager.RoadWidth/4f, roadPos.y + roadDir.y * GridManager.NodeRadius * 5/4f,0 ); 
-                }
-               
-                //Bot corner.y close to road
-                //Top corner.y far from road
-                float3 topCorner = new float3(originPos.x - directionMultipler*GridManager.NodeRadius/2f, originPos.y + directionMultipler * (sizeMultipler * GridManager.NodeDiameter - GridManager.NodeRadius/2f), 0);
-                if (direction == DirectionType.Up)
-                {
-                    topCorner.x -= GridManager.NodeDiameter; //because in the up, the far right = far left 
-                }
-                float3 startTransStep = new float3(stepInCorner.x, topCorner.y, 0); //Transition from step in to top corner
-                
-                float3 botCorner = new float3(topCorner.x, topCorner.y  + GridManager.NodeRadius *3/4f *directionMultipler, 0); //5/4f make it closest to the border of parking lot, making space for the leaving car 
-                float3 topParking = new float3(parkingPos.x, topCorner.y, 0);
-                float3 botParking= new float3(parkingPos.x, botCorner.y,0);
-                
-                float3 stepOutCorner = float3.zero;
-                float3 endTransStep = float3.zero;
-                //The road node above the parking -> Skip the botCorner
-                if ((direction == DirectionType.Up &&roadDir == Vector2.right) || (direction == DirectionType.Down &&roadDir == Vector2.left))
-                { 
-                     stepOutCorner = new float3(roadPos.x + directionMultipler * GridManager.NodeRadius*5/4f, roadPos.y + directionMultipler * RoadManager.RoadWidth/4f,0);
-                
-                     endTransStep = new float3(stepOutCorner.x, botCorner.y, 0);
-                     return new float3[]
-                            { stepInCorner, startTransStep,topCorner, topParking, parkingPos, botParking, endTransStep,stepOutCorner };
-                }
-                
-                //Reverse
-                if ((direction == DirectionType.Up && roadDir == Vector2.left) ||
-                    (direction == DirectionType.Down && roadDir == Vector2.right))
-                {
-                    stepOutCorner = new float3(roadPos.x - directionMultipler*GridManager.NodeRadius*3/2f, roadPos.y - directionMultipler*RoadManager.RoadWidth/4f, 0); 
-                    botCorner.x += GridManager.NodeDiameter * 3/2f * directionMultipler;
-                    botCorner.y += directionMultipler * GridManager.NodeRadius / 2f;
-                    botParking.y = botCorner.y; 
-                    topCorner.x += GridManager.NodeDiameter * 3/2f * directionMultipler;
-                    endTransStep = new float3(stepOutCorner.x, topParking.y, 0);
-                    startTransStep = new float3(stepInCorner.x, botCorner.y, 0);
+             float nodeRadius = GridManager.NodeRadius;
+            float3 originPos = new float3(originNode.WorldPosition.x,originNode.WorldPosition.y, 0);
+            float3 roadPos = new float3(roadNode.WorldPosition.x, roadNode.WorldPosition.y, 0);
+            Vector2 roadDirection = GetRoadNodeDirection(roadNode);
 
-                    return new float3[] { stepInCorner,startTransStep,botCorner, botParking, parkingPos, topParking, endTransStep,stepOutCorner};
+            var inOutSteps = GetInOutCorner(roadNode, roadDirection);
+            float3 inCorner = inOutSteps.Item1;
+            float3 outCorner = inOutSteps.Item2;
+            
+            var botTopCorners = GetBotTopCorner(originPos, parkingLotSize, buildingDirection);
+            float3 botCorner = botTopCorners.Item1;
+            float3 topCorner = botTopCorners.Item2;
+
+            if (buildingDirection == DirectionType.Down || buildingDirection == DirectionType.Up)
+            {
+                float directionMultipler = buildingDirection == DirectionType.Up ? 1 : -1;
+                float3 botParking = new float3(parkingPos.x, centerPoint.y + directionMultipler * nodeRadius* 1/4f, 0);
+                float3 topParking = new float3(parkingPos.x, topCorner.y, 0);
+                
+                float3 inTransStep = new float3(inCorner.x, botCorner.y, 0);
+                float3 outTransStep = new float3(outCorner.x,botParking.y, 0);
+
+                //Skip bot corner
+                if ((buildingDirection == DirectionType.Up && roadDirection == Vector2.right) ||
+                    (buildingDirection == DirectionType.Down && roadDirection == Vector2.left))
+                {
+                    inTransStep = new float3(inCorner.x, topCorner.y, 0);
+                    botParking.y = centerPoint.y + directionMultipler * nodeRadius * 3/4f ;
+                    outTransStep = new float3(outCorner.x, botParking.y, 0);
+
+                    return new[]
+                    {
+                        inCorner, inTransStep, topCorner, topParking, parkingPos, botParking, outTransStep, outCorner
+                    };
+                }
+
+                //Reverse root
+                if ((buildingDirection == DirectionType.Up && roadDirection == Vector2.left) ||
+                    (buildingDirection == DirectionType.Down && roadDirection == Vector2.right))
+                {
+                    //Move bot corner x to the opposite side
+                    botCorner.x += directionMultipler * nodeRadius * 3;
+                    
+                    //Update bot, top parking && in,out trans step after changing bot corner
+                    botParking.y = botCorner.y;
+                    inTransStep = new float3( inCorner.x,botCorner.y, 0);
+                    outTransStep = new float3(outCorner.x, topParking.y, 0);
+
+                    return new[]
+                    {
+                        inCorner, inTransStep, botCorner, botParking, parkingPos, topParking, outTransStep,
+                        outCorner
+                    };
+                    
+                }
+                //Normally
+                return new[]
+                {
+                    inCorner, inTransStep, botCorner, topCorner, topParking, parkingPos, botParking, outTransStep,
+                    outCorner
+                };
+            }
+            
+            if (buildingDirection == DirectionType.Right || buildingDirection == DirectionType.Left)
+            {
+                float directionMultipler = buildingDirection == DirectionType.Right ? 1 : -1;
+                float3 topParking = new float3(topCorner.x, parkingPos.y, 0);
+                float3 botParking = new float3(centerPoint.x + directionMultipler * nodeRadius * 1/4f , parkingPos.y, 0);
+                
+                float3 inTransStep = new float3(botCorner.x, inCorner.y, 0);
+                float3 outTransStep = new float3(botParking.x, outCorner.y, 0);
+
+                //Skip bot corner because it has inCorner.x > botCorner.x
+                if ((roadDirection == Vector2.up && buildingDirection == DirectionType.Left) || (roadDirection == Vector2.down && buildingDirection == DirectionType.Right))
+                {
+                    //Set bot parking && bot corner to the left side of lane
+                    botCorner.x = centerPoint.x + directionMultipler * nodeRadius * 1 / 2f;
+                    botParking.x = botCorner.x;
+                    
+                    //Update out and in trans step: inTranStep, base on topCorner
+                    inTransStep = new float3(topCorner.x, inCorner.y, 0);
+                    outTransStep = new float3(botParking.x, outCorner.y, 0);
+
+                    return new[]
+                    {
+                        inCorner, inTransStep, topCorner, topParking, parkingPos, botParking, outTransStep, outCorner
+                    };
+                }
+                
+                if ((roadDirection == Vector2.down && buildingDirection == DirectionType.Left) || (roadDirection == Vector2.up && buildingDirection == DirectionType.Right))
+                {
+                    //Move y-axis of bot corner
+                    botCorner = new float3(centerPoint.x + directionMultipler * nodeRadius * 3/4f, parkingPos.y - directionMultipler * nodeRadius * 3/2f, 0);
+                    botParking.x = botCorner.x;
+                    
+                    //Re-calculate in/out trans
+                    inTransStep = new float3(botCorner.x, inCorner.y, 0);
+                    outTransStep = new float3(topParking.x, outCorner.y, 0);
+
+                    return new[]
+                    {
+                        inCorner, inTransStep, botCorner, botParking, parkingPos, topParking, outTransStep, outCorner
+                    };
                 }
                 
                 //Normal
-                stepOutCorner = new float3(roadPos.x + directionMultipler * RoadManager.RoadWidth/4f, roadPos.y - directionMultipler * GridManager.NodeRadius * 3/2f, 0);
-                startTransStep = new float3(botCorner.x, stepInCorner.y, 0);
-                endTransStep = new float3(stepOutCorner.x, botParking.y, 0);
-                return new float3[] { stepInCorner, startTransStep,botCorner, topCorner, topParking, parkingPos, botParking, endTransStep,stepOutCorner};
+                return new[]
+                {
+                    inCorner, inTransStep, botCorner, topCorner, topParking, parkingPos, botParking, outTransStep,
+                    outCorner
+                };
             }
-            else
+            
+            return new[] { float3.zero };
+            
+            // Return relative buildingDirection roadNode to the closest parking node. Vector2 left if parkign node on the left of road node
+            Vector2 GetRoadNodeDirection(Node roadNode)
             {
-                float directionMultipler = direction == DirectionType.Right ? 1 : -1;
-                float sizeMultipler = parkingLotSize == ParkingLotSize._2x2 ? 1: 2;
-
-                float3 stepInCorner = float3.zero;
-                if(roadDir == Vector2.up)//Reverse case
+                List<Node> neighborus = roadNode.GetNeighbours();
+                ;
+                foreach (Node n in neighborus)
                 {
-                    stepInCorner = new float3(roadPos.x + RoadManager.RoadWidth / 4f, roadPos.y + GridManager.NodeRadius *5/4f, 0);
-                }else if (roadDir == Vector2.down)
-                {
-                    stepInCorner = new float3(roadPos.x - RoadManager.RoadWidth / 4f, roadPos.y - GridManager.NodeRadius *5/4f, 0);
-                }
-                else
-                {
-                    stepInCorner = new float3(roadPos.x - directionMultipler * GridManager.NodeRadius * 5/4f, roadPos.y + directionMultipler *RoadManager.RoadWidth / 4f, 0);
-                }
-               
-                //Bot corner.x close to road
-                //Top corner.x far from road
-                float3 botCorner = new float3(originPos.x + sizeMultipler * directionMultipler * GridManager.NodeDiameter +  directionMultipler* GridManager.NodeRadius * 3/4f, 
-                    originPos.y +  GridManager.NodeRadius * (direction == DirectionType.Right ? 5/2f : -3/4f),0);
-                float3 topCorner = new float3(botCorner.x - directionMultipler * GridManager.NodeRadius * 5/4f, botCorner.y,0);
-                float3 topParking = new float3(topCorner.x, parkingPos.y, 0);
-                float3 botParking = new float3(botCorner.x - directionMultipler *  1/2f* GridManager.NodeRadius, parkingPos.y, 0);
-                
-                float3 stepOutCorner = float3.zero;
-                if (roadDir == Vector2.down) //The road node above the parking -> Skip the botCorner
-                {
-                    stepOutCorner = new float3(roadPos.x + RoadManager.RoadWidth / 4f, roadPos.y - GridManager.NodeRadius * 5/4f, 0);
-
-                    if (direction == DirectionType.Right)
+                    //Avoid diagonal roadNode into calculation
+                    if (n.BelongedBuilding == roadNode.BelongedBuilding && (Mathf.Approximately(n.WorldPosition.x, roadNode.WorldPosition.x) || Mathf.Approximately(n.WorldPosition.y, roadNode.WorldPosition.y)))
                     {
-                        float3 startTransStep = new float3(topCorner.x, stepInCorner.y, 0);
-                        float3 endTransStep = new float3(botParking.x, stepOutCorner.y, 0);
-                        return new float3[] { stepInCorner, startTransStep, topCorner, topParking, parkingPos, botParking, endTransStep ,stepOutCorner};
-                    }
-                    else
-                    {
-                        botCorner.y = botParking.y;
-                        float3 startTransStep = new float3(botCorner.x, stepInCorner.y, 0);
-                        float3 endTransStep = new float3(topCorner.x, stepOutCorner.y, 0);
-                        return new float3[] { stepInCorner, startTransStep, botCorner, botParking, parkingPos, topParking, endTransStep ,stepOutCorner};
+                        Vector2 dir = n.WorldPosition - roadNode.WorldPosition;
+                        if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y))
+                        {
+                            return dir.x > 0 ? Vector2.right : Vector2.left;
+                        }
+
+                        return dir.y > 0 ? Vector2.up : Vector2.down;
 
                     }
-                  
-
                 }
-                if (roadDir == Vector2.up) //Reverse the flow use LEFT = top -> bot, RIGHT = bot -> top
+                return Vector2.zero;
+            }
+            
+            //Get stepInCorner and stepOutCorner
+            
+            (float3, float3)GetBotTopCorner(float3 originPos, ParkingLotSize size, DirectionType buildingDirection)
+            {
+                float sizeMultipler = size == ParkingLotSize._2x2 ? 1 : 2;
+                float rightOffset = GridManager.NodeRadius * 3 / 4f; //To set the bot corner on the right of lanes when car enter
+                float normalOffset = GridManager.NodeRadius * 1 / 2f;
+                float nodeDiameter = GridManager.NodeDiameter;
+
+
+                return buildingDirection switch
+                {   
+                    DirectionType.Up => (
+                        new float3(originPos.x - nodeDiameter - rightOffset, originPos.y + sizeMultipler * nodeDiameter + rightOffset, 0),
+                        new float3(originPos.x - nodeDiameter - rightOffset, originPos.y + sizeMultipler * nodeDiameter - normalOffset, 0)
+                    ),
+                    DirectionType.Down => (
+                        new float3(originPos.x + rightOffset, originPos.y - sizeMultipler * nodeDiameter - rightOffset, 0),
+                        new float3(originPos.x + rightOffset, originPos.y - sizeMultipler * nodeDiameter + normalOffset, 0)
+                    ),
+                    DirectionType.Right => ( //this have Y higher than originPos.y
+                            new float3(originPos.x + sizeMultipler * nodeDiameter + rightOffset, originPos.y + nodeDiameter + normalOffset, 0),
+                            new float3(originPos.x + sizeMultipler * nodeDiameter - normalOffset, originPos.y + nodeDiameter + normalOffset, 0)
+                        ),
+                    DirectionType.Left => ( //this have Y lower than originPos.y
+                            new float3(originPos.x - sizeMultipler * nodeDiameter - rightOffset, originPos.y - normalOffset, 0),
+                            new float3(originPos.x - sizeMultipler * nodeDiameter + normalOffset, originPos.y - normalOffset, 0)
+                        ),
+                    _ => (float3.zero, float3.zero)
+                };
+
+
+            }
+            
+            (float3, float3) GetInOutCorner(Node roadNode, Vector2 roadDirection)
+            {
+                float roadWidth = RoadManager.RoadWidth;
+                float nodeRadius = GridManager.NodeRadius;
+                float3 roadPos = roadNode.WorldPosition;
+
+                float offsetX = roadWidth / 4f;
+                float offsetY = nodeRadius * 5 / 4f;
+
+                return roadDirection switch
                 {
-                    stepOutCorner = new float3(roadPos.x - RoadManager.RoadWidth / 4f, roadPos.y + GridManager.NodeRadius * 5/4f, 0);
-                    botCorner.y -= GridManager.NodeDiameter * 3/2f;
+                    Vector2 dir when dir == Vector2.down => (
+                        new float3(roadPos.x - offsetX, roadPos.y - offsetY, 0),
+                        new float3(roadPos.x + offsetX, roadPos.y - offsetY, 0)
+                    ),
 
-                    if (direction == DirectionType.Right)
-                    {
-                        botParking = new float3(parkingPos.x + GridManager.NodeRadius * 3/4f, topParking.y, 0); //Change bot parking because botCorner changed
-                        float3 startTransStep = new float3(botCorner.x, stepInCorner.y, 0);
-                        float3 endTransStep = new float3(topParking.x, stepOutCorner.y, 0);
-                        return new float3[] { stepInCorner, startTransStep, botCorner, botParking, parkingPos, topParking, endTransStep,stepOutCorner};
-                        
-                    }else if (direction == DirectionType.Left)
-                    {
-                        topCorner.x += 1/4f * GridManager.NodeRadius;
-                        botParking = new float3(parkingPos.x - GridManager.NodeRadius * 1/4f, topParking.y, 0); //Change bot parking because botCorner changed
-                        topParking.x = topCorner.x; //Because from car, it is on the left
-                        float3 startTransStep = new float3(topCorner.x, stepInCorner.y, 0);
-                        float3 endTransStep = new float3(botParking.x, stepOutCorner.y, 0);
-                        return new float3[] { stepInCorner, startTransStep, topCorner, topParking, parkingPos, botParking, endTransStep,stepOutCorner};
-                    }
-                  
-                }
-                
-                stepOutCorner = new float3(roadPos.x - directionMultipler * GridManager.NodeRadius * 5/4f, roadPos.y - directionMultipler * RoadManager.RoadWidth/4f,0);
-                float3 startTransStep1 = new float3(botCorner.x, stepInCorner.y, 0);
-                float3 endTransStep1 = new float3(botParking.x, stepOutCorner.y, 0);
-                return new float3[] { stepInCorner, startTransStep1,botCorner, topCorner, topParking, parkingPos, botParking, endTransStep1, stepOutCorner};
-                
+                    Vector2 dir when dir == Vector2.up => (
+                        new float3(roadPos.x + offsetX, roadPos.y + offsetY, 0),
+                        new float3(roadPos.x - offsetX, roadPos.y + offsetY, 0)
+                    ),
+
+                    Vector2 dir when dir == Vector2.left => (
+                        new float3(roadPos.x - offsetY, roadPos.y + offsetX, 0),
+                        new float3(roadPos.x - offsetY, roadPos.y - offsetX, 0)
+                    ),
+
+                    Vector2 dir when dir == Vector2.right => (
+                        new float3(roadPos.x + offsetY, roadPos.y - offsetX, 0),
+                        new float3(roadPos.x + offsetY, roadPos.y + offsetX, 0)
+                    ),
+
+                    _ => (float3.zero, float3.zero),
+                };
             }
          }
-
-        // Return relative direction roadNode to closest parking node. Vector2 left if parkign node on the left of road node
-        Vector2 GetRoadNodeDirection(Node roadNode)
-        {
-            List<Node> neighborus = roadNode.GetNeighbours();
-            ;
-            foreach (Node n in neighborus)
-            {
-                //Avoid diagonal roadNode into calculation
-                if (n.BelongedBuilding == roadNode.BelongedBuilding && (Mathf.Approximately(n.WorldPosition.x, roadNode.WorldPosition.x) || Mathf.Approximately(n.WorldPosition.y, roadNode.WorldPosition.y)))
-                {
-                    Vector2 dir = n.WorldPosition - roadNode.WorldPosition;
-                    if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y))
-                    {
-                        return dir.x > 0 ? Vector2.right : Vector2.left;
-                    }
-
-                    return dir.y > 0 ? Vector2.up : Vector2.down;
-
-                }
-            }
-
-            return Vector2.zero;
-        }
-
+         
         private void PrintWaypoints(float3[] waypoints)
         {
             for (int i = 0; i < waypoints.Length; i++)
