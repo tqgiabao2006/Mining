@@ -16,8 +16,6 @@ public class GameStateManager : SubjectBase, IObserver
     
     //Chained notifications:
     
-    //Observesrs:
-   private BuildingSpawner _buildingSpawner;
 
     public void Initialize()
     {
@@ -90,14 +88,11 @@ public class GameStateManager : SubjectBase, IObserver
         // }
     }
 
+
     public override void ObserversSetup()
     {
-        _buildingSpawner = FindObjectOfType<BuildingSpawner>();
-       _observers.Add(_buildingSpawner);
+        
     }
-    
-    
-    
 }
 
 public interface IState

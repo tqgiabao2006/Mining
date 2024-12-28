@@ -47,7 +47,6 @@ namespace Game._00.Script._03._Building
         private Vector3 _parkingPoint;
         
         private RoadManager _roadManager;
-        private GridManager _gridManager;
         private EntityManager _entityManager;
         
         protected Vector2 _worldPosition;
