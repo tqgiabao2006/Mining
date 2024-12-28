@@ -22,9 +22,7 @@ public class RoadManager : SubjectBase, IObserver
     private int _graphCount;
         
     private RoadMesh _roadMesh;
-    private GameStateManager _gameStateManager;
     private BuildingManager _buildingManager; 
-    
     
     private void Start()
     {
@@ -34,7 +32,6 @@ public class RoadManager : SubjectBase, IObserver
     private void Initialize()
     {
         _roadMesh = FindObjectOfType<RoadMesh>();
-        _gameStateManager = GameManager.Instance.GameStateManager;
         _buildingManager = GameManager.Instance.BuildingManager;    
         
         _nodeList = new List<Node>();
@@ -52,7 +49,7 @@ public class RoadManager : SubjectBase, IObserver
     /// </summary>
     /// <param name="node"></param>
     /// <param name="buildingType"></param>
-    public void PlaceNode(Node node, BuildingBase building)
+    public void PlaceNode(Node node)
     { 
         if (!_nodeList.Contains(node))
         {
@@ -60,24 +57,7 @@ public class RoadManager : SubjectBase, IObserver
             _nodeList.Add(node);
         }
     }
-
-    /// <summary>
-    /// Used when finishing spawning, all nodes, parking nodes, because some building is complex, so we can not call immediately after it spawn (race condition)
-    /// we have to way until all of its roads is spawned.
-    /// </summary>
-    /// <param name="building"></param>
-    public void FinishSpawningRoad(BuildingBase building)
-    {
-        if (building != null) 
-        {
-            //Register building first before checking connection
-            Notify(building, NotificationFlags.RegisterBuilding);
-            //Check connection when new building is spawned
-            Notify(CheckConnectionDelegate, NotificationFlags.CheckingConnection);
-        }   
-    }
     
-
     /// <summary>
     /// Get graph list for pathfinding
     /// </summary>

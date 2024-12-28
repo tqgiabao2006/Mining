@@ -119,7 +119,6 @@ namespace Game._00.Script._03._Building
             //After finish initialize parking lots, initlize bool[] to track if the parking lot is available
             _parkingResquest = new Queue<Entity>();
             _availableParking = new bool[_parkingNodes.Count];
-            _roadManager.FinishSpawningRoad(this);
             
             float3 centerPoint= new float3(_originBuildingNode.WorldPosition.x - GridManager.NodeDiameter * 2, _originBuildingNode.WorldPosition.y + GridManager.NodeRadius, 0f);
             _parkingPoint = centerPoint;
@@ -240,10 +239,10 @@ namespace Game._00.Script._03._Building
                 {
                     insideRoadNode.SetDrawable(false);
                 }
-                _roadManager.PlaceNode(insideRoadNode, null);
+                _roadManager.PlaceNode(insideRoadNode);
             }
 
-            _roadManager.PlaceNode(originalBuildingNode, this);
+            _roadManager.PlaceNode(originalBuildingNode);
             _parkingMesh.PlaceBuildingMesh(originalBuildingNode, parkingLotSize, buildingDirection );
         }
         
@@ -280,7 +279,7 @@ namespace Game._00.Script._03._Building
                 _roadNode = roadNode;
                 _roadNode.SetBelongedBuilding(this);
                 
-                _roadManager.PlaceNode(roadNode, null);
+                _roadManager.PlaceNode(roadNode);
                 _roadManager.SetAdjList(roadNode, buildingNode);
                 _roadManager.CreateMesh(roadNode);
             }
@@ -358,7 +357,7 @@ namespace Game._00.Script._03._Building
                 }
                 _roadNode = roadNode;
                 _roadNode.SetBelongedBuilding(this);
-                _roadManager.PlaceNode(roadNode, null);
+                _roadManager.PlaceNode(roadNode);
 
                 //Get the closest node to the road node, set it to drawable to make it connect to the road node
                 float minDst = float.MaxValue;

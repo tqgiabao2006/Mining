@@ -76,16 +76,18 @@ namespace Game._00.Script._03._Building
         }
         #endregion
         
-        public void RegisterBuilding(BuildingBase buildingBase)
+        public void RegisterBuilding(BuildingBase building)
         {
-            if (_currentBuildings.ContainsKey(buildingBase.BuildingType))
+            if (_currentBuildings.ContainsKey(building.BuildingType))
             {
-                _currentBuildings[buildingBase.BuildingType].Add(buildingBase);
+                _currentBuildings[building.BuildingType].Add(building);
             }
             else
             {
-                _currentBuildings.Add(buildingBase.BuildingType, new List<BuildingBase>() { buildingBase });
+                _currentBuildings.Add(building.BuildingType, new List<BuildingBase>() { building });
             }
+            
+            _unconnectedBuildings.Add(building, building.ParkingNodes);
         }
 
         public List<BuildingBase> GetOutputBuildings(BuildingType buildingType)
@@ -183,11 +185,6 @@ namespace Game._00.Script._03._Building
                     _unconnectedBuildings.Remove(building);
                 }
             }
-            else if (flag == NotificationFlags.RegisterBuilding && data is BuildingBase)
-            {
-                BuildingBase building = (BuildingBase)data;
-                _unconnectedBuildings.Add(building, building.ParkingNodes);
-            }
         }
     }
 
@@ -196,11 +193,5 @@ namespace Game._00.Script._03._Building
         public string Car;
         public float DelayTime; //Wait after previous wave finish
         public int Amount;
-        public CarSpawnInfo(string car, float delayTime, int amount)
-        {
-            Car = car;
-            DelayTime = delayTime;
-            Amount = amount;
-        }
     }
 }

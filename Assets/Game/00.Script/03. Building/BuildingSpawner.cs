@@ -196,8 +196,19 @@ public class BuildingSpawner : MonoBehaviour, IObserver
                 _buildingManager.RegisterBuilding(buildingComp);
                 buildingObj.transform.position = SetTransformOnSize(buildingComp.parkingLotSize, buildingComp.BuildingDirection);
                 buildingObj.transform.rotation = SetRotationOnDirection(buildingComp.BuildingDirection);
+                buildingObj.transform.localScale = SetScaleOnSize(buildingComp.parkingLotSize);
                 buildingObj.SetActive(true);
 
+                Vector3 SetScaleOnSize(ParkingLotSize size)
+                {
+                    return size switch
+                    {
+                        ParkingLotSize._2x2 => new Vector3(1.5f, 1, 1),
+                        ParkingLotSize._2x3 => new Vector3(1.5f, 1.5f, 1),
+                        _ => new Vector3(1, 1, 1),
+                    };
+                }
+                
                 Quaternion SetRotationOnDirection(BuildingDirection direction) =>
                     direction switch
                     {

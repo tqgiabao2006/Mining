@@ -105,7 +105,7 @@ public class PlacingSystem : SubjectBase
 
             if (newNode != _curNode) 
             {
-                _roadManager.PlaceNode(newNode, null);
+                _roadManager.PlaceNode(newNode);
                 _roadManager.SetAdjList(_curNode, newNode);
                 _selectedNodes.Add(newNode);
                 _roadManager.CreateMesh(newNode);
