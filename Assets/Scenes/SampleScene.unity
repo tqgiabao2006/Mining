@@ -926,8 +926,8 @@ MonoBehaviour:
   - BuildingType: 0
     Prefab: {fileID: 3689738951310742799, guid: 3981291a478a34a83a6052f1b5e891bd, type: 3}
   - BuildingType: 1
-    Prefab: {fileID: 3949733121163879824, guid: 4360d03e5d28b479c9d0df8f23db0f54, type: 3}
-  - BuildingType: 3
+    Prefab: {fileID: 2527342892843654057, guid: 5d667563bd6694db594e97164024ed31, type: 3}
+  - BuildingType: 2
     Prefab: {fileID: 3949733121163879824, guid: 4360d03e5d28b479c9d0df8f23db0f54, type: 3}
   maxWaves: 4
   buildingBoundary: 0.5

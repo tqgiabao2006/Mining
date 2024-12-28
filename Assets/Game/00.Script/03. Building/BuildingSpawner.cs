@@ -194,7 +194,7 @@ public class BuildingSpawner : MonoBehaviour, IObserver
 
                 buildingComp.Initialize(buildingNode, buildingType, spawnedPos);
                 _buildingManager.RegisterBuilding(buildingComp);
-                buildingObj.transform.position = SetTransformOnSize(buildingComp.parkingLotSize, buildingComp.BuildingDirection);
+                buildingObj.transform.position = SetTransformOnSize(buildingComp.parkingLotSize, buildingComp.BuildingDirection, spawnedPos);
                 buildingObj.transform.rotation = SetRotationOnDirection(buildingComp.BuildingDirection);
                 buildingObj.transform.localScale = SetScaleOnSize(buildingComp.parkingLotSize);
                 buildingObj.SetActive(true);
@@ -203,7 +203,7 @@ public class BuildingSpawner : MonoBehaviour, IObserver
                 {
                     return size switch
                     {
-                        ParkingLotSize._2x2 => new Vector3(1.5f, 1, 1),
+                        ParkingLotSize._2x2 => new Vector3(1.5f, 0.9f, 1),
                         ParkingLotSize._2x3 => new Vector3(1.5f, 1.5f, 1),
                         _ => new Vector3(1, 1, 1),
                     };
@@ -216,23 +216,37 @@ public class BuildingSpawner : MonoBehaviour, IObserver
                         _ => Quaternion.Euler(0, 0, 0)
                     };
 
-                Vector3 SetTransformOnSize(ParkingLotSize parkingLotSize, BuildingDirection direction)
+                Vector3 SetTransformOnSize(ParkingLotSize parkingLotSize, BuildingDirection direction, Vector2 spawnPos)
                 {
+                    Vector2 offset;
                     switch (parkingLotSize)
                     {
-                        case ParkingLotSize._1x1 : //Return original position, no need to rotat
-                            return spawnedPos;
                         case ParkingLotSize._2x2:
-                        case ParkingLotSize._2x3:
-                            Vector2 offset = direction switch
+                            if (direction == BuildingDirection.Left || direction == BuildingDirection.Right)
                             {
-                                BuildingDirection.Up or BuildingDirection.Down => Vector2.left,
-                                BuildingDirection.Right or BuildingDirection.Left => Vector2.up,
-                                _ => Vector2.zero
-                            };
-                            return spawnedPos + offset * GridManager.NodeRadius;
+                                offset = new Vector2(0, 1);
+                            }
+                            else
+                            {
+                                offset = new Vector2(-1, 0);
+                            }
+                            break;
+                        case ParkingLotSize._2x3:
+                            if (direction == BuildingDirection.Left || direction == BuildingDirection.Right)
+                            {
+                                offset = new Vector2((direction == BuildingDirection.Right ? 1: -1), 1);
+                            }
+                            else
+                            {
+                                offset = new Vector2(-1,(direction == BuildingDirection.Up? 1: -1));
+                            }
+
+                            break;
+                        default:
+                            offset = Vector2.zero;
+                            break;
                     }
-                    return spawnedPos;
+                    return spawnPos + offset * GridManager.NodeRadius;
                 }
                 
             }
