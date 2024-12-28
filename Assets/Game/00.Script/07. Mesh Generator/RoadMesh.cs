@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Game._00.Script._00._Core_Assembly_Def;
 using Game._00.Script._05._Manager;
 using UnityEngine;
 
@@ -48,10 +49,15 @@ namespace Game._00.Script._07._Mesh_Generator
         //Class
         private RoadManager _roadManager;
         private GridManager _gridManager;
-    
+        
+        
+        //Basic congig
         private List<Vector3> _vertices;
         private List<int> _triangles; 
         private List<Vector2> _uvs;
+        
+        private float _roadWidth;
+        private float _nodeRadius;
     
         private List<CombineInstance> meshCombineList = new List<CombineInstance>();
         
@@ -77,6 +83,9 @@ namespace Game._00.Script._07._Mesh_Generator
             _vertices = new List<Vector3>();
             _triangles = new List<int>();
             _uvs = new List<Vector2>();
+
+            _roadWidth = RoadManager.RoadWidth;
+            _nodeRadius =GridManager.NodeRadius;
         }
     
         /// <summary>
@@ -261,7 +270,7 @@ namespace Game._00.Script._07._Mesh_Generator
         #region SubMesh
         private void AddOppositeCorner(Vector2 nodePos,List<Vector3> vertices, List<int> triangles, float startAngle, float endAngle, float diagonalAngle ,int curveSmoothness)
         {
-            float halfWidth = RoadManager.RoadWidth/ 2f;
+            float halfWidth = _roadWidth/ 2f;
             Vector3 triangleOrigin = Vector3.zero;
             Vector3 center = Vector3.zero;
             float radius = 0;
@@ -315,7 +324,7 @@ namespace Game._00.Script._07._Mesh_Generator
         private void AddBottomCorner(Vector2 nodePos, List<Vector3> vertices, List<int> triangles, float startAngle, float endAngle,int curveSmoothness)
         {
             Vector3 center = nodePos;
-            float radius = RoadManager.RoadWidth/ 2f; //= haflWidth
+            float radius = _roadWidth/ 2f; //= haflWidth
             int centerIndex = vertices.Count;
             vertices.Add(center);
         
@@ -365,46 +374,46 @@ namespace Game._00.Script._07._Mesh_Generator
             //Read bitwiseDirection bitwise:
             if ((bakedBitwiseDirection & BitwiseDirection.Up) == BitwiseDirection.Up)
             {
-                AddRectangleMesh(vertices, triangles, DirectionType.Up, nodePos, RoadManager.RoadWidth, 1,1,1,0);
+                AddRectangleMesh(vertices, triangles, DirectionType.Up, nodePos, _roadWidth, 1,1,1,0);
             }
             if ((bakedBitwiseDirection & BitwiseDirection.Right) == BitwiseDirection.Right)
             {
-                AddRectangleMesh(vertices, triangles, DirectionType.Right, nodePos,RoadManager.RoadWidth, 0,1,1,1);
+                AddRectangleMesh(vertices, triangles, DirectionType.Right, nodePos,_roadWidth, 0,1,1,1);
             }
             if ((bakedBitwiseDirection & BitwiseDirection.Bottom) == BitwiseDirection.Bottom)
             {
-                AddRectangleMesh(vertices, triangles, DirectionType.Down, nodePos, RoadManager.RoadWidth, 1,1, 0,1);
+                AddRectangleMesh(vertices, triangles, DirectionType.Down, nodePos, _roadWidth, 1,1, 0,1);
             }
             if ((bakedBitwiseDirection & BitwiseDirection.Left) == BitwiseDirection.Left)
             {
-                AddRectangleMesh(vertices, triangles, DirectionType.Left, nodePos, RoadManager.RoadWidth, 1,0, 1,1);
+                AddRectangleMesh(vertices, triangles, DirectionType.Left, nodePos, _roadWidth, 1,0, 1,1);
             }
         
             if ((bakedBitwiseDirection & BitwiseDirection.BottomRight) == BitwiseDirection.BottomRight)
             {
                 int startIndex = vertices.Count;
-                AddRectangleMesh(vertices, triangles, DirectionType.Up, nodePos,  RoadManager.RoadWidth, 1, 1, 1.44f, 0);
+                AddRectangleMesh(vertices, triangles, DirectionType.Up, nodePos,  _roadWidth, 1, 1, 1.44f, 0);
                 RotateVertices(nodePos, startIndex,135, vertices);
             }
         
             if ((bakedBitwiseDirection & BitwiseDirection.UpRight) == BitwiseDirection.UpRight)
             {
                 int startIndex = vertices.Count;  
-                AddRectangleMesh(vertices, triangles, DirectionType.Up, nodePos,  RoadManager.RoadWidth, 1, 1, 1.44f, 0); //Scale = sqrt(2)
+                AddRectangleMesh(vertices, triangles, DirectionType.Up, nodePos, _roadWidth, 1, 1, 1.44f, 0); //Scale = sqrt(2)
                 RotateVertices(nodePos, startIndex,45, vertices);
             }
         
             if ((bakedBitwiseDirection & BitwiseDirection.BottomLeft) == BitwiseDirection.BottomLeft)
             {
                 int startIndex = vertices.Count;  
-                AddRectangleMesh(vertices, triangles, DirectionType.Up, nodePos, RoadManager.RoadWidth, 1, 1, 1.44f, 0);
+                AddRectangleMesh(vertices, triangles, DirectionType.Up, nodePos, _roadWidth, 1, 1, 1.44f, 0);
                 RotateVertices(nodePos,startIndex ,225, vertices);
             }
         
             if ((bakedBitwiseDirection & BitwiseDirection.UpLeft) == BitwiseDirection.UpLeft)
             {
                 int startIndex = vertices.Count;  
-                AddRectangleMesh(vertices, triangles, DirectionType.Up, nodePos,RoadManager.RoadWidth, 1, 1, 1.44f, 0);
+                AddRectangleMesh(vertices, triangles, DirectionType.Up, nodePos,_roadWidth, 1, 1, 1.44f, 0);
                 RotateVertices(nodePos, startIndex,315, vertices);
             }
         }

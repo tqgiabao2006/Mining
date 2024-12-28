@@ -1,3 +1,4 @@
+using Game._00.Script._00._Core_Assembly_Def;
 using Game._00.Script._05._Manager;
 using Game._00.Script.NewPathFinding;
 using Game._03._Scriptable_Object;

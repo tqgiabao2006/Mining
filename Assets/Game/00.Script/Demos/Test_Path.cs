@@ -70,7 +70,7 @@ public class Test_Path : MonoBehaviour
             for (int i = pathWaypoints.Length - 1; i > 0; i--)
             {
                 Vector2 direction = (pathWaypoints[i-1] - pathWaypoints[i]);
-                Debug.Log("Reverse direction: " + direction);
+                Debug.Log("Reverse buildingDirection: " + direction);
                 if (direction == Vector2.zero)
                 {
                     continue;

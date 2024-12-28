@@ -105,7 +105,7 @@ namespace Game._00.Script._05_Car_spawner_system.CarSpawner_ECS
                
                 
                 
-                if (math.distance(car.LocalTransform.ValueRO.Position, nextWaypoint) >= 0.05f) //Avoid null direction
+                if (math.distance(car.LocalTransform.ValueRO.Position, nextWaypoint) >= 0.05f) //Avoid null buildingDirection
                 {
                     car.LocalTransform.ValueRW.Position += direction * car.Speed.ValueRO.CurSpeed * DeltaTime;
                 }

@@ -210,8 +210,8 @@
 //         // Vector3 center1 = new Vector3(-0.4f, -0.4f, 0);
 //         // CreateCorner(corner1, center1, vertices, triangles, 20, 0.15f, 0 ,90);
 //         //
-//         // AddRectangleMesh(vertices, triangles, DirectionType.Down, Vector2.zero);
-//         // AddRectangleMesh(vertices, triangles, DirectionType.Right, Vector2.zero);
+//         // AddRectangleMesh(vertices, triangles, RoadMeshDirection.Down, Vector2.zero);
+//         // AddRectangleMesh(vertices, triangles, RoadMeshDirection.Right, Vector2.zero);
 //         //
 //         // Vector2 corner2 = new Vector2(0.25f, -0.25f);
 //         // Vector3 center2 = new Vector3(0.4f, -0.4f, 0);
@@ -226,8 +226,8 @@
 //         // CreateCorner(corner4, center4, vertices, triangles, 20, 0.15f, 270 , 360);
 //         
 //         // //T Junction:
-//         // AddRectangleMesh(vertices, triangles, DirectionType.Down, new Vector2(0, 0), 0.5f, 1, 1, 0, 1);
-//         // AddRectangleMesh(vertices, triangles, DirectionType.Right, Vector2.zero, 0.5f, 1, 1, 1, 1);
+//         // AddRectangleMesh(vertices, triangles, RoadMeshDirection.Down, new Vector2(0, 0), 0.5f, 1, 1, 0, 1);
+//         // AddRectangleMesh(vertices, triangles, RoadMeshDirection.Right, Vector2.zero, 0.5f, 1, 1, 1, 1);
 //         //
 //         // Vector2 corner1 = new Vector2(-0.5f, -0.5f);
 //         // Vector3 center1 = new Vector3(-0.64f, -0.64f, 0);
@@ -327,10 +327,10 @@
 //         return randomRadius;
 //     }
 //     
-//     private void AddRectangleMesh(List<Vector3> vertices, List<int> triangles, DirectionType direction, Vector2 pivot, float roadWidth = 1f, float leftScale = 1f , float rightScale = 1f, float upScale = 1f, float downScale = 1f)
+//     private void AddRectangleMesh(List<Vector3> vertices, List<int> triangles, RoadMeshDirection buildingDirection, Vector2 pivot, float roadWidth = 1f, float leftScale = 1f , float rightScale = 1f, float upScale = 1f, float downScale = 1f)
 //     {
 //         Debug.Log("Pivot: " + pivot);
-//         List<Vector3> rectangleVertices = CreateRectangleVertices(direction, pivot, roadWidth, _gridManager.NodeRadius,leftScale, rightScale, upScale, downScale);
+//         List<Vector3> rectangleVertices = CreateRectangleVertices(buildingDirection, pivot, roadWidth, _gridManager.NodeRadius,leftScale, rightScale, upScale, downScale);
 //
 //         int startIndex = vertices.Count; // Get the starting index of the new vertices
 //         
@@ -344,7 +344,7 @@
 //     }
 //     
 //     //Scale from 0->1
-//     private List<Vector3> CreateRectangleVertices(DirectionType direction, Vector2 pivot, float roadWidth, float nodeRadius,float leftScale = 1f , float rightScale= 1f, float upScale = 1f, float downScale = 1f)
+//     private List<Vector3> CreateRectangleVertices(RoadMeshDirection buildingDirection, Vector2 pivot, float roadWidth, float nodeRadius,float leftScale = 1f , float rightScale= 1f, float upScale = 1f, float downScale = 1f)
 //     {
 //         
 //
@@ -353,7 +353,7 @@
 //         Debug.Log(halfWidth);
 //         
 //         //Horizontal:
-//         if (direction == DirectionType.Left || direction == DirectionType.Right)
+//         if (buildingDirection == RoadMeshDirection.Left || buildingDirection == RoadMeshDirection.Right)
 //         {
 //             rectangleVertices.Add(new Vector3(pivot.x - nodeRadius * leftScale, pivot.y - halfWidth * downScale, 0));//Bottom left
 //             Debug.Log(new Vector3(pivot.x - nodeRadius * leftScale, pivot.y - halfWidth * downScale, 0));
@@ -364,7 +364,7 @@
 //             rectangleVertices.Add(new Vector3(pivot.x - nodeRadius * leftScale, pivot.y + halfWidth * upScale, 0));// Top left
 //             Debug.Log(new Vector3(pivot.x - nodeRadius * leftScale, pivot.y + halfWidth * upScale, 0));
 //         }//Vertical:
-//         else if (direction == DirectionType.Up || direction == DirectionType.Down)
+//         else if (buildingDirection == RoadMeshDirection.Up || buildingDirection == RoadMeshDirection.Down)
 //         {
 //
 //             rectangleVertices.Add(new Vector3(pivot.x - halfWidth * leftScale, pivot.y - nodeRadius * downScale, 0));

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Game._00.Script._00._Core_Assembly_Def;
 using Game._00.Script._05._Manager;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -14,10 +15,9 @@ namespace Game._00.Script.NewPathFinding
         private PathFinding _pathFinding;
         private bool _isProcessingPath;
         private PathRequest _currentRequest;
-
         public void Initialize()
         {
-            _pathFinding = GameManager.Instance.PathFinding;
+            _pathFinding = GetComponent<PathFinding>();
         }
 
         public Vector3[] GetPathWaypoints(Vector3 startPos, Vector3 endPos)
@@ -26,7 +26,7 @@ namespace Game._00.Script.NewPathFinding
             Vector3[] waypoints = _pathFinding.GetFuncFindPath()?.Invoke(pathRequest);
             if (waypoints != null && waypoints.Length > 0)
             {
-               Vector3[] ellipseWaypoints = EllipsePath(waypoints, RoadManager.RoadWidth / 4f);
+               Vector3[] ellipseWaypoints = EllipsePath(waypoints, RoadManager.RoadWidth/ 4f);
                return ellipseWaypoints;
 
             }
@@ -36,8 +36,8 @@ namespace Game._00.Script.NewPathFinding
 
         /// <summary>
         /// Turn a straight line into an ellipse rounded path for car to follow
-        /// Car always run on the right side *from their direction*
-        /// Method: Calculate direction between 2 points, calculate perpendicular vector to it direction
+        /// Car always run on the right side *from their buildingDirection*
+        /// Method: Calculate buildingDirection between 2 points, calculate perpendicular vector to it buildingDirection
         /// normalized it then multiple by 1/2 half roadWidth
         /// </summary>
         /// <param name="pathWaypoints"></param>

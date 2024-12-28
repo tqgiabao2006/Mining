@@ -30,8 +30,8 @@
 //                 Vector3 targetWaypoint = waypoints[curIndex];
 //                 while (Vector3.Distance(transform.position, targetWaypoint) > 0.1f)
 //                 {
-//                     Vector3 direction = (targetWaypoint - transform.position).normalized;
-//                     transform.Translate(direction * (speed * Time.deltaTime), Space.World);
+//                     Vector3 buildingDirection = (targetWaypoint - transform.position).normalized;
+//                     transform.Translate(buildingDirection * (speed * Time.deltaTime), Space.World);
 //                     yield return new WaitForFixedUpdate();                
 //                 }
 //

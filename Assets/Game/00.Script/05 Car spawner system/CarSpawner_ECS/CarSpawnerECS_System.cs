@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using Game._00.Script._00._Core_Assembly_Def;
 using Game._00.Script._02._System_Manager;
+using Game._00.Script._02._System_Manager.Observer;
 using Game._00.Script._03._Building;
 using Game._00.Script._05._Manager;
 using Game._00.Script.ECS_Test.FactoryECS;
@@ -32,7 +34,6 @@ namespace Game._00.Script._05_Car_spawner_system.CarSpawner_ECS
         {
             if (data is ValueTuple<Node, Node, string> && flag == NotificationFlags.SpawnCar)
             {
-                Debug.Log("On notified");
                 if (!_isNotified) //To avoid duplicate OnNotified call
                 {
                     _isNotified = true;

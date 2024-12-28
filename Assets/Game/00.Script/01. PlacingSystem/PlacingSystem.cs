@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
+using Game._00.Script._00._Core_Assembly_Def;
+using Game._00.Script._02._System_Manager.Observer;
 using Game._00.Script._05._Manager;
-using Game._00.Script._07._Mesh_Generator;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-public 
-    class PlacingSystem : SubjectBase
+public class PlacingSystem : SubjectBase
 {
     [Header("Gizmos Setting")] [SerializeField]
     public bool showGizmos = true;
@@ -21,7 +21,6 @@ public
     [SerializeField] public float lineThickness = 50.0f;
 
     //Mesh Creator:
-    private RoadMesh _roadMesh;
 
     //Input handle:
     private Vector2 _mousePos;
@@ -49,11 +48,9 @@ public
 
     private void Initialize()
     {
-        _roadMesh = FindObjectOfType<RoadMesh>();
-        
         //Manager set up
         _gameStateManager = GameManager.Instance.GameStateManager;
-        _roadManager =  GameManager.Instance.RoadManager;
+        _roadManager = FindObjectOfType<RoadManager>();
         
         //Obsever set up
         ObserversSetup();

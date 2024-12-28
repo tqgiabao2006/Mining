@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5734566285072809136}
   - component: {fileID: 1043784235339881857}
-  - component: {fileID: 1596429899116773103}
   m_Layer: 0
   m_Name: Normal Cell
   m_TagString: Untagged
@@ -85,17 +84,3 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &1596429899116773103
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3949733121163879824}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 18c22277a8764aafacc0c60925c6556c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lifeTime: 2
-  parkingLotSize: 0

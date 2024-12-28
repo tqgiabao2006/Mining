@@ -1,7 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Game._00.Script._00._Core_Assembly_Def;
+using Game._00.Script._00._Manager;
 using Game._00.Script._02._System_Manager;
+using Game._00.Script._02._System_Manager.Observer;
 using Game._00.Script._03._Building;
 using Game._00.Script._05._Manager;
 using Game._00.Script._07._Mesh_Generator;
@@ -178,7 +181,7 @@ public class BuildingSpawner : MonoBehaviour, IObserver
                 if (!TryGetPrefab(buildingType, out buildingPrefab))
                 {
                     buildingPrefab = new GameObject(buildingType.ToString());
-                    // Add necessary components to the new prefab
+                    Debug.Log("Can't find building prefab");
                 }
                 
                 //Spawned object
@@ -187,23 +190,22 @@ public class BuildingSpawner : MonoBehaviour, IObserver
                 
                 Vector2 spawnedPos = GetRandomPosition(ref maxRoadLength, waveInfo.ZoneRadius, _usedPositions);
                 
-                Vector3 position = new Vector3(spawnedPos.x,  spawnedPos.y, 0);
                 Node buildingNode = GridManager.NodeFromWorldPosition(spawnedPos);
 
                 buildingComp.Initialize(buildingNode, buildingType, spawnedPos);
                 _buildingManager.RegisterBuilding(buildingComp);
-                buildingObj.transform.position = SetTransformOnSize(buildingComp.parkingLotSize, buildingComp.Direction);
-                buildingObj.transform.rotation = SetRotationOnDirection(buildingComp.Direction);
+                buildingObj.transform.position = SetTransformOnSize(buildingComp.parkingLotSize, buildingComp.BuildingDirection);
+                buildingObj.transform.rotation = SetRotationOnDirection(buildingComp.BuildingDirection);
                 buildingObj.SetActive(true);
 
-                Quaternion SetRotationOnDirection(DirectionType direction) =>
+                Quaternion SetRotationOnDirection(BuildingDirection direction) =>
                     direction switch
                     {
-                        DirectionType.Left or DirectionType.Right => Quaternion.Euler(0, 0, -90),
+                        BuildingDirection.Left or BuildingDirection.Right => Quaternion.Euler(0, 0, -90),
                         _ => Quaternion.Euler(0, 0, 0)
                     };
 
-                Vector3 SetTransformOnSize(ParkingLotSize parkingLotSize, DirectionType direction)
+                Vector3 SetTransformOnSize(ParkingLotSize parkingLotSize, BuildingDirection direction)
                 {
                     switch (parkingLotSize)
                     {
@@ -213,8 +215,8 @@ public class BuildingSpawner : MonoBehaviour, IObserver
                         case ParkingLotSize._2x3:
                             Vector2 offset = direction switch
                             {
-                                DirectionType.Up or DirectionType.Down => Vector2.left,
-                                DirectionType.Right or DirectionType.Left => Vector2.up,
+                                BuildingDirection.Up or BuildingDirection.Down => Vector2.left,
+                                BuildingDirection.Right or BuildingDirection.Left => Vector2.up,
                                 _ => Vector2.zero
                             };
                             return spawnedPos + offset * GridManager.NodeRadius;

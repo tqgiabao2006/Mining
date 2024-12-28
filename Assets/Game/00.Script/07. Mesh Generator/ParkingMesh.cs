@@ -1,16 +1,15 @@
 
 using System;
 using System.Collections.Generic;
-using Game._00.Script._02._System_Manager;
+using Game._00.Script._00._Core_Assembly_Def;
 using Game._00.Script._03._Building;
-using Game._00.Script._05._Manager;
-using Unity.Entities.UniversalDelegates;
 using Unity.VisualScripting;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace Game._00.Script._07._Mesh_Generator
 {
+   
     [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider))]
     public class ParkingMesh:MonoBehaviour
     {
@@ -20,7 +19,6 @@ namespace Game._00.Script._07._Mesh_Generator
         private MeshRenderer _meshRenderer;
         private MeshCollider _meshCollider;
         
-        private GridManager _gridManager; 
         
         private List<Vector3> _totalVertices;
         private List<int> _totalTriangles;
@@ -45,9 +43,9 @@ namespace Game._00.Script._07._Mesh_Generator
             _totalUvs = new List<Vector2>();
         }
 
-        public void PlaceBuildingMesh(Node node, ParkingLotSize parkingSize, DirectionType direction)
+        public void PlaceBuildingMesh(Node node, ParkingLotSize parkingSize, BuildingDirection buildingDirection)
         {
-            Mesh generatedMesh =CreateBuildingMesh(node.WorldPosition,parkingSize, direction);
+            Mesh generatedMesh =CreateBuildingMesh(node.WorldPosition,parkingSize, buildingDirection);
             _totalVertices.AddRange(generatedMesh.vertices);
             if (generatedMesh != null)
             {
@@ -101,7 +99,7 @@ namespace Game._00.Script._07._Mesh_Generator
         }
 
    
-        private Mesh CreateBuildingMesh(Vector2 position, ParkingLotSize parkingLotSize, DirectionType direction)
+        private Mesh CreateBuildingMesh(Vector2 position, ParkingLotSize parkingLotSize,BuildingDirection buildingDirection)
         {
             Mesh mesh = new Mesh();
             List<Vector3> vertices = new List<Vector3>();
@@ -115,21 +113,21 @@ namespace Game._00.Script._07._Mesh_Generator
             else
             {
                 //Base on Node radius
-                int maxMultipler = parkingLotSize == ParkingLotSize._2x2 ? 3 : 4;
+                int maxMultipler = parkingLotSize == ParkingLotSize._2x2 ? 3 : 5;
                 
-                List<int> GetMultipler(DirectionType dir)
+                List<int> GetMultipler(BuildingDirection dir)
                 {
                     return dir switch
                     {
-                        DirectionType.Up => new List<int> { 3, 1, 1, maxMultipler},
-                        DirectionType.Down => new List<int> { 3, 1, maxMultipler, 1 },
-                        DirectionType.Right => new List<int> { 1, maxMultipler, 1, 3 },
-                        DirectionType.Left => new List<int> { maxMultipler, 1, 1, 3 },
+                        BuildingDirection.Up => new List<int> { 3, 1, 1, maxMultipler},
+                        BuildingDirection.Down => new List<int> { 3, 1, maxMultipler, 1 },
+                        BuildingDirection.Right => new List<int> { 1, maxMultipler, 1, 3 },
+                        BuildingDirection.Left => new List<int> { maxMultipler, 1, 1, 3 },
                         _ => new List<int>()
                     };
                 }
                 
-                List<int> meshScales = GetMultipler(direction);
+                List<int> meshScales = GetMultipler(buildingDirection);
                 AddSquareMesh(position, vertices, triangles,meshScales[0] ,meshScales[1],meshScales[2],meshScales[3]);
             }
             

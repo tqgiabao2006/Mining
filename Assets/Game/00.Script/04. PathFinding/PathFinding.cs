@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Game._00.Script._00._Core_Assembly_Def;
 using Game._00.Script._05._Manager;
+using Game._00.Script._06._Custom_Editor;
 using UnityEngine;
 
 namespace Game._00.Script.NewPathFinding
@@ -80,7 +82,7 @@ namespace Game._00.Script.NewPathFinding
             }
             else
             {
-                Debug.Log("Can't find path");
+                DebugUtility.LogError("Can't find path");
                 return null;
             }
             
@@ -100,8 +102,8 @@ namespace Game._00.Script.NewPathFinding
 	
         
         /// <summary>
-        /// Cut out repetitive direction BECAUSE to optimize calculation
-        /// Add start, end node BECAUSE track the angle of road when it changes direction
+        /// Cut out repetitive buildingDirection BECAUSE to optimize calculation
+        /// Add start, end node BECAUSE track the angle of road when it changes buildingDirection
         /// </summary>
         /// <param name="path"></param>
         /// <param name="startNode"></param>
@@ -114,14 +116,14 @@ namespace Game._00.Script.NewPathFinding
 
             Vector2 directionOld = Vector2.zero;
 		
-            //Only add the last index of a direction  For ex, up, up, top up, we will simply
+            //Only add the last index of a buildingDirection  For ex, up, up, top up, we will simply
             //up _ top up => run outside the road, so we have to simply as _ up, top up
             for (int i = path.Count - 1; i >=1 ; i --)  //Path start from end to startNode so we loop inversely
             {
                 Vector2 directionNew = new Vector2(path[i-1].GridX - path[i].GridX,path[i-1].GridY - path[i].GridY);
                 if (Mathf.Abs(Vector2.Dot(directionNew.normalized, directionOld.normalized)) < 0.99f)
                 {
-                    //Add last index of direction 
+                    //Add last index of buildingDirection 
                     waypoints.Add(path[i].WorldPosition);
                 }
 

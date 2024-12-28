@@ -82,9 +82,9 @@
 // 				continue;
 // 			}
 //
-// 			// Calculate the direction and distance to the next point
+// 			// Calculate the buildingDirection and distance to the next point
 // 			Vector2 targetPoint = _path.lookPoints[pathIndex];
-// 			Vector2 direction = (targetPoint - pos2D).normalized;
+// 			Vector2 buildingDirection = (targetPoint - pos2D).normalized;
 // 			float distanceToNextPoint = Vector2.Distance(pos2D, targetPoint);
 //
 // 			// If close to the next point, move to the next pathIndex
@@ -110,10 +110,10 @@
 // 			}
 //
 // 			// Move smoothly towards the next point
-// 			transform.Translate(direction * Speed * speedPercent * Time.deltaTime, Space.World);
+// 			transform.Translate(buildingDirection * Speed * speedPercent * Time.deltaTime, Space.World);
 //
 // 			// Smooth rotation with -90 degree adjustment
-// 			float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90;
+// 			float angle = Mathf.Atan2(buildingDirection.y, buildingDirection.x) * Mathf.Rad2Deg - 90;
 // 			Quaternion targetRotation = Quaternion.Euler(0, 0, angle);
 //
 // 			// Optimize rotation Speed for smooth turning

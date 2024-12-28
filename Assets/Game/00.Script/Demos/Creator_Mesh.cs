@@ -22,12 +22,12 @@
     // public struct RoadDetails
     // {
     //     public RoadType Type { get; set; }
-    //     public DirectionType BitwiseDirection { get; set; }
+    //     public RoadMeshDirection BitwiseDirection { get; set; }
     //
-    //     public RoadDetails(RoadType type, DirectionType direction)
+    //     public RoadDetails(RoadType type, RoadMeshDirection buildingDirection)
     //     {
     //         Type = type;
-    //         BitwiseDirection = direction;
+    //         BitwiseDirection = buildingDirection;
     //     }
     // }
     // [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
@@ -170,7 +170,7 @@
     //             case RoadType.DeadEnd:
     //                 return CreateDeadEndMesh(roadDetails, node, roadWidth, curveSmoothness);
     //             case RoadType.Connection:
-    //                 if (roadDetails.BitwiseDirection == DirectionType.Diagonal)
+    //                 if (roadDetails.BitwiseDirection == RoadMeshDirection.Diagonal)
     //                 {
     //                     List<OriginBuildingNode> neighborsNodes = node.GetNeighbours();
     //                     Vector2 dir = neighborsNodes[0].WorldPosition - neighborsNodes[1].WorldPosition;
@@ -221,7 +221,7 @@
     //             if ((angle >= 45 - tolerance && angle <= 45 + tolerance) || (angle >= 135 - tolerance && angle <= 135 + tolerance))
     //             {
     //                 // Diagonal connection
-    //                 return new RoadDetails(RoadType.Connection, DirectionType.Diagonal);
+    //                 return new RoadDetails(RoadType.Connection, RoadMeshDirection.Diagonal);
     //             }
     //                 // Straight connection
     //                 return new RoadDetails(RoadType.Connection, GetDirectionFromVector(dir1, false));
@@ -233,11 +233,11 @@
     //             Vector2 dir3_T= (affectedNodes[2].WorldPosition - mainNode.WorldPosition).normalized;
     //             return new RoadDetails(RoadType.T_intersection, GetTJunctionDirection(dir1_T, dir2_T, dir3_T));
     //         case 4:
-    //             return new RoadDetails(RoadType.Crossroad, DirectionType.None);
+    //             return new RoadDetails(RoadType.Crossroad, RoadMeshDirection.None);
     //         
     //         default:
     //             Debug.LogError("Road Details not found");
-    //             return new RoadDetails(RoadType.None, DirectionType.None);
+    //             return new RoadDetails(RoadType.None, RoadMeshDirection.None);
     //     }
     // }
     //
@@ -262,78 +262,78 @@
     //       return 180;
     //   }
     // }
-    // private DirectionType GetOppositeDirection(Vector2 connectedDir)
+    // private RoadMeshDirection GetOppositeDirection(Vector2 connectedDir)
     // {
     //     float tolerance = 0.01f;
     //
-    //     if (Vector2.Dot(connectedDir, Vector2.right) > 1 - tolerance) return DirectionType.Left;
-    //     if (Vector2.Dot(connectedDir, Vector2.left) > 1 - tolerance) return DirectionType.Right;
-    //     if (Vector2.Dot(connectedDir, Vector2.up) > 1 - tolerance) return DirectionType.Down;
-    //     if (Vector2.Dot(connectedDir, Vector2.down) > 1 - tolerance) return DirectionType.Up;
+    //     if (Vector2.Dot(connectedDir, Vector2.right) > 1 - tolerance) return RoadMeshDirection.Left;
+    //     if (Vector2.Dot(connectedDir, Vector2.left) > 1 - tolerance) return RoadMeshDirection.Right;
+    //     if (Vector2.Dot(connectedDir, Vector2.up) > 1 - tolerance) return RoadMeshDirection.Down;
+    //     if (Vector2.Dot(connectedDir, Vector2.down) > 1 - tolerance) return RoadMeshDirection.Up;
     //
-    //     return DirectionType.None;
+    //     return RoadMeshDirection.None;
     // }
     //
-    // private DirectionType GetDirectionFromVector(Vector2 dir, bool isDeadEnd)
+    // private RoadMeshDirection GetDirectionFromVector(Vector2 dir, bool isDeadEnd)
     // {
     //     float tolerance = 0.1f; // Increase tolerance for more leniency
     //
-    //     // Check for Right direction
+    //     // Check for Right buildingDirection
     //     if (Mathf.Abs(Vector2.Dot(dir, Vector2.right) - 1f) < tolerance)
     //     {
-    //         return isDeadEnd ? DirectionType.Left : DirectionType.Right;
+    //         return isDeadEnd ? RoadMeshDirection.Left : RoadMeshDirection.Right;
     //
     //     }
     //
-    //     // Check for Left direction
+    //     // Check for Left buildingDirection
     //     if (Mathf.Abs(Vector2.Dot(dir, Vector2.left) - 1f) < tolerance)
-    //         return isDeadEnd ? DirectionType.Right : DirectionType.Left;
+    //         return isDeadEnd ? RoadMeshDirection.Right : RoadMeshDirection.Left;
     //
-    //     // Check for Up direction
+    //     // Check for Up buildingDirection
     //     if (Mathf.Abs(Vector2.Dot(dir, Vector2.up) - 1f) < tolerance)
-    //         return isDeadEnd ? DirectionType.Down : DirectionType.Up;
+    //         return isDeadEnd ? RoadMeshDirection.Down : RoadMeshDirection.Up;
     //
-    //     // Check for Down direction
+    //     // Check for Down buildingDirection
     //     if (Mathf.Abs(Vector2.Dot(dir, Vector2.down) - 1f) < tolerance)
-    //         return isDeadEnd ? DirectionType.Up : DirectionType.Down;
+    //         return isDeadEnd ? RoadMeshDirection.Up : RoadMeshDirection.Down;
     //
-    //     // Return None if no direction is found
-    //     return DirectionType.None;
+    //     // Return None if no buildingDirection is found
+    //     return RoadMeshDirection.None;
     // }
     //
     //
-    // private DirectionType GetCornerDirection(Vector2 dir1, Vector2 dir2)
+    // private RoadMeshDirection GetCornerDirection(Vector2 dir1, Vector2 dir2)
     // {
     //     float tolerance = 0.01f;
     //
     //     if ((IsDirection(dir1, Vector2.right, tolerance) && IsDirection(dir2, Vector2.up, tolerance)) ||
     //         (IsDirection(dir2, Vector2.right, tolerance) && IsDirection(dir1, Vector2.up, tolerance)))
     //     {
-    //         return DirectionType.BottomRight;
+    //         return RoadMeshDirection.BottomRight;
     //     }
     //
     //     if ((IsDirection(dir1, Vector2.right, tolerance) && IsDirection(dir2, Vector2.down, tolerance)) ||
     //         (IsDirection(dir2, Vector2.right, tolerance) && IsDirection(dir1, Vector2.down, tolerance)))
     //     {
-    //         return DirectionType.TopRight;
+    //         return RoadMeshDirection.TopRight;
     //     }
     //
     //     if ((IsDirection(dir1, Vector2.left, tolerance) && IsDirection(dir2, Vector2.up, tolerance)) ||
     //         (IsDirection(dir2, Vector2.left, tolerance) && IsDirection(dir1, Vector2.up, tolerance)))
     //     {
-    //         return DirectionType.BottomLeft;
+    //         return RoadMeshDirection.BottomLeft;
     //     }
     //
     //     if ((IsDirection(dir1, Vector2.left, tolerance) && IsDirection(dir2, Vector2.down, tolerance)) ||
     //         (IsDirection(dir2, Vector2.left, tolerance) && IsDirection(dir1, Vector2.down, tolerance)))
     //     {
-    //         return DirectionType.TopLeft;
+    //         return RoadMeshDirection.TopLeft;
     //     }
     //
-    //     return DirectionType.None;
+    //     return RoadMeshDirection.None;
     // }
     //
-    // private DirectionType GetTJunctionDirection(Vector2 dir1, Vector2 dir2, Vector2 dir3)
+    // private RoadMeshDirection GetTJunctionDirection(Vector2 dir1, Vector2 dir2, Vector2 dir3)
     // {
     //     Vector2 specialBranch = GetPerpendicularBranch(dir1, dir2, dir3);
     //     return GetDirectionFromVector(specialBranch, false);
@@ -452,14 +452,14 @@
     //     float extraEdge = 1 + extraPer; //Proportion
     //     
     //     //Add extension:
-    //     AddRectangleMesh(vertices, triangles, DirectionType.Right, node.WorldPosition, roadWidth, extraEdge, extraEdge, 1,1); //Horizontal extension
-    //     AddRectangleMesh(vertices, triangles, DirectionType.Down, node.WorldPosition, roadWidth, 1, 1, extraEdge, extraEdge); //Horizontal extension
+    //     AddRectangleMesh(vertices, triangles, RoadMeshDirection.Right, node.WorldPosition, roadWidth, extraEdge, extraEdge, 1,1); //Horizontal extension
+    //     AddRectangleMesh(vertices, triangles, RoadMeshDirection.Down, node.WorldPosition, roadWidth, 1, 1, extraEdge, extraEdge); //Horizontal extension
     //     
     //     //Add 4 opposite corner
-    //     AddOppositeCorner(node, DirectionType.TopLeft, vertices, triangles, curveSmoothness, halfWidth, extraPer, oppositeCornerSmoothness);
-    //     AddOppositeCorner(node, DirectionType.TopRight, vertices, triangles, curveSmoothness, halfWidth, extraPer, oppositeCornerSmoothness);
-    //     AddOppositeCorner(node, DirectionType.BottomRight, vertices, triangles, curveSmoothness, halfWidth, extraPer, oppositeCornerSmoothness);
-    //     AddOppositeCorner(node, DirectionType.BottomLeft, vertices, triangles, curveSmoothness, halfWidth, extraPer, oppositeCornerSmoothness);
+    //     AddOppositeCorner(node, RoadMeshDirection.TopLeft, vertices, triangles, curveSmoothness, halfWidth, extraPer, oppositeCornerSmoothness);
+    //     AddOppositeCorner(node, RoadMeshDirection.TopRight, vertices, triangles, curveSmoothness, halfWidth, extraPer, oppositeCornerSmoothness);
+    //     AddOppositeCorner(node, RoadMeshDirection.BottomRight, vertices, triangles, curveSmoothness, halfWidth, extraPer, oppositeCornerSmoothness);
+    //     AddOppositeCorner(node, RoadMeshDirection.BottomLeft, vertices, triangles, curveSmoothness, halfWidth, extraPer, oppositeCornerSmoothness);
     //     
     //     UpdateMesh(crossRoadMesh, vertices.ToArray(), triangles.ToArray());
     //     return crossRoadMesh;
@@ -487,21 +487,21 @@
     // #region DeadEnd Helper
     // /// <summary>
     // /// Scale: Left -> Right -> Up -> Down
-    // /// Scale = direction => = 1/2f
+    // /// Scale = buildingDirection => = 1/2f
     // /// </summary>
-    // /// <param name="direction"></param>
+    // /// <param name="buildingDirection"></param>
     // /// <returns></returns>
-    // private float[] GetDeadEndScale(DirectionType direction)
+    // private float[] GetDeadEndScale(RoadMeshDirection buildingDirection)
     // {
-    //     switch (direction)
+    //     switch (buildingDirection)
     //     {
-    //         case DirectionType.Down:
+    //         case RoadMeshDirection.Down:
     //             return new float[] { 1, 1, 1, 0f };
-    //         case DirectionType.Up:
+    //         case RoadMeshDirection.Up:
     //             return new float[] { 1, 1, 0,1};
-    //         case DirectionType.Right:
+    //         case RoadMeshDirection.Right:
     //             return new float[] { 1, 0, 1, 1 };
-    //         case DirectionType.Left:
+    //         case RoadMeshDirection.Left:
     //             return new float[] { 0, 1, 1,1};
     //     }
     //
@@ -513,16 +513,16 @@
     //     //Tuple<startAngle,endAngle>;
     //     switch (roadDetails.BitwiseDirection)
     //     {
-    //         case DirectionType.Left:
+    //         case RoadMeshDirection.Left:
     //            return new Tuple<int, int>(90, 270);
     //         
-    //         case DirectionType.Right:
+    //         case RoadMeshDirection.Right:
     //             return new Tuple<int, int>(270, 450);
     //         
-    //         case DirectionType.Up:
+    //         case RoadMeshDirection.Up:
     //             return new Tuple<int, int>(0, 180);
     //         
-    //         case DirectionType.Down:
+    //         case RoadMeshDirection.Down:
     //             return new Tuple<int, int>(180, 360);
     //     }
     //     return new Tuple<int, int>(0, 0);
@@ -652,21 +652,21 @@
     //     
     //     switch (roadDetails.BitwiseDirection)
     //     {
-    //         case DirectionType.TopLeft:
+    //         case RoadMeshDirection.TopLeft:
     //             return new Vector3(node.WorldPosition.x - halfWidth * extraEdge, node.WorldPosition.y - halfWidth * extraEdge, 0);
     //         
-    //         case DirectionType.TopRight:
+    //         case RoadMeshDirection.TopRight:
     //             return new Vector3(node.WorldPosition.x + halfWidth * extraEdge, node.WorldPosition.y -halfWidth * extraEdge, 0);
     //         
-    //         case DirectionType.BottomLeft:
+    //         case RoadMeshDirection.BottomLeft:
     //             return new Vector3(node.WorldPosition.x - halfWidth  * extraEdge, node.WorldPosition.y + halfWidth * extraEdge, 0);
     //         
-    //         case DirectionType.BottomRight:
+    //         case RoadMeshDirection.BottomRight:
     //             return new Vector3(node.WorldPosition.x + halfWidth * extraEdge, node.WorldPosition.y + halfWidth * extraEdge, 0);
     //     }
     //     return Vector3.zero;
     // }
-    // private void AddOppositeCorner(OriginBuildingNode node, DirectionType directionType,List<Vector3> vertices, List<int> triangles ,int curveSmoothness, float halfWidth, float extraPer, float oppositeCornerSmoothness)
+    // private void AddOppositeCorner(OriginBuildingNode node, RoadMeshDirection directionType,List<Vector3> vertices, List<int> triangles ,int curveSmoothness, float halfWidth, float extraPer, float oppositeCornerSmoothness)
     // {
     //     Tuple<Vector2, Vector3> centerData = GetOppositeInnerCenter(directionType, node,  halfWidth, extraPer);
     //     Tuple<int, int> angleData = GetOppositeAngle(directionType);
@@ -710,32 +710,32 @@
     // /// <summary>
     // /// Return Vector2: center, Vector3 = origin triangle (vertices)
     // /// </summary>
-    // /// <param name="direction"></param>
+    // /// <param name="buildingDirection"></param>
     // /// <param name="node"></param>
     // /// <param name="extraPer"></param>
     // /// <returns></returns>
-    // private Tuple<Vector2,Vector3>GetOppositeInnerCenter(DirectionType direction, OriginBuildingNode node,float halfWidth, float extraPer = 0.35f)
+    // private Tuple<Vector2,Vector3>GetOppositeInnerCenter(RoadMeshDirection buildingDirection, OriginBuildingNode node,float halfWidth, float extraPer = 0.35f)
     // {
     //     float extraEdge = 1 + extraPer;
     //
-    //     switch (direction)
+    //     switch (buildingDirection)
     //     {
-    //         case DirectionType.TopLeft:
+    //         case RoadMeshDirection.TopLeft:
     //             Vector2 topLeftCenter = new Vector2(node.WorldPosition.x - _gridManager.NodeRadius * extraEdge, node.WorldPosition.y + _gridManager.NodeRadius* extraEdge);
     //             Vector3 topLeftTriangleOr = new Vector3(node.WorldPosition.x - halfWidth, node.WorldPosition.y + halfWidth, 0);
     //             return new Tuple<Vector2, Vector3>(topLeftCenter, topLeftTriangleOr);
     //         
-    //         case DirectionType.TopRight:
+    //         case RoadMeshDirection.TopRight:
     //             Vector2 topRightCenter = new Vector2(node.WorldPosition.x + _gridManager.NodeRadius * extraEdge, node.WorldPosition.y + _gridManager.NodeRadius * extraEdge);
     //             Vector3 topRightTriangleOr = new Vector3(node.WorldPosition.x + halfWidth, node.WorldPosition.y + halfWidth, 0);
     //             return new Tuple<Vector2, Vector3>(topRightCenter, topRightTriangleOr);
     //         
-    //         case DirectionType.BottomRight:     
+    //         case RoadMeshDirection.BottomRight:     
     //             Vector2 bottomRightCenter = new Vector2(node.WorldPosition.x + _gridManager.NodeRadius * extraEdge, node.WorldPosition.y - _gridManager.NodeRadius * extraEdge);
     //             Vector3 bottomRightTriangleOr = new Vector3(node.WorldPosition.x + halfWidth, node.WorldPosition.y - halfWidth, 0);
     //             return new Tuple<Vector2, Vector3>(bottomRightCenter, bottomRightTriangleOr);
     //         
-    //         case DirectionType.BottomLeft:
+    //         case RoadMeshDirection.BottomLeft:
     //             Vector2 bottomLeftCenter = new Vector2(node.WorldPosition.x - _gridManager.NodeRadius * extraEdge, node.WorldPosition.y - _gridManager.NodeRadius * extraEdge);
     //             Vector3 bottomLeftTriangleOr = new Vector3(node.WorldPosition.x - halfWidth, node.WorldPosition.y - halfWidth, 0);
     //             return new Tuple<Vector2, Vector3>(bottomLeftCenter, bottomLeftTriangleOr);
@@ -746,20 +746,20 @@
     // /// <summary>
     // /// Return Tuple<startAngle, endAngle>();
     // /// </summary>
-    // /// <param name="direction"></param>
+    // /// <param name="buildingDirection"></param>
     // /// <returns></returns>
-    // private Tuple<int, int> GetOppositeAngle(DirectionType direction)
+    // private Tuple<int, int> GetOppositeAngle(RoadMeshDirection buildingDirection)
     // {
     //    
-    //     switch (direction)
+    //     switch (buildingDirection)
     //     {
-    //         case DirectionType.TopLeft:
+    //         case RoadMeshDirection.TopLeft:
     //             return new Tuple<int, int>(270, 360);
-    //         case DirectionType.TopRight:
+    //         case RoadMeshDirection.TopRight:
     //             return new Tuple<int, int>(180, 270);
-    //         case DirectionType.BottomLeft:
+    //         case RoadMeshDirection.BottomLeft:
     //             return new Tuple<int, int>(0, 90);
-    //         case DirectionType.BottomRight:
+    //         case RoadMeshDirection.BottomRight:
     //             return new Tuple<int, int>(90, 180);
     //     }
     //     return new Tuple<int, int>(0,0);
@@ -770,16 +770,16 @@
     //     //Tuple<startAngle, endAngle>
     //     switch (roadDetails.BitwiseDirection)
     //     {
-    //         case DirectionType.TopLeft:
+    //         case RoadMeshDirection.TopLeft:
     //             return new Tuple<int,int>(0,90);
     //         
-    //         case DirectionType.TopRight:
+    //         case RoadMeshDirection.TopRight:
     //             return new Tuple<int,int>(90,180);
     //         
-    //         case DirectionType.BottomRight:
+    //         case RoadMeshDirection.BottomRight:
     //             return new Tuple<int, int>(180, 270);
     //         
-    //         case DirectionType.BottomLeft:
+    //         case RoadMeshDirection.BottomLeft:
     //             return new Tuple<int,int>(270,360 );
     //     }
     //     return new Tuple<int, int>(0, 0);
@@ -799,45 +799,45 @@
     //         
     //     switch (roadDetails.BitwiseDirection)
     //     {
-    //         case DirectionType.Left:
+    //         case RoadMeshDirection.Left:
     //             //Add rectangle:
-    //             AddRectangleMesh(vertices, triangles, DirectionType.Up, node.WorldPosition,roadWidth,1,1,extraEdge,extraEdge);
-    //             AddRectangleMesh(vertices, triangles , DirectionType.Left, node.WorldPosition, roadWidth,extraEdge,0,1,1);
+    //             AddRectangleMesh(vertices, triangles, RoadMeshDirection.Up, node.WorldPosition,roadWidth,1,1,extraEdge,extraEdge);
+    //             AddRectangleMesh(vertices, triangles , RoadMeshDirection.Left, node.WorldPosition, roadWidth,extraEdge,0,1,1);
     //             
     //             //Add 2 opposite corners:
-    //             AddOppositeCorner(node, DirectionType.TopLeft, vertices, triangles, curveSmoothness, halfWidth, extraPer,oppositeCornerSmoothness);
-    //             AddOppositeCorner(node, DirectionType.BottomLeft, vertices, triangles, curveSmoothness, halfWidth, extraPer,oppositeCornerSmoothness);
+    //             AddOppositeCorner(node, RoadMeshDirection.TopLeft, vertices, triangles, curveSmoothness, halfWidth, extraPer,oppositeCornerSmoothness);
+    //             AddOppositeCorner(node, RoadMeshDirection.BottomLeft, vertices, triangles, curveSmoothness, halfWidth, extraPer,oppositeCornerSmoothness);
     //             break;
     //         
-    //         case DirectionType.Right:
+    //         case RoadMeshDirection.Right:
     //             //Add rectangle:
-    //             AddRectangleMesh(vertices, triangles, DirectionType.Up, node.WorldPosition,roadWidth,1,1,extraEdge,extraEdge);
-    //             AddRectangleMesh(vertices, triangles , DirectionType.Right, node.WorldPosition, roadWidth,0,extraEdge, 1, 1);
+    //             AddRectangleMesh(vertices, triangles, RoadMeshDirection.Up, node.WorldPosition,roadWidth,1,1,extraEdge,extraEdge);
+    //             AddRectangleMesh(vertices, triangles , RoadMeshDirection.Right, node.WorldPosition, roadWidth,0,extraEdge, 1, 1);
     //
     //             //Add 2 opposite corners:
-    //             AddOppositeCorner(node, DirectionType.TopRight, vertices, triangles, curveSmoothness, halfWidth, extraPer, oppositeCornerSmoothness);
-    //             AddOppositeCorner(node, DirectionType.BottomRight, vertices, triangles, curveSmoothness, halfWidth, extraPer, oppositeCornerSmoothness);
+    //             AddOppositeCorner(node, RoadMeshDirection.TopRight, vertices, triangles, curveSmoothness, halfWidth, extraPer, oppositeCornerSmoothness);
+    //             AddOppositeCorner(node, RoadMeshDirection.BottomRight, vertices, triangles, curveSmoothness, halfWidth, extraPer, oppositeCornerSmoothness);
     //             break;
     //         
-    //         case DirectionType.Up:
+    //         case RoadMeshDirection.Up:
     //             //Add rectangle:
-    //             AddRectangleMesh(vertices, triangles , DirectionType.Right, node.WorldPosition, roadWidth,extraEdge,extraEdge,1, 1);
-    //             AddRectangleMesh(vertices, triangles, DirectionType.Up, node.WorldPosition,roadWidth,1,1,extraEdge,0);
+    //             AddRectangleMesh(vertices, triangles , RoadMeshDirection.Right, node.WorldPosition, roadWidth,extraEdge,extraEdge,1, 1);
+    //             AddRectangleMesh(vertices, triangles, RoadMeshDirection.Up, node.WorldPosition,roadWidth,1,1,extraEdge,0);
     //
     //             //Add 2 opposite corners:
-    //             AddOppositeCorner(node, DirectionType.TopLeft, vertices, triangles, curveSmoothness, halfWidth, extraPer, oppositeCornerSmoothness);
-    //             AddOppositeCorner(node, DirectionType.TopRight, vertices, triangles, curveSmoothness, halfWidth, extraPer,oppositeCornerSmoothness);
+    //             AddOppositeCorner(node, RoadMeshDirection.TopLeft, vertices, triangles, curveSmoothness, halfWidth, extraPer, oppositeCornerSmoothness);
+    //             AddOppositeCorner(node, RoadMeshDirection.TopRight, vertices, triangles, curveSmoothness, halfWidth, extraPer,oppositeCornerSmoothness);
     //             break;
     //         
-    //         case DirectionType.Down:
+    //         case RoadMeshDirection.Down:
     //             //Add rectangle:
-    //             AddRectangleMesh(vertices, triangles, DirectionType.Right, node.WorldPosition,roadWidth,extraEdge,extraEdge,1,1);
-    //             AddRectangleMesh(vertices, triangles , DirectionType.Down, node.WorldPosition, roadWidth,1,1,0, extraEdge);
+    //             AddRectangleMesh(vertices, triangles, RoadMeshDirection.Right, node.WorldPosition,roadWidth,extraEdge,extraEdge,1,1);
+    //             AddRectangleMesh(vertices, triangles , RoadMeshDirection.Down, node.WorldPosition, roadWidth,1,1,0, extraEdge);
     //             
     //             //Add 2 opposite corners:
     //             Debug.Log("Opposite smoothness " + oppositeCornerSmoothness);
-    //             AddOppositeCorner(node, DirectionType.BottomRight, vertices, triangles, curveSmoothness, halfWidth, extraPer, oppositeCornerSmoothness);
-    //             AddOppositeCorner(node, DirectionType.BottomLeft, vertices, triangles, curveSmoothness, halfWidth, extraPer, oppositeCornerSmoothness);
+    //             AddOppositeCorner(node, RoadMeshDirection.BottomRight, vertices, triangles, curveSmoothness, halfWidth, extraPer, oppositeCornerSmoothness);
+    //             AddOppositeCorner(node, RoadMeshDirection.BottomLeft, vertices, triangles, curveSmoothness, halfWidth, extraPer, oppositeCornerSmoothness);
     //             break;
     //     }
     // }
@@ -868,10 +868,10 @@
     //     mesh.RecalculateNormals();
     // }
     // //Always call first, create first before any vertices
-    // private void AddRectangleMesh(List<Vector3> vertices, List<int> triangles, DirectionType direction, Vector2 pivot, float roadWidth = 0.5f, float leftScale = 1f , float rightScale = 1f, float upScale = 1f, float downScale = 1f)
+    // private void AddRectangleMesh(List<Vector3> vertices, List<int> triangles, RoadMeshDirection buildingDirection, Vector2 pivot, float roadWidth = 0.5f, float leftScale = 1f , float rightScale = 1f, float upScale = 1f, float downScale = 1f)
     // {
     //    
-    //     List<Vector3> rectangleVertices = CreateRectangleVertices(direction, pivot, roadWidth, leftScale, rightScale, upScale, downScale);
+    //     List<Vector3> rectangleVertices = CreateRectangleVertices(buildingDirection, pivot, roadWidth, leftScale, rightScale, upScale, downScale);
     //
     //     int startIndex = vertices.Count; // Get the starting index of the new vertices
     //     
@@ -885,12 +885,12 @@
     // }
     //
     // //Scale from 0->1
-    // private List<Vector3> CreateRectangleVertices(DirectionType direction, Vector2 pivot, float roadWidth = 0.5f,float leftScale = 1f , float rightScale = 1f, float upScale = 1f, float downScale = 1f)
+    // private List<Vector3> CreateRectangleVertices(RoadMeshDirection buildingDirection, Vector2 pivot, float roadWidth = 0.5f,float leftScale = 1f , float rightScale = 1f, float upScale = 1f, float downScale = 1f)
     // {
     //     List<Vector3> rectangleVertices = new List<Vector3>();
     //     float halfWidth = roadWidth / 2;
     //     //Horizontal:
-    //     if (direction == DirectionType.Left || direction == DirectionType.Right)
+    //     if (buildingDirection == RoadMeshDirection.Left || buildingDirection == RoadMeshDirection.Right)
     //     {
     //         rectangleVertices.Add(new Vector3(pivot.x - _gridManager.NodeRadius * leftScale, pivot.y - halfWidth * downScale, 0));//Bottom left
     //         rectangleVertices.Add( new Vector3(pivot.x + _gridManager.NodeRadius * rightScale, pivot.y - halfWidth * downScale, 0));//Bottom right
@@ -899,7 +899,7 @@
     //
     //     }
     //     //Vertical:
-    //     else if (direction == DirectionType.Up || direction == DirectionType.Down)
+    //     else if (buildingDirection == RoadMeshDirection.Up || buildingDirection == RoadMeshDirection.Down)
     //     {
     //         rectangleVertices.Add(new Vector3(pivot.x - halfWidth * leftScale, pivot.y - _gridManager.NodeRadius * downScale, 0));
     //         rectangleVertices.Add(new Vector3(pivot.x + halfWidth * rightScale,pivot.y - _gridManager.NodeRadius * downScale, 0));

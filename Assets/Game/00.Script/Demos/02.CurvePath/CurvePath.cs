@@ -201,7 +201,7 @@
 //             neighbourDistances[1] = -offset.magnitude; // Store the distance
 //         }
 //
-//         dir.Normalize(); // Normalize the direction vector
+//         dir.Normalize(); // Normalize the buildingDirection vector
 //
 //         for (int i = 0; i < 2; i++)
 //         {
