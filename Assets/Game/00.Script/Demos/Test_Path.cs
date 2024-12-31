@@ -1,41 +1,42 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Test_Path : MonoBehaviour
+namespace Game._00.Script.Demos
 {
-    [SerializeField] public GameObject visualization;
-    LineRenderer lineRenderer;
-    private Vector3[] waypoints;
-    void Start()
+    public class Test_Path : MonoBehaviour
     {
-        lineRenderer = GetComponent<LineRenderer>(); 
-        waypoints = new Vector3[]
+        [SerializeField] public GameObject visualization;
+        LineRenderer lineRenderer;
+        private Vector3[] waypoints;
+        void Start()
         {
-            new Vector3(0, 0, 0),
-            new Vector3(5, 0, 0),
-            new Vector3(7,5,0)
-       };
-        Debug.Log("Before: " + waypoints.Length);
+            lineRenderer = GetComponent<LineRenderer>(); 
+            waypoints = new Vector3[]
+            {
+                new Vector3(0, 0, 0),
+                new Vector3(5, 0, 0),
+                new Vector3(7,5,0)
+            };
+            Debug.Log("Before: " + waypoints.Length);
         
-        for (int  i = 0;  i < waypoints.Length;  i++)
-        {
-            lineRenderer.SetPosition(i, waypoints[i]);
-        }
+            for (int  i = 0;  i < waypoints.Length;  i++)
+            {
+                lineRenderer.SetPosition(i, waypoints[i]);
+            }
         
-        waypoints = EllipsePath(waypoints, 1f);
-        Debug.Log("After: " + waypoints.Length);
+            waypoints = EllipsePath(waypoints, 1f);
+            Debug.Log("After: " + waypoints.Length);
 
-        for (int  i = 0;  i < waypoints.Length;  i++)
-        {
-            Instantiate(visualization, waypoints[i], Quaternion.identity);
+            for (int  i = 0;  i < waypoints.Length;  i++)
+            {
+                Instantiate(visualization, waypoints[i], Quaternion.identity);
+            }
+        
+        
         }
-        
-        
-    }
     
-    public Vector3[] EllipsePath(Vector3[] pathWaypoints, float quarterRoadWidth)
-    {
+        public Vector3[] EllipsePath(Vector3[] pathWaypoints, float quarterRoadWidth)
+        {
             //Double waypoints
             List<Vector3> ellipsePathWaypoints = new List<Vector3>();
             
@@ -95,12 +96,13 @@ public class Test_Path : MonoBehaviour
             }
             
             return ellipsePathWaypoints.ToArray();
-    }
+        }
     
 
-    // Update is called once per frame
-    void Update()
-    {
+        // Update is called once per frame
+        void Update()
+        {
         
+        }
     }
 }

@@ -1,0 +1,16 @@
+{
+    "name": "com.bloodvein.nodeGrid",
+    "rootNamespace": "",
+    "references": [
+        "GUID:43e0ce7d8d90e427da18c006073f9e74"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,40 +1,41 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class MouseLine : MonoBehaviour
+namespace Game._00.Script.Demos
 {
-    private Vector2 _startPosition;
-    private Vector2 _lastMousePosition = Vector2.zero;
-    private LineRenderer _lineRenderer;
-
-    private int count = 0;
-
-    void Start()
+    public class MouseLine : MonoBehaviour
     {
-        _lineRenderer = GetComponent<LineRenderer>();
-        _lineRenderer.positionCount = 0; // Initialize with zero points
-    }
+        private Vector2 _startPosition;
+        private Vector2 _lastMousePosition = Vector2.zero;
+        private LineRenderer _lineRenderer;
 
-    void Update()
-    {
-        if(!Input.GetMouseButton(0)) return;
-        if(Input.GetMouseButtonUp(0)) _lineRenderer.positionCount = 0;
-        _startPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        this.gameObject.transform.position = _startPosition;
+        private int count = 0;
 
-        if (Vector2.Distance(_startPosition, _lastMousePosition) > 0.5f)
+        void Start()
         {
-            count++;
+            _lineRenderer = GetComponent<LineRenderer>();
+            _lineRenderer.positionCount = 0; // Initialize with zero points
+        }
 
-            // Increase the position count of the LineRenderer
-            _lineRenderer.positionCount = count;
+        void Update()
+        {
+            if(!Input.GetMouseButton(0)) return;
+            if(Input.GetMouseButtonUp(0)) _lineRenderer.positionCount = 0;
+            _startPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            this.gameObject.transform.position = _startPosition;
 
-            // Add the new position
-            _lineRenderer.SetPosition(count - 1, _startPosition);
+            if (Vector2.Distance(_startPosition, _lastMousePosition) > 0.5f)
+            {
+                count++;
 
-            // Update the last mouse position
-            _lastMousePosition = _startPosition;
+                // Increase the position count of the LineRenderer
+                _lineRenderer.positionCount = count;
+
+                // Add the new position
+                _lineRenderer.SetPosition(count - 1, _startPosition);
+
+                // Update the last mouse position
+                _lastMousePosition = _startPosition;
+            }
         }
     }
 }
