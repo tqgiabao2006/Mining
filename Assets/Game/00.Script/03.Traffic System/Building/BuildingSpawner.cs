@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Game._00.Script._00.Manager;
+using Game._00.Script._00.Manager.Custom_Editor;
 using Game._00.Script._00.Manager.Observer;
 using Game._00.Script._02.Grid_setting;
 using Game._00.Script._03.Traffic_System.Mesh_Generator;
@@ -181,6 +182,10 @@ namespace Game._00.Script._03.Traffic_System.Building
                     BuildingBase buildingComp = buildingObj.GetComponent<BuildingBase>();
                 
                     Vector2 spawnedPos = GetRandomPosition(ref maxRoadLength, waveInfo.ZoneRadius, _usedPositions);
+                    
+                    //Test only
+                    DebugUtility.Log("Test spawn at 0.5f,0.5f", this.ToString());
+                    spawnedPos = new Vector2(0.5f, 0.5f);
                 
                     Node buildingNode = GridManager.NodeFromWorldPosition(spawnedPos);
 

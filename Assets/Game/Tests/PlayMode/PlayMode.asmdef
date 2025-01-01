@@ -1,0 +1,25 @@
+{
+    "name": "PlayMode",
+    "rootNamespace": "",
+    "references": [
+        "com.bloodvein.infastructure",
+        "com.bloodvein.manager",
+        "com.bloodvein.nodeGrid",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner",
+        "Unity.Mathematics"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

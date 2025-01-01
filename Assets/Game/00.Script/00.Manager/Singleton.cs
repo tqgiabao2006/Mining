@@ -17,7 +17,7 @@ namespace Game._00.Script._00.Manager
 
                     if (_instance == null)
                     {
-                        DebugUtility.LogError(typeof(T) + " is needed in the scene but is missing!");
+                        DebugUtility.LogError(typeof(T) + " is needed in the scene but is missing!", "Singleton");
                     }
                 }
 

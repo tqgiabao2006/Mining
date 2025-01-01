@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using Game._00.Script._00.Manager;
 using Game._00.Script._00.Manager.Custom_Editor;
 using Game._00.Script._02.Grid_setting;
 using Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS;
@@ -18,6 +20,9 @@ namespace Game._00.Script._03.Traffic_System.Building
         NormalCell
     }
 
+    /// <summary>
+    /// Note: keep the order exactly this because JSON databased on this to convert
+    /// </summary>
     public enum BuildingDirection
     {
         Left,
@@ -76,8 +81,8 @@ namespace Game._00.Script._03.Traffic_System.Building
         private Queue<Entity> _parkingResquest = new Queue<Entity>();
         private bool[] _availableParking;
         
-        //Test only
         private ParkingMesh _parkingMesh;
+        private TestSaver _testSaver;
     
         public BuildingType BuildingType { get; private set; }  // Make it a property
         [SerializeField] protected float lifeTime = 2f;
@@ -86,8 +91,8 @@ namespace Game._00.Script._03.Traffic_System.Building
         public void Initialize (Node node, BuildingType buildingType, Vector2 worldPosition)
         {
             _entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-            //Test only
             _parkingMesh = FindObjectOfType<ParkingMesh>();
+            _testSaver = GameManager.Instance.TestSaver;
             
             //Random between horizontal and vertical building
             float random = Random.Range(0f, 1f);
@@ -101,19 +106,19 @@ namespace Game._00.Script._03.Traffic_System.Building
             _parkingNodes = new List<Node>();
             BuildingDirection[] directionTypes = new[] { BuildingDirection.Down, BuildingDirection.Up, BuildingDirection.Left,BuildingDirection.Right };
             int randomIndex = Random.Range(1, directionTypes.Length);
-            BuildingDirection = BuildingDirection.Left;
+            BuildingDirection = BuildingDirection.Right;
             
             //This has to be called first to set up for the next function, save parking nodes to set adj list to road nodes later
             SetBuildingAndInsideRoads(node, parkingLotSize,BuildingDirection);
             // Invoke("DeactivateBuilding", LifeTime);
-            int testIndex =3;
+            int testIndex =0;
             SpawnRoad(node, parkingLotSize, BuildingDirection, testIndex);
             
             //After finish initialize parking lots, initlize bool[] to track if the parking lot is available
             _parkingResquest = new Queue<Entity>();
             _availableParking = new bool[_parkingNodes.Count];
             
-            float3 centerPoint= new float3(_originBuildingNode.WorldPosition.x - GridManager.NodeDiameter * 2, _originBuildingNode.WorldPosition.y + GridManager.NodeRadius, 0f);
+            float3 centerPoint= new float3(_originBuildingNode.WorldPosition.x + GridManager.NodeDiameter, _originBuildingNode.WorldPosition.y + GridManager.NodeRadius, 0f);
             _parkingPoint = centerPoint;
             float3[] waypoints = GetParkingWaypoints(OriginBuildingNode.WorldPosition,BuildingDirection, parkingLotSize, _parkingPoint, centerPoint,_roadNode.WorldPosition);   
             _test_Waypoints = new List<Vector3>();
@@ -121,6 +126,8 @@ namespace Game._00.Script._03.Traffic_System.Building
             {
                 _test_Waypoints.Add(new Vector3(waypoint.x, waypoint.y, waypoint.z));
             }
+            Debug.Log(waypoints.Length);
+            
         }
 
         private void DeactivateBuilding()
@@ -316,7 +323,7 @@ namespace Game._00.Script._03.Traffic_System.Building
                 
                 
                 //Get buildingDirection of a road;
-                BitwiseDirection GetRoadDirection(Node roadNode, List<Node> parkingNodes,BuildingDirection direction)
+                BitwiseDirection GetRoadDirection(Node roadNode, List<Node> parkingNodes, BuildingDirection direction)
                 {
                     float roadX = roadNode.WorldPosition.x;
                     float roadY = roadNode.WorldPosition.y;
@@ -431,10 +438,10 @@ namespace Game._00.Script._03.Traffic_System.Building
          /// <param name="roadNode"></param>
          /// <param name = "center point"></param> in the center of vertical (or horizontal if Right,Left) of parking (2 nodes)
          /// <returns></returns>
-         private float3[] GetParkingWaypoints(Vector2 originPos, BuildingDirection buildingDirection, ParkingLotSize parkingLotSize, float3 parkingPos, float3 centerPoint, Vector2 roadPos)
+         public float3[] GetParkingWaypoints(Vector2 originPos, BuildingDirection buildingDirection, ParkingLotSize parkingLotSize, float3 parkingPos, float3 centerPoint, Vector2 roadPos)
          {
              float nodeRadius = GridManager.NodeRadius;
-            Vector2 roadDirection = GetRoadNodeDirection(roadPos);
+            Vector2 roadDirection = GetRoadNodeDirection(roadPos, originPos, buildingDirection, parkingLotSize);
 
             var inOutSteps = GetInOutCorner(roadPos, roadDirection);
             float3 inCorner = inOutSteps.Item1;
@@ -494,7 +501,7 @@ namespace Game._00.Script._03.Traffic_System.Building
                 };
             }
             
-            if (buildingDirection ==BuildingDirection.Right || buildingDirection == BuildingDirection.Left)
+            if (buildingDirection == BuildingDirection.Right || buildingDirection == BuildingDirection.Left)
             {
                 float directionMultipler = buildingDirection == BuildingDirection.Right ? 1 : -1;
                 float3 topParking = new float3(topCorner.x, parkingPos.y, 0);
@@ -546,26 +553,57 @@ namespace Game._00.Script._03.Traffic_System.Building
             
             return new[] { float3.zero };
             
-            // Return relative buildingDirection roadNode to the closest parking node. Vector2 left if parkign node on the left of road node
-            Vector2 GetRoadNodeDirection(Vector2 roadPos)
+            //Instead of using get neighbours list of road node, we compare Y-axis or X-axis of roadPos to the origin node
+            //to decouple from GridManager (for testing majorly)
+            //Return vector2.left if the road is on the left of parking node 
+            Vector2 GetRoadNodeDirection(Vector2 roadPos, Vector2 buildingPos, BuildingDirection direction, ParkingLotSize size)
             {
-                Node roadNode = GridManager.NodeFromWorldPosition(roadPos);
-                List<Node> neighborus = roadNode.GetNeighbours();
-                foreach (Node n in neighborus)
+                float nodeRadius = GridManager.NodeRadius;
+                if (direction == BuildingDirection.Up || direction == BuildingDirection.Down)
                 {
-                    //Avoid diagonal roadNode into calculation
-                    if (n.BelongedBuilding == roadNode.BelongedBuilding && (Mathf.Approximately(n.WorldPosition.x, roadNode.WorldPosition.x) || Mathf.Approximately(n.WorldPosition.y, roadNode.WorldPosition.y)))
+                    if (roadPos.x > buildingPos.x)
                     {
-                        Vector2 dir = n.WorldPosition - roadNode.WorldPosition;
-                        if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y))
-                        {
-                            return dir.x > 0 ? Vector2.right : Vector2.left;
-                        }
-
-                        return dir.y > 0 ? Vector2.up : Vector2.down;
-
+                        return Vector2.left;
                     }
+                    if (roadPos.x < buildingPos.x && buildingPos.x  - roadPos.x > 2 * nodeRadius)
+                    {
+                        return Vector2.right;
+                    }
+                    return direction == BuildingDirection.Up? Vector2.down : Vector2.up;
                 }
+                 if (direction == BuildingDirection.Right || direction == BuildingDirection.Left)
+                {
+                    if (roadPos.y > buildingPos.y && roadPos.y - buildingPos.y > 2f * nodeRadius)
+                    {
+                        return Vector2.down;
+                    }
+                
+                    if (roadPos.y < buildingPos.y)
+                    {
+                        return Vector2.up;
+                    }
+                    return direction == BuildingDirection.Right? Vector2.left : Vector2.right;
+                }
+
+                
+                //
+                // Node roadNode = GridManager.NodeFromWorldPosition(roadPos);
+                // List<Node> neighborus = roadNode.GetNeighbours();
+                // foreach (Node n in neighborus)
+                // {
+                //     //Avoid diagonal roadNode into calculation
+                //     if (n.BelongedBuilding == roadNode.BelongedBuilding && (Mathf.Approximately(n.WorldPosition.x, roadNode.WorldPosition.x) || Mathf.Approximately(n.WorldPosition.y, roadNode.WorldPosition.y)))
+                //     {
+                //         Vector2 dir = n.WorldPosition - roadNode.WorldPosition;
+                //         if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y))
+                //         {
+                //             return dir.x > 0 ? Vector2.right : Vector2.left;
+                //         }
+                //
+                //         return dir.y > 0 ? Vector2.up : Vector2.down;
+                //
+                //     }
+                // }
                 return Vector2.zero;
             }
             
@@ -642,7 +680,7 @@ namespace Game._00.Script._03.Traffic_System.Building
         {
             for (int i = 0; i < waypoints.Length; i++)
             {
-                  DebugUtility.Log($"{i+1}. {waypoints[i]}");
+                  DebugUtility.Log($"{i+1}. {waypoints[i]}", this.ToString());
             }
         }
         private void OnDrawGizmos()

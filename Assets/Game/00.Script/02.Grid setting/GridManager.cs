@@ -65,7 +65,7 @@ namespace Game._00.Script._02.Grid_setting
             Initialize();
         }
 
-        private void Initialize()
+        public void Initialize()
         {
             // Calculate how many nodes (horizontally) the _gridManager can have, return int value so Round To Int 
             GridSizeX = Mathf.RoundToInt(GridWorldSize.x / NodeDiameter);

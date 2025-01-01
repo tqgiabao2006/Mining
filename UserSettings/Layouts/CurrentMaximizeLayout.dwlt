@@ -14,18 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Children:
   - {fileID: 3}
-  - {fileID: 9}
-  - {fileID: 17}
+  - {fileID: 8}
+  - {fileID: 13}
   m_Position:
     serializedVersion: 2
     x: 0
     y: 30
     width: 1920
     height: 1049
-  m_MinSize: {x: 400, y: 100}
-  m_MaxSize: {x: 32384, y: 16192}
+  m_MinSize: {x: 300, y: 100}
+  m_MaxSize: {x: 24288, y: 16192}
   vertical: 0
-  controlID: 82
+  controlID: 5962
 --- !u!114 &2
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -35,21 +35,22 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 12003, guid: 0000000000000000e000000000000000, type: 0}
+  m_Script: {fileID: 13401, guid: 0000000000000000e000000000000000, type: 0}
   m_Name: 
   m_EditorClassIdentifier: 
   m_MinSize: {x: 100, y: 100}
   m_MaxSize: {x: 4000, y: 4000}
   m_TitleContent:
-    m_Text: Console
-    m_Image: {fileID: -4950941429401207979, guid: 0000000000000000d000000000000000, type: 0}
-    m_Tooltip: 
+    m_Text: Test Runner
+    m_Image: {fileID: 0}
+    m_Tooltip: Test framework for running Edit mode and Play mode tests in Unity.
+      Part of the com.unity.test-framework package.
   m_Pos:
     serializedVersion: 2
-    x: 954
-    y: 667
-    width: 296
-    height: 462
+    x: 400
+    y: 101
+    width: 704
+    height: 678
   m_SerializedDataModeController:
     m_DataMode: 0
     m_PreferredDataMode: 0
@@ -60,6 +61,677 @@ MonoBehaviour:
     m_LastAppliedPresetName: Default
     m_SaveData: []
     m_OverlaysVisible: 1
+  m_Spl:
+    ID: 5976
+    splitterInitialOffset: 310
+    currentActiveSplitter: -1
+    realSizes:
+    - 263
+    - 345
+    relativeSizes:
+    - 0.43256578
+    - 0.5674342
+    minSizes:
+    - 32
+    - 32
+    maxSizes:
+    - 0
+    - 0
+    lastTotalSize: 608
+    splitSize: 6
+    xOffset: 0
+    m_Version: 1
+    oldRealSizes: 
+    oldMinSizes: 
+    oldMaxSizes: 
+    oldSplitSize: 0
+  m_TestTypeToolbarIndex: 1
+  m_TestListGUIs:
+  - m_Window: {fileID: 2}
+    runProgress:
+      RunGuid: 223708f8-8308-43d5-92cc-9c7a6e4ad52c
+      ExecutionSettings:
+        m_TargetPlatform: 0
+        m_HasTargetPlatform: 0
+        filter:
+          testMode: 0
+          testNames: []
+          groupNames: []
+          categoryNames: []
+          assemblyNames: []
+        filters:
+        - testMode: 2
+          testNames:
+          - Game.Tests.PlayMode.ParkingWaypoints_Test.TestPlayMode_ParkingWaypoints
+          groupNames: []
+          categoryNames: []
+          assemblyNames: []
+        runSynchronously: 0
+        playerHeartbeatTimeout: 600
+        orderedTestNames: []
+        ignoreTests: []
+        featureFlags:
+          fileCleanUpCheck: 0
+          requiresSplashScreen: 0
+          strictDomainReload: 0
+          disableNestedEnumeratorBugfix: 0
+        randomOrderSeed: 0
+      HasFinished: 1
+      Progress: 0.9999999
+      CurrentStepName: Unlock Reload Assemblies
+      CurrentStageName: 
+    m_NewResultList:
+    - id: 1000
+      uniqueId: '[BloodVein][suite]'
+      name: BloodVein
+      fullName: BloodVein
+      resultStatus: 2
+      duration: 0
+      messages: 
+      output: 
+      stacktrace: 
+      notRunnable: 0
+      ignoredOrSkipped: 0
+      description: 
+      isSuite: 1
+      categories: []
+      parentId: 
+      parentUniqueId: 
+    m_ResultText: "TestEditor_ParkingWaypoints (0.014s)\n---\nSystem.NullReferenceException
+      : Object reference not set to an instance of an object\n---\n  at Game._00.Script._02.Grid_setting.GridManager.NodeFromWorldPosition
+      (UnityEngine.Vector2 worldPosition) [0x000b8] in <color=#40a0ff><a href=\"/Users/tranquocgiabao/Documents/Game
+      Project/BloodVein/Assets/Game/00.Script/02.Grid setting/GridManager.cs\" line=\"230
+      \">Assets/Game/00.Script/02.Grid setting/GridManager.cs:230 </a></color>\n 
+      at Game._00.Script._03.Traffic_System.Building.BuildingBase.<GetParkingWaypoints>g__GetRoadNodeDirection|36_0
+      (UnityEngine.Vector2 roadPos) [0x00001] in <color=#40a0ff><a href=\"/Users/tranquocgiabao/Documents/Game
+      Project/BloodVein/Assets/Game/00.Script/03.Traffic System/Building/BuildingBase.cs\"
+      line=\"554 \">Assets/Game/00.Script/03.Traffic System/Building/BuildingBase.cs:554
+      </a></color>\n  at Game._00.Script._03.Traffic_System.Building.BuildingBase.GetParkingWaypoints
+      (UnityEngine.Vector2 originPos, Game._00.Script._03.Traffic_System.Building.BuildingDirection
+      buildingDirection, Game._00.Script._03.Traffic_System.Building.ParkingLotSize
+      parkingLotSize, Unity.Mathematics.float3 parkingPos, Unity.Mathematics.float3
+      centerPoint, UnityEngine.Vector2 roadPos) [0x00007] in <color=#40a0ff><a href=\"/Users/tranquocgiabao/Documents/Game
+      Project/BloodVein/Assets/Game/00.Script/03.Traffic System/Building/BuildingBase.cs\"
+      line=\"439 \">Assets/Game/00.Script/03.Traffic System/Building/BuildingBase.cs:439
+      </a></color>\n  at Game.Tests.EditorMode.ParkingWaypoints_Test.TestEditor_ParkingWaypoints
+      () [0x0008e] in <color=#40a0ff><a href=\"/Users/tranquocgiabao/Documents/Game
+      Project/BloodVein/Assets/Game/Tests/EditorMode/ParkingWaypoints_Test.cs\" line=\"39
+      \">Assets/Game/Tests/EditorMode/ParkingWaypoints_Test.cs:39 </a></color>\n 
+      at (wrapper managed-to-native) System.Reflection.RuntimeMethodInfo.InternalInvoke(System.Reflection.RuntimeMethodInfo,object,object[],System.Exception&)\n 
+      at System.Reflection.RuntimeMethodInfo.Invoke (System.Object obj, System.Reflection.BindingFlags
+      invokeAttr, System.Reflection.Binder binder, System.Object[] parameters, System.Globalization.CultureInfo
+      culture) [0x0006a] in <dcf6bec1c5764d29a37432d4b047f650>:0"
+    m_ResultStacktrace: "  at Game._00.Script._02.Grid_setting.GridManager.NodeFromWorldPosition
+      (UnityEngine.Vector2 worldPosition) [0x000b8] in /Users/tranquocgiabao/Documents/Game
+      Project/BloodVein/Assets/Game/00.Script/02.Grid setting/GridManager.cs:230
+      \n  at Game._00.Script._03.Traffic_System.Building.BuildingBase.<GetParkingWaypoints>g__GetRoadNodeDirection|36_0
+      (UnityEngine.Vector2 roadPos) [0x00001] in /Users/tranquocgiabao/Documents/Game
+      Project/BloodVein/Assets/Game/00.Script/03.Traffic System/Building/BuildingBase.cs:554
+      \n  at Game._00.Script._03.Traffic_System.Building.BuildingBase.GetParkingWaypoints
+      (UnityEngine.Vector2 originPos, Game._00.Script._03.Traffic_System.Building.BuildingDirection
+      buildingDirection, Game._00.Script._03.Traffic_System.Building.ParkingLotSize
+      parkingLotSize, Unity.Mathematics.float3 parkingPos, Unity.Mathematics.float3
+      centerPoint, UnityEngine.Vector2 roadPos) [0x00007] in /Users/tranquocgiabao/Documents/Game
+      Project/BloodVein/Assets/Game/00.Script/03.Traffic System/Building/BuildingBase.cs:439
+      \n  at Game.Tests.EditorMode.ParkingWaypoints_Test.TestEditor_ParkingWaypoints
+      () [0x0008e] in /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/EditorMode/ParkingWaypoints_Test.cs:39
+      \n  at (wrapper managed-to-native) System.Reflection.RuntimeMethodInfo.InternalInvoke(System.Reflection.RuntimeMethodInfo,object,object[],System.Exception&)\n 
+      at System.Reflection.RuntimeMethodInfo.Invoke (System.Object obj, System.Reflection.BindingFlags
+      invokeAttr, System.Reflection.Binder binder, System.Object[] parameters, System.Globalization.CultureInfo
+      culture) [0x0006a] in <dcf6bec1c5764d29a37432d4b047f650>:0 "
+    m_TestListState:
+      scrollPos: {x: 0, y: 0}
+      m_SelectedIDs: 85d861b8
+      m_LastClickedID: -1201547131
+      m_ExpandedIDs: 209bfb9ed881bfca47de13d8e557abf77955b02fb63a6168ffffff7f
+      m_RenameOverlay:
+        m_UserAcceptedRename: 0
+        m_Name: 
+        m_OriginalName: 
+        m_EditFieldRect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
+        m_UserData: 0
+        m_IsWaitingForDelay: 0
+        m_IsRenaming: 0
+        m_OriginalEventType: 11
+        m_IsRenamingFilename: 0
+        m_ClientGUIView: {fileID: 0}
+      m_SearchString: 
+    m_TestRunnerUIFilter:
+      PassedHidden: 0
+      FailedHidden: 0
+      NotRunHidden: 0
+      m_SearchString: 
+      selectedCategories: []
+      availableCategories:
+      - Uncategorized
+    m_SelectedOption: 0
+  - m_Window: {fileID: 2}
+    runProgress:
+      RunGuid: 223708f8-8308-43d5-92cc-9c7a6e4ad52c
+      ExecutionSettings:
+        m_TargetPlatform: 0
+        m_HasTargetPlatform: 0
+        filter:
+          testMode: 0
+          testNames: []
+          groupNames: []
+          categoryNames: []
+          assemblyNames: []
+        filters:
+        - testMode: 2
+          testNames:
+          - Game.Tests.PlayMode.ParkingWaypoints_Test.TestPlayMode_ParkingWaypoints
+          groupNames: []
+          categoryNames: []
+          assemblyNames: []
+        runSynchronously: 0
+        playerHeartbeatTimeout: 600
+        orderedTestNames: []
+        ignoreTests: []
+        featureFlags:
+          fileCleanUpCheck: 0
+          requiresSplashScreen: 0
+          strictDomainReload: 0
+          disableNestedEnumeratorBugfix: 0
+        randomOrderSeed: 0
+      HasFinished: 1
+      Progress: 0.9999999
+      CurrentStepName: Unlock Reload Assemblies
+      CurrentStageName: 
+    m_NewResultList:
+    - id: 1000
+      uniqueId: '[BloodVein][suite]'
+      name: BloodVein
+      fullName: BloodVein
+      resultStatus: 2
+      duration: 0
+      messages: 
+      output: 
+      stacktrace: 
+      notRunnable: 0
+      ignoredOrSkipped: 0
+      description: 
+      isSuite: 1
+      categories: []
+      parentId: 
+      parentUniqueId: 
+    - id: 1003
+      uniqueId: '[PlayMode.dll][suite]'
+      name: PlayMode.dll
+      fullName: /Users/tranquocgiabao/Documents/Game Project/BloodVein/Library/ScriptAssemblies/PlayMode.dll
+      resultStatus: 2
+      duration: 0
+      messages: 
+      output: 
+      stacktrace: 
+      notRunnable: 0
+      ignoredOrSkipped: 0
+      description: 
+      isSuite: 1
+      categories: []
+      parentId: 1010
+      parentUniqueId: '[BloodVein][suite]'
+    - id: 1004
+      uniqueId: PlayMode.dll/[Game][suite]
+      name: Game
+      fullName: Game
+      resultStatus: 2
+      duration: 0
+      messages: 
+      output: 
+      stacktrace: 
+      notRunnable: 0
+      ignoredOrSkipped: 0
+      description: 
+      isSuite: 1
+      categories: []
+      parentId: 1003
+      parentUniqueId: '[PlayMode.dll][suite]'
+    - id: 1005
+      uniqueId: PlayMode.dll/Game/[Tests][suite]
+      name: Tests
+      fullName: Game.Tests
+      resultStatus: 2
+      duration: 0
+      messages: 
+      output: 
+      stacktrace: 
+      notRunnable: 0
+      ignoredOrSkipped: 0
+      description: 
+      isSuite: 1
+      categories: []
+      parentId: 1004
+      parentUniqueId: PlayMode.dll/[Game][suite]
+    - id: 1006
+      uniqueId: PlayMode.dll/Game/Tests/[PlayMode][suite]
+      name: PlayMode
+      fullName: Game.Tests.PlayMode
+      resultStatus: 2
+      duration: 0
+      messages: 
+      output: 
+      stacktrace: 
+      notRunnable: 0
+      ignoredOrSkipped: 0
+      description: 
+      isSuite: 1
+      categories: []
+      parentId: 1005
+      parentUniqueId: PlayMode.dll/Game/[Tests][suite]
+    - id: 1001
+      uniqueId: PlayMode.dll/Game/Tests/PlayMode/[PlayMode][Game.Tests.PlayMode.ParkingWaypoints_Test][suite]
+      name: ParkingWaypoints_Test
+      fullName: Game.Tests.PlayMode.ParkingWaypoints_Test
+      resultStatus: 2
+      duration: 0
+      messages: 
+      output: 
+      stacktrace: 
+      notRunnable: 0
+      ignoredOrSkipped: 0
+      description: 
+      isSuite: 1
+      categories: []
+      parentId: 1006
+      parentUniqueId: PlayMode.dll/Game/Tests/[PlayMode][suite]
+    - id: 1002
+      uniqueId: PlayMode.dll/Game/Tests/PlayMode/ParkingWaypoints_Test/[PlayMode][Game.Tests.PlayMode.ParkingWaypoints_Test.TestPlayMode_ParkingWaypoints]
+      name: TestPlayMode_ParkingWaypoints
+      fullName: Game.Tests.PlayMode.ParkingWaypoints_Test.TestPlayMode_ParkingWaypoints
+      resultStatus: 2
+      duration: 2.0389962
+      messages: 'Unhandled log message: ''[Error] Test case failed for /Users/tranquocgiabao/Documents/Game
+        Project/BloodVein/Assets/Game/Tests/Json Data/Parking Waypoints/_2x2 | Down
+        | Road 1 .json: Length mismatch.''. Use UnityEngine.TestTools.LogAssert.Expect'
+      output: 'Test case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+        Data/Parking Waypoints/_2x2 | Down | Road 1 .json: Length mismatch.
+
+        Test
+        case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+        Data/Parking Waypoints/_2x2 | Down | Road 2 .json: Length mismatch.
+
+        Test
+        case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+        Data/Parking Waypoints/_2x2 | Down | Road 3 .json: Mismatch at index 0.
+
+        Test
+        case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+        Data/Parking Waypoints/_2x2 | Left | Road 0 .json: Length mismatch.
+
+        Test
+        case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+        Data/Parking Waypoints/_2x2 | Left | Road 1 .json: Mismatch at index 0.
+
+        Test
+        case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+        Data/Parking Waypoints/_2x2 | Left | Road 2 .json: Mismatch at index 0.
+
+        Test
+        case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+        Data/Parking Waypoints/_2x2 | Left | Road 3 .json: Length mismatch.
+
+        Test
+        case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+        Data/Parking Waypoints/_2x2 | Right | Road 0 .json: Length mismatch.
+
+        Test
+        case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+        Data/Parking Waypoints/_2x2 | Right | Road 1 .json: Mismatch at index 1.
+
+        Test
+        case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+        Data/Parking Waypoints/_2x2 | Right | Road 2 .json: Mismatch at index 1.
+
+        Test
+        case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+        Data/Parking Waypoints/_2x2 | Right | Road 3 .json: Length mismatch.
+
+        Test
+        case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+        Data/Parking Waypoints/_2x2 | Up | Road 1 .json: Length mismatch.
+
+        Test
+        case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+        Data/Parking Waypoints/_2x2 | Up | Road 2 .json: Length mismatch.
+
+        Test
+        case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+        Data/Parking Waypoints/_2x2 | Up | Road 3 .json: Mismatch at index 0.
+
+        Test
+        case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+        Data/Parking Waypoints/_2x3 | Down | Road 1 .json: Length mismatch.
+
+        Test
+        case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+        Data/Parking Waypoints/_2x3 | Down | Road 2 .json: Length mismatch.
+
+        Test
+        case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+        Data/Parking Waypoints/_2x3 | Down | Road 3 .json: Mismatch at index 0.
+
+        Test
+        case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+        Data/Parking Waypoints/_2x3 | Left | Road 0 .json: Length mismatch.
+
+        Test
+        case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+        Data/Parking Waypoints/_2x3 | Left | Road 1 .json: Mismatch at index 0.
+
+        Test
+        case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+        Data/Parking Waypoints/_2x3 | Left | Road 2 .json: Mismatch at index 0.
+
+        Test
+        case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+        Data/Parking Waypoints/_2x3 | Left | Road 3 .json: Length mismatch.
+
+        Test
+        case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+        Data/Parking Waypoints/_2x3 | Right | Road 0 .json: Length mismatch.
+
+        Test
+        case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+        Data/Parking Waypoints/_2x3 | Right | Road 1 .json: Mismatch at index 1.
+
+        Test
+        case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+        Data/Parking Waypoints/_2x3 | Right | Road 2 .json: Mismatch at index 1.
+
+        Test
+        case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+        Data/Parking Waypoints/_2x3 | Right | Road 3 .json: Length mismatch.
+
+        Test
+        case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+        Data/Parking Waypoints/_2x3 | Up | Road 1 .json: Length mismatch.
+
+        Test
+        case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+        Data/Parking Waypoints/_2x3 | Up | Road 2 .json: Length mismatch.
+
+        Test
+        case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+        Data/Parking Waypoints/_2x3 | Up | Road 3 .json: Mismatch at index 0.
+
+'
+      stacktrace: 'Game._00.Script._00.Manager.Custom_Editor.DebugUtility:LogError
+        (string) (at Assets/Game/00.Script/00.Manager/Custom Editor/DebugUtility.cs:23)
+
+        Game.Tests.PlayMode.ParkingWaypoints_Test:CompareTwoList
+        (Unity.Mathematics.float3[],Unity.Mathematics.float3[],string) (at Assets/Game/Tests/PlayMode/ParkingWaypoints_Test.cs:74)
+
+        Game.Tests.PlayMode.ParkingWaypoints_Test/<TestPlayMode_ParkingWaypoints>d__0:MoveNext
+        () (at Assets/Game/Tests/PlayMode/ParkingWaypoints_Test.cs:45)
+
+        UnityEngine.SetupCoroutine:InvokeMoveNext
+        (System.Collections.IEnumerator,intptr) (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+
+'
+      notRunnable: 0
+      ignoredOrSkipped: 0
+      description: 
+      isSuite: 0
+      categories:
+      - Uncategorized
+      parentId: 1001
+      parentUniqueId: PlayMode.dll/Game/Tests/PlayMode/[PlayMode][Game.Tests.PlayMode.ParkingWaypoints_Test][suite]
+    m_ResultText: 'TestPlayMode_ParkingWaypoints (2.039s)
+
+      ---
+
+      Unhandled
+      log message: ''[Error] Test case failed for /Users/tranquocgiabao/Documents/Game
+      Project/BloodVein/Assets/Game/Tests/Json Data/Parking Waypoints/_2x2 | Down
+      | Road 1 .json: Length mismatch.''. Use UnityEngine.TestTools.LogAssert.Expect
+
+      ---
+
+      Game._00.Script._00.Manager.Custom_Editor.DebugUtility:LogError
+      (string) (at Assets/Game/00.Script/00.Manager/Custom Editor/DebugUtility.cs:23)
+
+      Game.Tests.PlayMode.ParkingWaypoints_Test:CompareTwoList
+      (Unity.Mathematics.float3[],Unity.Mathematics.float3[],string) (at Assets/Game/Tests/PlayMode/ParkingWaypoints_Test.cs:74)
+
+      Game.Tests.PlayMode.ParkingWaypoints_Test/<TestPlayMode_ParkingWaypoints>d__0:MoveNext
+      () (at Assets/Game/Tests/PlayMode/ParkingWaypoints_Test.cs:45)
+
+      UnityEngine.SetupCoroutine:InvokeMoveNext
+      (System.Collections.IEnumerator,intptr) (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+
+
+      ---
+
+      Test
+      case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+      Data/Parking Waypoints/_2x2 | Down | Road 1 .json: Length mismatch.
+
+      Test
+      case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+      Data/Parking Waypoints/_2x2 | Down | Road 2 .json: Length mismatch.
+
+      Test
+      case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+      Data/Parking Waypoints/_2x2 | Down | Road 3 .json: Mismatch at index 0.
+
+      Test
+      case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+      Data/Parking Waypoints/_2x2 | Left | Road 0 .json: Length mismatch.
+
+      Test
+      case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+      Data/Parking Waypoints/_2x2 | Left | Road 1 .json: Mismatch at index 0.
+
+      Test
+      case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+      Data/Parking Waypoints/_2x2 | Left | Road 2 .json: Mismatch at index 0.
+
+      Test
+      case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+      Data/Parking Waypoints/_2x2 | Left | Road 3 .json: Length mismatch.
+
+      Test
+      case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+      Data/Parking Waypoints/_2x2 | Right | Road 0 .json: Length mismatch.
+
+      Test
+      case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+      Data/Parking Waypoints/_2x2 | Right | Road 1 .json: Mismatch at index 1.
+
+      Test
+      case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+      Data/Parking Waypoints/_2x2 | Right | Road 2 .json: Mismatch at index 1.
+
+      Test
+      case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+      Data/Parking Waypoints/_2x2 | Right | Road 3 .json: Length mismatch.
+
+      Test
+      case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+      Data/Parking Waypoints/_2x2 | Up | Road 1 .json: Length mismatch.
+
+      Test
+      case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+      Data/Parking Waypoints/_2x2 | Up | Road 2 .json: Length mismatch.
+
+      Test
+      case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+      Data/Parking Waypoints/_2x2 | Up | Road 3 .json: Mismatch at index 0.
+
+      Test
+      case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+      Data/Parking Waypoints/_2x3 | Down | Road 1 .json: Length mismatch.
+
+      Test
+      case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+      Data/Parking Waypoints/_2x3 | Down | Road 2 .json: Length mismatch.
+
+      Test
+      case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+      Data/Parking Waypoints/_2x3 | Down | Road 3 .json: Mismatch at index 0.
+
+      Test
+      case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+      Data/Parking Waypoints/_2x3 | Left | Road 0 .json: Length mismatch.
+
+      Test
+      case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+      Data/Parking Waypoints/_2x3 | Left | Road 1 .json: Mismatch at index 0.
+
+      Test
+      case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+      Data/Parking Waypoints/_2x3 | Left | Road 2 .json: Mismatch at index 0.
+
+      Test
+      case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+      Data/Parking Waypoints/_2x3 | Left | Road 3 .json: Length mismatch.
+
+      Test
+      case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+      Data/Parking Waypoints/_2x3 | Right | Road 0 .json: Length mismatch.
+
+      Test
+      case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+      Data/Parking Waypoints/_2x3 | Right | Road 1 .json: Mismatch at index 1.
+
+      Test
+      case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+      Data/Parking Waypoints/_2x3 | Right | Road 2 .json: Mismatch at index 1.
+
+      Test
+      case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+      Data/Parking Waypoints/_2x3 | Right | Road 3 .json: Length mismatch.
+
+      Test
+      case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+      Data/Parking Waypoints/_2x3 | Up | Road 1 .json: Length mismatch.
+
+      Test
+      case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+      Data/Parking Waypoints/_2x3 | Up | Road 2 .json: Length mismatch.
+
+      Test
+      case failed for /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Game/Tests/Json
+      Data/Parking Waypoints/_2x3 | Up | Road 3 .json: Mismatch at index 0.'
+    m_ResultStacktrace: 'Game._00.Script._00.Manager.Custom_Editor.DebugUtility:LogError
+      (string) (at Assets/Game/00.Script/00.Manager/Custom Editor/DebugUtility.cs:23)
+
+      Game.Tests.PlayMode.ParkingWaypoints_Test:CompareTwoList
+      (Unity.Mathematics.float3[],Unity.Mathematics.float3[],string) (at Assets/Game/Tests/PlayMode/ParkingWaypoints_Test.cs:74)
+
+      Game.Tests.PlayMode.ParkingWaypoints_Test/<TestPlayMode_ParkingWaypoints>d__0:MoveNext
+      () (at Assets/Game/Tests/PlayMode/ParkingWaypoints_Test.cs:45)
+
+      UnityEngine.SetupCoroutine:InvokeMoveNext
+      (System.Collections.IEnumerator,intptr) (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/Coroutines.cs:17)
+
+
+'
+    m_TestListState:
+      scrollPos: {x: 0, y: 0}
+      m_SelectedIDs: 7fc551c2
+      m_LastClickedID: -1034828417
+      m_ExpandedIDs: 209bfb9e9f5c62b6e255670a10f2d81b6a0d291d19269a3bffffff7f
+      m_RenameOverlay:
+        m_UserAcceptedRename: 0
+        m_Name: 
+        m_OriginalName: 
+        m_EditFieldRect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
+        m_UserData: 0
+        m_IsWaitingForDelay: 0
+        m_IsRenaming: 0
+        m_OriginalEventType: 11
+        m_IsRenamingFilename: 0
+        m_ClientGUIView: {fileID: 0}
+      m_SearchString: 
+    m_TestRunnerUIFilter:
+      PassedHidden: 0
+      FailedHidden: 0
+      NotRunHidden: 0
+      m_SearchString: 
+      selectedCategories: []
+      availableCategories:
+      - Uncategorized
+    m_SelectedOption: 0
+  - m_Window: {fileID: 0}
+    runProgress:
+      RunGuid: 223708f8-8308-43d5-92cc-9c7a6e4ad52c
+      ExecutionSettings:
+        m_TargetPlatform: 0
+        m_HasTargetPlatform: 0
+        filter:
+          testMode: 0
+          testNames: []
+          groupNames: []
+          categoryNames: []
+          assemblyNames: []
+        filters:
+        - testMode: 2
+          testNames:
+          - Game.Tests.PlayMode.ParkingWaypoints_Test.TestPlayMode_ParkingWaypoints
+          groupNames: []
+          categoryNames: []
+          assemblyNames: []
+        runSynchronously: 0
+        playerHeartbeatTimeout: 600
+        orderedTestNames: []
+        ignoreTests: []
+        featureFlags:
+          fileCleanUpCheck: 0
+          requiresSplashScreen: 0
+          strictDomainReload: 0
+          disableNestedEnumeratorBugfix: 0
+        randomOrderSeed: 0
+      HasFinished: 1
+      Progress: 0.9999999
+      CurrentStepName: Unlock Reload Assemblies
+      CurrentStageName: 
+    m_NewResultList: []
+    m_ResultText: 
+    m_ResultStacktrace: 
+    m_TestListState:
+      scrollPos: {x: 0, y: 0}
+      m_SelectedIDs: 
+      m_LastClickedID: 0
+      m_ExpandedIDs: 
+      m_RenameOverlay:
+        m_UserAcceptedRename: 0
+        m_Name: 
+        m_OriginalName: 
+        m_EditFieldRect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
+        m_UserData: 0
+        m_IsWaitingForDelay: 0
+        m_IsRenaming: 0
+        m_OriginalEventType: 11
+        m_IsRenamingFilename: 0
+        m_ClientGUIView: {fileID: 0}
+      m_SearchString: 
+    m_TestRunnerUIFilter:
+      PassedHidden: 0
+      FailedHidden: 0
+      NotRunHidden: 0
+      m_SearchString: 
+      selectedCategories: []
+      availableCategories: []
+    m_SelectedOption: 0
 --- !u!114 &3
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -79,12 +751,12 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 954
+    width: 400
     height: 1049
   m_MinSize: {x: 100, y: 100}
   m_MaxSize: {x: 8096, y: 16192}
   vertical: 1
-  controlID: 29
+  controlID: 6040
 --- !u!114 &4
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -102,7 +774,7 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 954
+    width: 400
     height: 527
   m_MinSize: {x: 201, y: 221}
   m_MaxSize: {x: 4001, y: 4021}
@@ -133,7 +805,7 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 101
-    width: 953
+    width: 399
     height: 506
   m_SerializedDataModeController:
     m_DataMode: 0
@@ -244,7 +916,7 @@ MonoBehaviour:
       snapOffsetDelta: {x: 0, y: 0}
       snapCorner: 0
       id: Scene View/Light Settings
-      index: 2
+      index: 1
       layout: 4
       size: {x: 0, y: 0}
       sizeOverriden: 0
@@ -270,7 +942,7 @@ MonoBehaviour:
       snapOffsetDelta: {x: 0, y: 0}
       snapCorner: 0
       id: Scene View/Cloth Constraints
-      index: 3
+      index: 2
       layout: 4
       size: {x: 0, y: 0}
       sizeOverriden: 0
@@ -426,7 +1098,7 @@ MonoBehaviour:
       snapOffsetDelta: {x: 0, y: 0}
       snapCorner: 0
       id: Scene View/Tilemap Focus
-      index: 1
+      index: 3
       layout: 4
       size: {x: 0, y: 0}
       sizeOverriden: 0
@@ -439,19 +1111,6 @@ MonoBehaviour:
       snapOffsetDelta: {x: 0, y: 0}
       snapCorner: 0
       id: APV Overlay
-      index: 9
-      layout: 4
-      size: {x: 0, y: 0}
-      sizeOverriden: 0
-    - dockPosition: 1
-      containerId: overlay-container--right
-      floating: 0
-      collapsed: 0
-      displayed: 0
-      snapOffset: {x: 48, y: 48}
-      snapOffsetDelta: {x: 0, y: 0}
-      snapCorner: 0
-      id: Scene View/Path
       index: 10
       layout: 4
       size: {x: 0, y: 0}
@@ -464,8 +1123,21 @@ MonoBehaviour:
       snapOffset: {x: 48, y: 48}
       snapOffsetDelta: {x: 0, y: 0}
       snapCorner: 0
-      id: Scene View/TrailRenderer
+      id: Scene View/Path
       index: 11
+      layout: 4
+      size: {x: 0, y: 0}
+      sizeOverriden: 0
+    - dockPosition: 1
+      containerId: overlay-container--right
+      floating: 0
+      collapsed: 0
+      displayed: 0
+      snapOffset: {x: 48, y: 48}
+      snapOffsetDelta: {x: 0, y: 0}
+      snapCorner: 0
+      id: Scene View/TrailRenderer
+      index: 9
       layout: 4
       size: {x: 0, y: 0}
       sizeOverriden: 0
@@ -480,9 +1152,9 @@ MonoBehaviour:
   m_PlayAudio: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: -3.2901702, y: -0.34865808, z: -0.047875833}
+    m_Target: {x: -25.484976, y: -6.697453, z: -0.27363166}
     speed: 2
-    m_Value: {x: -3.2901702, y: -0.34865808, z: -0.047875833}
+    m_Value: {x: -25.484976, y: -6.697453, z: -0.27363166}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -532,9 +1204,9 @@ MonoBehaviour:
     speed: 2
     m_Value: {x: 0, y: 0, z: 0, w: 1}
   m_Size:
-    m_Target: 7.8255444
+    m_Target: 28.801062
     speed: 2
-    m_Value: 7.8255444
+    m_Value: 28.801062
   m_Ortho:
     m_Target: 1
     speed: 2
@@ -576,14 +1248,13 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 527
-    width: 954
+    width: 400
     height: 522
   m_MinSize: {x: 201, y: 221}
   m_MaxSize: {x: 4001, y: 4021}
   m_ActualView: {fileID: 7}
   m_Panes:
   - {fileID: 7}
-  - {fileID: 8}
   m_Selected: 0
   m_LastSelected: 1
 --- !u!114 &7
@@ -608,7 +1279,7 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 628
-    width: 953
+    width: 399
     height: 501
   m_SerializedDataModeController:
     m_DataMode: 0
@@ -626,7 +1297,7 @@ MonoBehaviour:
   m_ShowGizmos: 0
   m_TargetDisplay: 0
   m_ClearColor: {r: 0, g: 0, b: 0, a: 0}
-  m_TargetSize: {x: 1707, y: 960}
+  m_TargetSize: {x: 798, y: 449}
   m_TextureFilterMode: 0
   m_TextureHideFlags: 61
   m_RenderIMGUI: 1
@@ -641,10 +1312,10 @@ MonoBehaviour:
     m_VRangeLocked: 0
     hZoomLockedByDefault: 0
     vZoomLockedByDefault: 0
-    m_HBaseRangeMin: -426.75
-    m_HBaseRangeMax: 426.75
-    m_VBaseRangeMin: -240
-    m_VBaseRangeMax: 240
+    m_HBaseRangeMin: -199.5
+    m_HBaseRangeMax: 199.5
+    m_VBaseRangeMin: -112.25
+    m_VBaseRangeMax: 112.25
     m_HAllowExceedBaseRangeMin: 1
     m_HAllowExceedBaseRangeMax: 1
     m_VAllowExceedBaseRangeMin: 1
@@ -662,23 +1333,23 @@ MonoBehaviour:
       serializedVersion: 2
       x: 0
       y: 21
-      width: 953
+      width: 399
       height: 480
     m_Scale: {x: 1, y: 1}
-    m_Translation: {x: 476.5, y: 240}
+    m_Translation: {x: 199.5, y: 240}
     m_MarginLeft: 0
     m_MarginRight: 0
     m_MarginTop: 0
     m_MarginBottom: 0
     m_LastShownAreaInsideMargins:
       serializedVersion: 2
-      x: -476.5
+      x: -199.5
       y: -240
-      width: 953
+      width: 399
       height: 480
     m_MinimalGUI: 1
   m_defaultScale: 1
-  m_LastWindowPixelSize: {x: 1906, y: 1002}
+  m_LastWindowPixelSize: {x: 798, y: 1002}
   m_ClearInEditMode: 1
   m_NoCameraWarning: 1
   m_LowResolutionForAspectRatios: 00000000000000000000
@@ -693,83 +1364,23 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bb0eaf7081c7fbb44a83e4908fb5bcc0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_MinSize: {x: 200, y: 200}
-  m_MaxSize: {x: 4000, y: 4000}
-  m_TitleContent:
-    m_Text: Systems
-    m_Image: {fileID: 2800000, guid: 290ec3726cd9fb947b6106c3232f5b5c, type: 3}
-    m_Tooltip: 
-  m_Pos:
-    serializedVersion: 2
-    x: 0
-    y: 743
-    width: 1209
-    height: 656
-  m_SerializedDataModeController:
-    m_DataMode: 0
-    m_PreferredDataMode: 0
-    m_SupportedDataModes: 
-    isAutomatic: 1
-  m_ViewDataDictionary: {fileID: 0}
-  m_OverlayCanvas:
-    m_LastAppliedPresetName: Default
-    m_SaveData: []
-    m_OverlaysVisible: 1
-  m_EditorWindowInstanceKey: 798194c6e43641099a5ab1638df20036
---- !u!114 &9
-MonoBehaviour:
-  m_ObjectHideFlags: 52
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
   m_Script: {fileID: 12010, guid: 0000000000000000e000000000000000, type: 0}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Children:
-  - {fileID: 10}
-  - {fileID: 16}
-  m_Position:
-    serializedVersion: 2
-    x: 954
-    y: 0
-    width: 298
-    height: 1049
-  m_MinSize: {x: 200, y: 100}
-  m_MaxSize: {x: 16192, y: 16192}
-  vertical: 1
-  controlID: 83
---- !u!114 &10
-MonoBehaviour:
-  m_ObjectHideFlags: 52
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 12010, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Children:
+  - {fileID: 9}
   - {fileID: 11}
-  - {fileID: 14}
   m_Position:
     serializedVersion: 2
-    x: 0
+    x: 400
     y: 0
-    width: 298
-    height: 566
-  m_MinSize: {x: 200, y: 50}
-  m_MaxSize: {x: 16192, y: 8096}
-  vertical: 0
-  controlID: 78
---- !u!114 &11
+    width: 706
+    height: 1049
+  m_MinSize: {x: 100, y: 100}
+  m_MaxSize: {x: 8096, y: 16192}
+  vertical: 1
+  controlID: 5963
+--- !u!114 &9
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -779,24 +1390,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 1
   m_Script: {fileID: 12006, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: SceneHierarchyWindow
+  m_Name: TestRunnerWindow
   m_EditorClassIdentifier: 
   m_Children: []
   m_Position:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 149
-    height: 566
-  m_MinSize: {x: 202, y: 221}
-  m_MaxSize: {x: 4002, y: 4021}
-  m_ActualView: {fileID: 12}
+    width: 706
+    height: 699
+  m_MinSize: {x: 101, y: 121}
+  m_MaxSize: {x: 4001, y: 4021}
+  m_ActualView: {fileID: 2}
   m_Panes:
-  - {fileID: 12}
-  - {fileID: 13}
-  m_Selected: 0
-  m_LastSelected: 1
---- !u!114 &12
+  - {fileID: 10}
+  - {fileID: 2}
+  m_Selected: 1
+  m_LastSelected: 0
+--- !u!114 &10
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -816,10 +1427,10 @@ MonoBehaviour:
     m_Tooltip: 
   m_Pos:
     serializedVersion: 2
-    x: 954
+    x: 400
     y: 101
-    width: 147
-    height: 545
+    width: 704
+    height: 678
   m_SerializedDataModeController:
     m_DataMode: 0
     m_PreferredDataMode: 0
@@ -835,7 +1446,7 @@ MonoBehaviour:
       scrollPos: {x: 0, y: 0}
       m_SelectedIDs: 
       m_LastClickedID: 0
-      m_ExpandedIDs: 9afaffff
+      m_ExpandedIDs: 22fefeff0e07ffff8e0effff7814ffffba1cffff4623ffffb628fffffa30ffffac31ffff244cffffe44cffff4650ffff5a53ffffde54fffffa57ffff6a5cffffa060ffff5c62fffffc63ffff3e67ffff9e6affff066cffff9e6dffff466fffff8076ffff5e7bffff7889ffffb092ffff9097ffff109bffff5eb7ffff3afaffff48ae0000bab10000dcb10000
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -851,7 +1462,7 @@ MonoBehaviour:
         m_IsRenaming: 0
         m_OriginalEventType: 11
         m_IsRenamingFilename: 0
-        m_ClientGUIView: {fileID: 11}
+        m_ClientGUIView: {fileID: 9}
       m_SearchString: 
     m_ExpandedScenes: []
     m_CurrenRootInstanceID: 0
@@ -859,435 +1470,7 @@ MonoBehaviour:
       m_IsLocked: 0
     m_CurrentSortingName: TransformSorting
   m_WindowGUID: 011db0fb554a14fe19f37d58e6c398b4
---- !u!114 &13
-MonoBehaviour:
-  m_ObjectHideFlags: 52
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 13401, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_MinSize: {x: 100, y: 100}
-  m_MaxSize: {x: 4000, y: 4000}
-  m_TitleContent:
-    m_Text: Test Runner
-    m_Image: {fileID: 0}
-    m_Tooltip: Test framework for running Edit mode and Play mode tests in Unity.
-      Part of the com.unity.test-framework package.
-  m_Pos:
-    serializedVersion: 2
-    x: 982
-    y: 101
-    width: 204.5
-    height: 546.5
-  m_SerializedDataModeController:
-    m_DataMode: 0
-    m_PreferredDataMode: 0
-    m_SupportedDataModes: 
-    isAutomatic: 1
-  m_ViewDataDictionary: {fileID: 0}
-  m_OverlayCanvas:
-    m_LastAppliedPresetName: Default
-    m_SaveData: []
-    m_OverlaysVisible: 1
-  m_Spl:
-    ID: 325
-    splitterInitialOffset: 0
-    currentActiveSplitter: -1
-    realSizes:
-    - 357
-    - 119
-    relativeSizes:
-    - 0.75
-    - 0.25
-    minSizes:
-    - 32
-    - 32
-    maxSizes:
-    - 0
-    - 0
-    lastTotalSize: 476
-    splitSize: 6
-    xOffset: 0
-    m_Version: 1
-    oldRealSizes: 
-    oldMinSizes: 
-    oldMaxSizes: 
-    oldSplitSize: 0
-  m_TestTypeToolbarIndex: 1
-  m_TestListGUIs:
-  - m_Window: {fileID: 13}
-    runProgress:
-      RunGuid: b29bc994-3769-41c5-9e8e-3a72ec61cdcf
-      ExecutionSettings:
-        m_TargetPlatform: 0
-        m_HasTargetPlatform: 0
-        filter:
-          testMode: 0
-          testNames: []
-          groupNames: []
-          categoryNames: []
-          assemblyNames: []
-        filters:
-        - testMode: 1
-          testNames:
-          - Tests_15.MyClassTests
-          groupNames: []
-          categoryNames: []
-          assemblyNames: []
-        runSynchronously: 0
-        playerHeartbeatTimeout: 600
-        orderedTestNames: []
-        ignoreTests: []
-        featureFlags:
-          fileCleanUpCheck: 0
-          requiresSplashScreen: 0
-          strictDomainReload: 0
-          disableNestedEnumeratorBugfix: 0
-        randomOrderSeed: 0
-      HasFinished: 1
-      Progress: 0.99999994
-      CurrentStepName: Unlock Reload Assemblies
-      CurrentStageName: 
-    m_NewResultList:
-    - id: 1000
-      uniqueId: '[BloodVein][suite]'
-      name: BloodVein
-      fullName: BloodVein
-      resultStatus: 0
-      duration: 0
-      messages: 
-      output: 
-      stacktrace: 
-      notRunnable: 0
-      ignoredOrSkipped: 0
-      description: 
-      isSuite: 1
-      categories: []
-      parentId: 
-      parentUniqueId: 
-    - id: 1004
-      uniqueId: '[Tests][/Users/tranquocgiabao/Documents/Game Project/BloodVein/Library/ScriptAssemblies/Tests.dll][suite]'
-      name: Tests.dll
-      fullName: /Users/tranquocgiabao/Documents/Game Project/BloodVein/Library/ScriptAssemblies/Tests.dll
-      resultStatus: 0
-      duration: 0
-      messages: 
-      output: 
-      stacktrace: 
-      notRunnable: 0
-      ignoredOrSkipped: 0
-      description: 
-      isSuite: 1
-      categories: []
-      parentId: 1000
-      parentUniqueId: '[BloodVein][suite]'
-    - id: 1001
-      uniqueId: Tests.dll/[Tests][ParkingWaypoints_Test][suite]
-      name: ParkingWaypoints_Test
-      fullName: ParkingWaypoints_Test
-      resultStatus: 0
-      duration: 0
-      messages: 
-      output: 
-      stacktrace: 
-      notRunnable: 0
-      ignoredOrSkipped: 0
-      description: 
-      isSuite: 1
-      categories: []
-      parentId: 1004
-      parentUniqueId: '[Tests][/Users/tranquocgiabao/Documents/Game Project/BloodVein/Library/ScriptAssemblies/Tests.dll][suite]'
-    - id: 1002
-      uniqueId: Tests.dll/ParkingWaypoints_Test/[Tests][ParkingWaypoints_Test.ParkingWaypoints_TestSimplePasses]
-      name: ParkingWaypoints_TestSimplePasses
-      fullName: ParkingWaypoints_Test.ParkingWaypoints_TestSimplePasses
-      resultStatus: 0
-      duration: 0
-      messages: 
-      output: 
-      stacktrace: 
-      notRunnable: 0
-      ignoredOrSkipped: 0
-      description: 
-      isSuite: 0
-      categories:
-      - Uncategorized
-      parentId: 1001
-      parentUniqueId: Tests.dll/[Tests][ParkingWaypoints_Test][suite]
-    - id: 1003
-      uniqueId: Tests.dll/ParkingWaypoints_Test/[Tests][ParkingWaypoints_Test.ParkingWaypoints_TestWithEnumeratorPasses]
-      name: ParkingWaypoints_TestWithEnumeratorPasses
-      fullName: ParkingWaypoints_Test.ParkingWaypoints_TestWithEnumeratorPasses
-      resultStatus: 0
-      duration: 0
-      messages: 
-      output: 
-      stacktrace: 
-      notRunnable: 0
-      ignoredOrSkipped: 0
-      description: 
-      isSuite: 0
-      categories:
-      - Uncategorized
-      parentId: 1001
-      parentUniqueId: Tests.dll/[Tests][ParkingWaypoints_Test][suite]
-    m_ResultText: "AddTwoInt(1,1,3) (0.003s)\n---\n  Expected: 3\n  But was:  2\n\n---\nat
-      Tests_15.MyClassTests.AddTwoInt (System.Int32 a, System.Int32 b, System.Int32
-      result) [0x0003a] in <color=#40a0ff><a href=\"/Users/tranquocgiabao/Documents/Game
-      Project/BloodVein/Assets/Samples/Test Framework/1.4.5/Exercise 15_ Test Cases/Tests_15/MyClassTests.cs\"
-      line=\"21\">Assets/Samples/Test Framework/1.4.5/Exercise 15_ Test Cases/Tests_15/MyClassTests.cs:21</a></color>"
-    m_ResultStacktrace: 'at Tests_15.MyClassTests.AddTwoInt (System.Int32 a, System.Int32
-      b, System.Int32 result) [0x0003a] in /Users/tranquocgiabao/Documents/Game Project/BloodVein/Assets/Samples/Test
-      Framework/1.4.5/Exercise 15_ Test Cases/Tests_15/MyClassTests.cs:21
-
-'
-    m_TestListState:
-      scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: c4f6a369
-      m_LastClickedID: 1772353220
-      m_ExpandedIDs: bee197996df1179b209bfb9edf2246c0ca8faae2fb77e62913a6d245ffffff7f
-      m_RenameOverlay:
-        m_UserAcceptedRename: 0
-        m_Name: 
-        m_OriginalName: 
-        m_EditFieldRect:
-          serializedVersion: 2
-          x: 0
-          y: 0
-          width: 0
-          height: 0
-        m_UserData: 0
-        m_IsWaitingForDelay: 0
-        m_IsRenaming: 0
-        m_OriginalEventType: 11
-        m_IsRenamingFilename: 0
-        m_ClientGUIView: {fileID: 0}
-      m_SearchString: 
-    m_TestRunnerUIFilter:
-      PassedHidden: 0
-      FailedHidden: 0
-      NotRunHidden: 0
-      m_SearchString: 
-      selectedCategories: []
-      availableCategories:
-      - Uncategorized
-    m_SelectedOption: 0
-  - m_Window: {fileID: 13}
-    runProgress:
-      RunGuid: b29bc994-3769-41c5-9e8e-3a72ec61cdcf
-      ExecutionSettings:
-        m_TargetPlatform: 0
-        m_HasTargetPlatform: 0
-        filter:
-          testMode: 0
-          testNames: []
-          groupNames: []
-          categoryNames: []
-          assemblyNames: []
-        filters:
-        - testMode: 1
-          testNames:
-          - Tests_15.MyClassTests
-          groupNames: []
-          categoryNames: []
-          assemblyNames: []
-        runSynchronously: 0
-        playerHeartbeatTimeout: 600
-        orderedTestNames: []
-        ignoreTests: []
-        featureFlags:
-          fileCleanUpCheck: 0
-          requiresSplashScreen: 0
-          strictDomainReload: 0
-          disableNestedEnumeratorBugfix: 0
-        randomOrderSeed: 0
-      HasFinished: 1
-      Progress: 0.99999994
-      CurrentStepName: Unlock Reload Assemblies
-      CurrentStageName: 
-    m_NewResultList:
-    - id: 1000
-      uniqueId: '[BloodVein][suite]'
-      name: BloodVein
-      fullName: BloodVein
-      resultStatus: 0
-      duration: 0
-      messages: 
-      output: 
-      stacktrace: 
-      notRunnable: 0
-      ignoredOrSkipped: 0
-      description: 
-      isSuite: 1
-      categories: []
-      parentId: 
-      parentUniqueId: 
-    m_ResultText: PlayModeTests_7.dll (1 tests) (0.000s)
-    m_ResultStacktrace: 
-    m_TestListState:
-      scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: c4b947eb
-      m_LastClickedID: -347620924
-      m_ExpandedIDs: 209bfb9ec4b947ebffffff7f
-      m_RenameOverlay:
-        m_UserAcceptedRename: 0
-        m_Name: 
-        m_OriginalName: 
-        m_EditFieldRect:
-          serializedVersion: 2
-          x: 0
-          y: 0
-          width: 0
-          height: 0
-        m_UserData: 0
-        m_IsWaitingForDelay: 0
-        m_IsRenaming: 0
-        m_OriginalEventType: 11
-        m_IsRenamingFilename: 0
-        m_ClientGUIView: {fileID: 0}
-      m_SearchString: 
-    m_TestRunnerUIFilter:
-      PassedHidden: 0
-      FailedHidden: 0
-      NotRunHidden: 0
-      m_SearchString: 
-      selectedCategories: []
-      availableCategories:
-      - Uncategorized
-    m_SelectedOption: 0
-  - m_Window: {fileID: 0}
-    runProgress:
-      RunGuid: b29bc994-3769-41c5-9e8e-3a72ec61cdcf
-      ExecutionSettings:
-        m_TargetPlatform: 0
-        m_HasTargetPlatform: 0
-        filter:
-          testMode: 0
-          testNames: []
-          groupNames: []
-          categoryNames: []
-          assemblyNames: []
-        filters:
-        - testMode: 1
-          testNames:
-          - Tests_15.MyClassTests
-          groupNames: []
-          categoryNames: []
-          assemblyNames: []
-        runSynchronously: 0
-        playerHeartbeatTimeout: 600
-        orderedTestNames: []
-        ignoreTests: []
-        featureFlags:
-          fileCleanUpCheck: 0
-          requiresSplashScreen: 0
-          strictDomainReload: 0
-          disableNestedEnumeratorBugfix: 0
-        randomOrderSeed: 0
-      HasFinished: 1
-      Progress: 0.99999994
-      CurrentStepName: Unlock Reload Assemblies
-      CurrentStageName: 
-    m_NewResultList: []
-    m_ResultText: 
-    m_ResultStacktrace: 
-    m_TestListState:
-      scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: 
-      m_LastClickedID: 0
-      m_ExpandedIDs: 
-      m_RenameOverlay:
-        m_UserAcceptedRename: 0
-        m_Name: 
-        m_OriginalName: 
-        m_EditFieldRect:
-          serializedVersion: 2
-          x: 0
-          y: 0
-          width: 0
-          height: 0
-        m_UserData: 0
-        m_IsWaitingForDelay: 0
-        m_IsRenaming: 0
-        m_OriginalEventType: 11
-        m_IsRenamingFilename: 0
-        m_ClientGUIView: {fileID: 0}
-      m_SearchString: 
-    m_TestRunnerUIFilter:
-      PassedHidden: 0
-      FailedHidden: 0
-      NotRunHidden: 0
-      m_SearchString: 
-      selectedCategories: []
-      availableCategories: []
-    m_SelectedOption: 0
---- !u!114 &14
-MonoBehaviour:
-  m_ObjectHideFlags: 52
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 12006, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: HierarchyWindow
-  m_EditorClassIdentifier: 
-  m_Children: []
-  m_Position:
-    serializedVersion: 2
-    x: 149
-    y: 0
-    width: 149
-    height: 566
-  m_MinSize: {x: 202, y: 221}
-  m_MaxSize: {x: 4002, y: 4021}
-  m_ActualView: {fileID: 15}
-  m_Panes:
-  - {fileID: 15}
-  m_Selected: 0
-  m_LastSelected: 0
---- !u!114 &15
-MonoBehaviour:
-  m_ObjectHideFlags: 52
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 70ebb861d56146959cda8fcaf772f612, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_MinSize: {x: 200, y: 200}
-  m_MaxSize: {x: 4000, y: 4000}
-  m_TitleContent:
-    m_Text: Entities Hierarchy
-    m_Image: {fileID: 2800000, guid: 6bb0993b66f1e4f4d907a96c0ff2dee0, type: 3}
-    m_Tooltip: 
-  m_Pos:
-    serializedVersion: 2
-    x: 1103
-    y: 101
-    width: 147
-    height: 545
-  m_SerializedDataModeController:
-    m_DataMode: 1
-    m_PreferredDataMode: 1
-    m_SupportedDataModes: 010000000200000003000000
-    isAutomatic: 1
-  m_ViewDataDictionary: {fileID: 0}
-  m_OverlayCanvas:
-    m_LastAppliedPresetName: Default
-    m_SaveData: []
-    m_OverlaysVisible: 1
-  m_EditorWindowInstanceKey: 7bfa1cf8e6ec4c67966e193b15793858
---- !u!114 &16
+--- !u!114 &11
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1303,17 +1486,51 @@ MonoBehaviour:
   m_Position:
     serializedVersion: 2
     x: 0
-    y: 566
-    width: 298
-    height: 483
-  m_MinSize: {x: 102, y: 121}
-  m_MaxSize: {x: 4002, y: 4021}
-  m_ActualView: {fileID: 2}
+    y: 699
+    width: 706
+    height: 350
+  m_MinSize: {x: 101, y: 121}
+  m_MaxSize: {x: 4001, y: 4021}
+  m_ActualView: {fileID: 12}
   m_Panes:
-  - {fileID: 2}
+  - {fileID: 12}
   m_Selected: 0
   m_LastSelected: 0
---- !u!114 &17
+--- !u!114 &12
+MonoBehaviour:
+  m_ObjectHideFlags: 52
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 12003, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_MinSize: {x: 100, y: 100}
+  m_MaxSize: {x: 4000, y: 4000}
+  m_TitleContent:
+    m_Text: Console
+    m_Image: {fileID: -4950941429401207979, guid: 0000000000000000d000000000000000, type: 0}
+    m_Tooltip: 
+  m_Pos:
+    serializedVersion: 2
+    x: 400
+    y: 800
+    width: 704
+    height: 329
+  m_SerializedDataModeController:
+    m_DataMode: 0
+    m_PreferredDataMode: 0
+    m_SupportedDataModes: 
+    isAutomatic: 1
+  m_ViewDataDictionary: {fileID: 0}
+  m_OverlayCanvas:
+    m_LastAppliedPresetName: Default
+    m_SaveData: []
+    m_OverlaysVisible: 1
+--- !u!114 &13
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1326,19 +1543,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Children:
-  - {fileID: 18}
-  - {fileID: 21}
+  - {fileID: 14}
+  - {fileID: 17}
   m_Position:
     serializedVersion: 2
-    x: 1252
+    x: 1106
     y: 0
-    width: 668
+    width: 814
     height: 1049
   m_MinSize: {x: 100, y: 100}
   m_MaxSize: {x: 8096, y: 16192}
   vertical: 1
-  controlID: 116
---- !u!114 &18
+  controlID: 5923
+--- !u!114 &14
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1355,17 +1572,17 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 668
+    width: 814
     height: 698
-  m_MinSize: {x: 276, y: 121}
+  m_MinSize: {x: 276, y: 71}
   m_MaxSize: {x: 4001, y: 4021}
-  m_ActualView: {fileID: 20}
+  m_ActualView: {fileID: 15}
   m_Panes:
-  - {fileID: 19}
-  - {fileID: 20}
-  m_Selected: 1
-  m_LastSelected: 0
---- !u!114 &19
+  - {fileID: 15}
+  - {fileID: 16}
+  m_Selected: 0
+  m_LastSelected: 1
+--- !u!114 &15
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1385,10 +1602,10 @@ MonoBehaviour:
     m_Tooltip: 
   m_Pos:
     serializedVersion: 2
-    x: 1847
-    y: 83
-    width: 712
-    height: 812
+    x: 1106
+    y: 101
+    width: 813
+    height: 677
   m_SerializedDataModeController:
     m_DataMode: 0
     m_PreferredDataMode: 0
@@ -1412,7 +1629,7 @@ MonoBehaviour:
   m_LockTracker:
     m_IsLocked: 0
   m_PreviewWindow: {fileID: 0}
---- !u!114 &20
+--- !u!114 &16
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1432,9 +1649,9 @@ MonoBehaviour:
     m_Tooltip: 
   m_Pos:
     serializedVersion: 2
-    x: 1252
+    x: 977
     y: 101
-    width: 667
+    width: 942
     height: 677
   m_SerializedDataModeController:
     m_DataMode: 3
@@ -1459,7 +1676,7 @@ MonoBehaviour:
   m_LockTracker:
     m_IsLocked: 0
   m_PreviewWindow: {fileID: 0}
---- !u!114 &21
+--- !u!114 &17
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1476,17 +1693,17 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 698
-    width: 668
+    width: 814
     height: 351
   m_MinSize: {x: 231, y: 271}
   m_MaxSize: {x: 10001, y: 10021}
-  m_ActualView: {fileID: 22}
+  m_ActualView: {fileID: 18}
   m_Panes:
-  - {fileID: 22}
-  - {fileID: 23}
+  - {fileID: 18}
+  - {fileID: 19}
   m_Selected: 0
   m_LastSelected: 1
---- !u!114 &22
+--- !u!114 &18
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1506,9 +1723,9 @@ MonoBehaviour:
     m_Tooltip: 
   m_Pos:
     serializedVersion: 2
-    x: 1252
+    x: 1106
     y: 799
-    width: 667
+    width: 813
     height: 330
   m_SerializedDataModeController:
     m_DataMode: 0
@@ -1531,7 +1748,7 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/Game/05. Json Data/Parking Waypoints
+    - Assets/Game/Tests/PlayMode
     m_Globs: []
     m_OriginalText: 
     m_ImportLogFlags: 0
@@ -1539,32 +1756,32 @@ MonoBehaviour:
   m_ViewMode: 1
   m_StartGridSize: 64
   m_LastFolders:
-  - Assets/Game/05. Json Data/Parking Waypoints
+  - Assets/Game/Tests/PlayMode
   m_LastFoldersGridSize: -1
   m_LastProjectPath: /Users/tranquocgiabao/Documents/Game Project/BloodVein
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
-    scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: 28830000
-    m_LastClickedID: 33576
-    m_ExpandedIDs: 000000005282000054820000d882000000ca9a3bffffff7f
+    scrollPos: {x: 0, y: 106}
+    m_SelectedIDs: d6860000
+    m_LastClickedID: 34518
+    m_ExpandedIDs: 0000000046820000488200004a8200004e8200005082000052820000688200006e820000868200001c830000ffffff7f
     m_RenameOverlay:
       m_UserAcceptedRename: 0
-      m_Name: 05. Json Data
-      m_OriginalName: 05. Json Data
+      m_Name: 
+      m_OriginalName: 
       m_EditFieldRect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 0
         height: 0
-      m_UserData: 33496
+      m_UserData: 0
       m_IsWaitingForDelay: 0
       m_IsRenaming: 0
-      m_OriginalEventType: 0
+      m_OriginalEventType: 11
       m_IsRenamingFilename: 1
-      m_ClientGUIView: {fileID: 21}
+      m_ClientGUIView: {fileID: 17}
     m_SearchString: 
     m_CreateAssetUtility:
       m_EndAction: {fileID: 0}
@@ -1576,7 +1793,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 000000005282000054820000
+    m_ExpandedIDs: 0000000046820000488200004a8200004e8200005082000052820000688200006e8200001c830000ffffff7f
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1631,8 +1848,8 @@ MonoBehaviour:
     m_ScrollPosition: {x: 0, y: 0}
     m_GridSize: 64
   m_SkipHiddenPackages: 0
-  m_DirectoriesAreaWidth: 171
---- !u!114 &23
+  m_DirectoriesAreaWidth: 50
+--- !u!114 &19
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1681,11 +1898,11 @@ MonoBehaviour:
   - rid: 4977812647088488493
   - rid: 4977812647088488494
   - rid: 4977812647088488495
-  - rid: 4977812647088488496
+  - rid: 4977813082592772096
   - rid: 4977812647088488497
   - rid: 4977812647088488498
-  - rid: 4977812647088488499
-  - rid: 4977812647088488500
+  - rid: 4977813082592772097
+  - rid: 4977813082592772098
   m_CallstackRecordMode: 1
   m_ClearOnPlay: 0
   references:
@@ -2457,11 +2674,6 @@ MonoBehaviour:
         m_PaneScroll: {x: 0, y: 0}
         m_VTProfilerView:
           rid: 4977812647088488501
-    - rid: 4977812647088488496
-      type: {class: MemoryProfilerModule, ns: Unity.Entities.Editor, asm: Unity.Entities.Editor}
-      data:
-        m_Identifier: Unity.Entities.Editor.MemoryProfilerModule, Unity.Entities.Editor,
-          Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
     - rid: 4977812647088488497
       type: {class: FileIOProfilerModule, ns: UnityEditorInternal.Profiling, asm: UnityEditor.CoreModule}
       data:
@@ -2474,18 +2686,23 @@ MonoBehaviour:
         m_Identifier: UnityEditorInternal.Profiling.AssetLoadingProfilerModule, UnityEditor.CoreModule,
           Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
         m_PaneScroll: {x: 0, y: 0}
-    - rid: 4977812647088488499
-      type: {class: StructuralChangesProfilerModule, ns: Unity.Entities.Editor, asm: Unity.Entities.Editor}
-      data:
-        m_Identifier: Unity.Entities.Editor.StructuralChangesProfilerModule, Unity.Entities.Editor,
-          Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-    - rid: 4977812647088488500
-      type: {class: RuntimeContentManagerProfilerModule, ns: , asm: Unity.Entities.Editor}
-      data:
-        m_Identifier: RuntimeContentManagerProfilerModule, Unity.Entities.Editor,
-          Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
     - rid: 4977812647088488501
       type: {class: VirtualTexturingProfilerView, ns: UnityEditor, asm: UnityEditor.CoreModule}
       data:
         m_SortAscending: 0
         m_SortedColumn: -1
+    - rid: 4977813082592772096
+      type: {class: MemoryProfilerModule, ns: Unity.Entities.Editor, asm: Unity.Entities.Editor}
+      data:
+        m_Identifier: Unity.Entities.Editor.MemoryProfilerModule, Unity.Entities.Editor,
+          Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    - rid: 4977813082592772097
+      type: {class: StructuralChangesProfilerModule, ns: Unity.Entities.Editor, asm: Unity.Entities.Editor}
+      data:
+        m_Identifier: Unity.Entities.Editor.StructuralChangesProfilerModule, Unity.Entities.Editor,
+          Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    - rid: 4977813082592772098
+      type: {class: RuntimeContentManagerProfilerModule, ns: , asm: Unity.Entities.Editor}
+      data:
+        m_Identifier: RuntimeContentManagerProfilerModule, Unity.Entities.Editor,
+          Version=0.0.0.0, Culture=neutral, PublicKeyToken=null

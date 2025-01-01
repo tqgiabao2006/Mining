@@ -21,6 +21,8 @@ namespace Game._00.Script._00.Manager.Observer
 
     public abstract class DirectoryFlags
     {
-        public static string ParkingWaypoint = Application.dataPath + System.IO.Path.AltDirectorySeparatorChar + "Game" + System.IO.Path.AltDirectorySeparatorChar + "05. Json Data" +  System.IO.Path.AltDirectorySeparatorChar + "Parking Waypoints";
+        public static string ParkingWaypoint = Application.dataPath + System.IO.Path.AltDirectorySeparatorChar + "Game" + System.IO.Path.AltDirectorySeparatorChar + 
+                                               "Tests" + System.IO.Path.AltDirectorySeparatorChar + "Json Data" + System.IO.Path.AltDirectorySeparatorChar + 
+                                               "Parking Waypoints";
     }
 }

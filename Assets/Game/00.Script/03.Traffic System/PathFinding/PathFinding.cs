@@ -86,7 +86,7 @@ namespace Game._00.Script._03.Traffic_System.PathFinding
             }
             else
             {
-                DebugUtility.LogError("Can't find path");
+                DebugUtility.LogError("Can't find path", this.ToString());
                 return null;
             }
             
