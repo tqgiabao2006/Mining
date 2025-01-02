@@ -9,6 +9,7 @@ using Game._00.Script._03.Traffic_System.Road;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 namespace Game._00.Script._03.Traffic_System.Building
@@ -40,11 +41,7 @@ namespace Game._00.Script._03.Traffic_System.Building
   
     public abstract class BuildingBase : MonoBehaviour
     {
-        
-        //Test variables:
-        private List<Vector3> _test_Waypoints;
-        private float3 _parkingPoint;
-        
+
         private RoadManager _roadManager;
         private EntityManager _entityManager;
         
@@ -58,15 +55,14 @@ namespace Game._00.Script._03.Traffic_System.Building
         {
             get {return _parkingNodes;}  
         }
-        
-        
+
+        private List<ParkingLot> _parkingPos;
+        private float3 _centerPos;
         public Node OriginBuildingNode
         {
             get { return _originBuildingNode; }
         }
-
         private Node _roadNode;
-
         public Node RoadNode
         {
             get{return _roadNode;}
@@ -79,54 +75,45 @@ namespace Game._00.Script._03.Traffic_System.Building
         }
         
         private Queue<Entity> _parkingResquest = new Queue<Entity>();
-        private bool[] _availableParking;
         
         private ParkingMesh _parkingMesh;
-        private TestSaver _testSaver;
     
         public BuildingType BuildingType { get; private set; }  // Make it a property
         [SerializeField] protected float lifeTime = 2f;
-        [SerializeField] public ParkingLotSize parkingLotSize = ParkingLotSize._1x1;
+        [SerializeField] public ParkingLotSize size = ParkingLotSize._1x1;
         public BuildingDirection BuildingDirection { get; private set; }
-        public void Initialize (Node node, BuildingType buildingType, Vector2 worldPosition)
+
+        public void Initialize(Node node, BuildingType buildingType, Vector2 worldPosition)
         {
             _entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
             _parkingMesh = FindObjectOfType<ParkingMesh>();
-            _testSaver = GameManager.Instance.TestSaver;
-            
+
             //Random between horizontal and vertical building
             float random = Random.Range(0f, 1f);
             bool isHorizontal = random <= 0.5f;
-            
+
             this._roadManager = FindObjectOfType<RoadManager>();
             this.BuildingType = buildingType;
             this._worldPosition = worldPosition;
             this._originBuildingNode = GridManager.NodeFromWorldPosition(worldPosition);
 
             _parkingNodes = new List<Node>();
-            BuildingDirection[] directionTypes = new[] { BuildingDirection.Down, BuildingDirection.Up, BuildingDirection.Left,BuildingDirection.Right };
-            int randomIndex = Random.Range(1, directionTypes.Length);
-            BuildingDirection = BuildingDirection.Right;
+            _parkingPos = new List<ParkingLot>();
+
+            BuildingDirection[] directions = new[]
+                { BuildingDirection.Down, BuildingDirection.Up, BuildingDirection.Left, BuildingDirection.Right };
+            int randomIndex = Random.Range(1, directions.Length);
+            BuildingDirection = directions[randomIndex];
             
             //This has to be called first to set up for the next function, save parking nodes to set adj list to road nodes later
-            SetBuildingAndInsideRoads(node, parkingLotSize,BuildingDirection);
+            SetBuildingAndInsideRoads(node, size, BuildingDirection);
             // Invoke("DeactivateBuilding", LifeTime);
-            int testIndex =0;
-            SpawnRoad(node, parkingLotSize, BuildingDirection, testIndex);
+            SpawnRoad(node, size, BuildingDirection, randomIndex);
             
+            SetParkingPos(_originBuildingNode.WorldPosition, BuildingDirection, size);
+
             //After finish initialize parking lots, initlize bool[] to track if the parking lot is available
             _parkingResquest = new Queue<Entity>();
-            _availableParking = new bool[_parkingNodes.Count];
-            
-            float3 centerPoint= new float3(_originBuildingNode.WorldPosition.x + GridManager.NodeDiameter, _originBuildingNode.WorldPosition.y + GridManager.NodeRadius, 0f);
-            _parkingPoint = centerPoint;
-            float3[] waypoints = GetParkingWaypoints(OriginBuildingNode.WorldPosition,BuildingDirection, parkingLotSize, _parkingPoint, centerPoint,_roadNode.WorldPosition);   
-            _test_Waypoints = new List<Vector3>();
-            foreach (float3 waypoint in waypoints)
-            {
-                _test_Waypoints.Add(new Vector3(waypoint.x, waypoint.y, waypoint.z));
-            }
-            Debug.Log(waypoints.Length);
             
         }
 
@@ -136,7 +123,7 @@ namespace Game._00.Script._03.Traffic_System.Building
         }
 
         /// <summary>
-        /// Set building (unWalkable, not empty node), based on parkingLotSize and buildingDirection.
+        /// Set building (unWalkable, not empty node), based on size and buildingDirection.
         /// BitwiseDirection = right => building on left, road on right.
         /// Directions are limited to [Up, Down, Left, Right].
         /// </summary>
@@ -252,8 +239,8 @@ namespace Game._00.Script._03.Traffic_System.Building
         /// <param name="buildingNode"></param>
         /// <param name="parkingLotSize"></param>
         /// <param name="buildingDirection"></param>
-        /// <param name="randomIndex"> [0,3] </param>
-        private void SpawnRoad(Node buildingNode, ParkingLotSize parkingLotSize, BuildingDirection buildingDirection, int randomIndex)
+        /// <param name="roadRngIndex"> [0,3] </param>
+        private void SpawnRoad(Node buildingNode, ParkingLotSize parkingLotSize, BuildingDirection buildingDirection, int roadRngIndex)
         {
             Vector2 position = buildingNode.WorldPosition;
             float nodeDiameter = GridManager.NodeDiameter;
@@ -316,9 +303,7 @@ namespace Game._00.Script._03.Traffic_System.Building
                     offsets = new Vector2[] { };
                 }
                 
-                //Wraparound make sure that randomIndex in [0,3], non-negative number
-                randomIndex = (randomIndex % 4 + 4) % 4;
-                Vector2 chosenOffset = offsets[randomIndex];
+                Vector2 chosenOffset = offsets[roadRngIndex];
                 Node roadNode = GridManager.NodeFromWorldPosition(position + chosenOffset);
                 
                 
@@ -384,6 +369,42 @@ namespace Game._00.Script._03.Traffic_System.Building
            
         }
         
+        private void SetParkingPos(Vector2 originPos, BuildingDirection direction, ParkingLotSize size)
+        {
+            float sizeMultipler = size == ParkingLotSize._2x2 ? 1 : 2;
+            float nodeRadius = GridManager.NodeRadius;
+            float nodeDiameter = GridManager.NodeDiameter;
+            
+            if (direction == BuildingDirection.Up || direction == BuildingDirection.Down)
+            {
+                float directionMultipler = direction == BuildingDirection.Up ? 1 : -1;
+                float3 center = new float3(originPos.x - nodeRadius, originPos.y + directionMultipler * sizeMultipler * nodeDiameter, 0);
+                float3 right = new float3(center.x + nodeRadius, center.y,0);
+                float3 left = new float3(center.x - nodeRadius, center.y, 0);
+
+                ParkingLot centerLot = new ParkingLot(center, true);
+                ParkingLot rightLot = new ParkingLot(right, true);
+                ParkingLot leftLot = new ParkingLot(left, true);
+                
+                _centerPos = center;
+                _parkingPos.AddRange(new []{leftLot, centerLot, rightLot});
+            }
+            else if(direction == BuildingDirection.Left || direction == BuildingDirection.Right)
+            {
+                float directionMultipler = direction == BuildingDirection.Right? 1 : -1;
+                float3 center = new float3(originPos.x + directionMultipler * sizeMultipler * nodeDiameter, originPos.y + nodeRadius, 0);
+                float3 top = new float3(center.x, center.y + nodeRadius, 0);
+                float3 bot = new float3(center.x, center.y - nodeRadius, 0);
+                
+                ParkingLot centerLot = new ParkingLot(center, true);
+                ParkingLot topLot = new ParkingLot(top, true);
+                ParkingLot botLot = new ParkingLot(bot, true);
+                
+                _centerPos = center;
+                _parkingPos.AddRange(new []{topLot, centerLot, botLot});
+            }
+        }
+            
         /// <summary>
         /// Recieve a parking request, if available, create waypoints in parking lot
         /// 2x1 parking node is divided by 4 |/ / / /|, number of parking lots = 3,
@@ -394,32 +415,29 @@ namespace Game._00.Script._03.Traffic_System.Building
         /// <param name="car"></param>
         public void GetParkingRequest(Entity car)
         {
-
-            int wayPointsCount = 6; 
-            // Top corner line ->same x(y) with parking node -> parking node -> same x(y) with parking node -> left Bot corner (near road)
-            // Every car have to step to their begin step first, then find the first corner later
-            _parkingResquest.Enqueue(car);
-            
+            _parkingResquest.Enqueue(car); 
             //Check if is any slot available
-            bool isAvailable = false;
-            int slotIndex = -1;
-            for (int i = 0; i < _availableParking.Length; i++)
+            float3 parkingPos = float3.zero;
+            for (int i = 0; i < _parkingPos.Count; i++)
             {
-                if (_availableParking[i])
+                if (_parkingPos[i].IsEmpty)
                 {
-                    isAvailable = true;
-                    slotIndex = i;
+                    parkingPos = _parkingPos[i].Position;
                     break;
                 }
             }
-
-            if (isAvailable && slotIndex != -1 && _entityManager.HasBuffer<ParkingWaypoints>(car))
+            
+            if (_entityManager.HasBuffer<ParkingWaypoint>(car))
             {
-
-                DynamicBuffer<ParkingWaypoints> buffer = _entityManager.GetBuffer<ParkingWaypoints>(car);
-                int parkingIndex = slotIndex + 1; //Convert base 0 to base 1
-                float3[] waypoints = new float3[wayPointsCount];
-
+                DynamicBuffer<ParkingWaypoint> buffer = _entityManager.GetBuffer<ParkingWaypoint>(car); 
+                float3[] waypoints = GetParkingWaypoints(_originBuildingNode.WorldPosition, BuildingDirection, size,parkingPos, new float3(_centerPos), _roadNode.WorldPosition );
+                foreach (float3 waypoint in waypoints)
+                {
+                    buffer.Add(new ParkingWaypoint()
+                    {
+                        Value = waypoint,
+                    });
+                }
             }
         }
 
@@ -433,124 +451,159 @@ namespace Game._00.Script._03.Traffic_System.Building
          /// 5/ Parking Pos 
          /// </summary>
          /// <param name="buildingDirection>
-         /// <param name="parkingLotSize"></param>
+         /// <param name="sizeingLotSize"></param>
          /// <param name="parkingPos"></param>
          /// <param name="roadNode"></param>
          /// <param name = "center point"></param> in the center of vertical (or horizontal if Right,Left) of parking (2 nodes)
          /// <returns></returns>
-         public float3[] GetParkingWaypoints(Vector2 originPos, BuildingDirection buildingDirection, ParkingLotSize parkingLotSize, float3 parkingPos, float3 centerPoint, Vector2 roadPos)
+         public float3[] GetParkingWaypoints(Vector2 originPos, BuildingDirection buildingDirection, ParkingLotSize size, float3 parkingPos, float3 centerPoint, Vector2 roadPos)
          {
              float nodeRadius = GridManager.NodeRadius;
-            Vector2 roadDirection = GetRoadNodeDirection(roadPos, originPos, buildingDirection, parkingLotSize);
+             float roadWidth = RoadManager.RoadWidth;
+            Vector2 roadDirection = GetRoadNodeDirection(roadPos, originPos, buildingDirection, size);
+            DebugUtility.Log("Road dir " + roadDirection, "Building: ");
 
             var inOutSteps = GetInOutCorner(roadPos, roadDirection);
             float3 inCorner = inOutSteps.Item1;
             float3 outCorner = inOutSteps.Item2;
             
-            var botTopCorners = GetBotTopCorner(originPos, parkingLotSize, buildingDirection);
+            var botTopCorners = GetBotTopCorner(originPos, size, buildingDirection);
             float3 botCorner = botTopCorners.Item1;
             float3 topCorner = botTopCorners.Item2;
 
-            if (buildingDirection == BuildingDirection.Down || buildingDirection == BuildingDirection.Up)
+            if (size == ParkingLotSize._1x1)
             {
-                float directionMultipler = buildingDirection == BuildingDirection.Up ? 1 : -1;
-                float3 botParking = new float3(parkingPos.x, centerPoint.y + directionMultipler * nodeRadius* 1/4f, 0);
-                float3 topParking = new float3(parkingPos.x, topCorner.y, 0);
-                
-                float3 inTransStep = new float3(inCorner.x, botCorner.y, 0);
-                float3 outTransStep = new float3(outCorner.x,botParking.y, 0);
+                float3 center = new float3(originPos.x, originPos.y, 0);
 
-                //Skip bot corner
-                if ((buildingDirection == BuildingDirection.Up && roadDirection == Vector2.right) ||
-                    (buildingDirection ==BuildingDirection.Down && roadDirection == Vector2.left))
+                if (buildingDirection == BuildingDirection.Up || buildingDirection == BuildingDirection.Down)
                 {
-                    inTransStep = new float3(inCorner.x, topCorner.y, 0);
-                    botParking.y = centerPoint.y + directionMultipler * nodeRadius * 1/2f ;
-                    outTransStep = new float3(outCorner.x, botParking.y, 0);
-
-                    return new[]
-                    {
-                        inCorner, inTransStep, topCorner, topParking, parkingPos, botParking, outTransStep, outCorner
-                    };
+                    float directionMultipler = buildingDirection == BuildingDirection.Up ? 1 : -1;
+                    float3 right = new float3(originPos.x - directionMultipler * roadWidth/4f, originPos.y, 0);
+                    float3 left = new float3(originPos.x + directionMultipler * roadWidth/4f, originPos.y, 0);
+                    return new []{right, center, left};
                 }
-
-                //Reverse root
-                if ((buildingDirection == BuildingDirection.Up && roadDirection == Vector2.left) ||
-                    (buildingDirection ==BuildingDirection.Down && roadDirection == Vector2.right))
+                
+                if (buildingDirection == BuildingDirection.Right || buildingDirection == BuildingDirection.Left)
                 {
-                    //Move bot corner x to the opposite side
-                    botCorner.x += directionMultipler * nodeRadius * 3;
-                    
-                    //Update bot, top parking && in,out trans step after changing bot corner
-                    botParking.y = botCorner.y;
-                    inTransStep = new float3( inCorner.x,botCorner.y, 0);
-                    outTransStep = new float3(outCorner.x, topParking.y, 0);
+                    float directionMultipler = buildingDirection == BuildingDirection.Right ? 1 : -1;
+                    float3 top = new float3(originPos.x, originPos.y + directionMultipler * roadWidth/4f, 0);
+                    float3 bot = new float3(originPos.x, originPos.y - directionMultipler * roadWidth/4f, 0);
+                    return new []{top, center, bot};
+                }
+            }
+            else //More complicated building complex
+            {
+                if (buildingDirection == BuildingDirection.Down || buildingDirection == BuildingDirection.Up)
+                {
+                    float directionMultipler = buildingDirection == BuildingDirection.Up ? 1 : -1;
 
+                    float3 botParking = new float3(parkingPos.x,
+                        centerPoint.y + directionMultipler * nodeRadius * 1 / 4f, 0);
+                    float3 topParking = new float3(parkingPos.x, topCorner.y, 0);
+
+                    float3 inTransStep = new float3(inCorner.x, botCorner.y, 0);
+                    float3 outTransStep = new float3(outCorner.x, botParking.y, 0);
+
+                    //Skip bot corner
+                    if ((buildingDirection == BuildingDirection.Up && roadDirection == Vector2.right) ||
+                        (buildingDirection == BuildingDirection.Down && roadDirection == Vector2.left))
+                    {
+                        inTransStep = new float3(inCorner.x, topCorner.y, 0);
+                        botParking.y = centerPoint.y + directionMultipler * nodeRadius * 1 / 2f;
+                        outTransStep = new float3(outCorner.x, botParking.y, 0);
+
+                        return new[]
+                        {
+                            inCorner, inTransStep, topCorner, topParking, parkingPos, botParking, outTransStep,
+                            outCorner
+                        };
+                    }
+
+                    //Reverse root
+                    if ((buildingDirection == BuildingDirection.Up && roadDirection == Vector2.left) ||
+                        (buildingDirection == BuildingDirection.Down && roadDirection == Vector2.right))
+                    {
+                        //Move bot corner x to the opposite side
+                        botCorner.x += directionMultipler * nodeRadius * 3;
+
+                        //Update bot, top parking && in,out trans step after changing bot corner
+                        botParking.y = botCorner.y;
+                        inTransStep = new float3(inCorner.x, botCorner.y, 0);
+                        outTransStep = new float3(outCorner.x, topParking.y, 0);
+
+                        return new[]
+                        {
+                            inCorner, inTransStep, botCorner, botParking, parkingPos, topParking, outTransStep,
+                            outCorner
+                        };
+
+                    }
+
+                    //Normally
                     return new[]
                     {
-                        inCorner, inTransStep, botCorner, botParking, parkingPos, topParking, outTransStep,
+                        inCorner, inTransStep, botCorner, topCorner, topParking, parkingPos, botParking, outTransStep,
                         outCorner
                     };
-                    
+
                 }
-                //Normally
-                return new[]
+                if (buildingDirection == BuildingDirection.Right || buildingDirection == BuildingDirection.Left)
                 {
-                    inCorner, inTransStep, botCorner, topCorner, topParking, parkingPos, botParking, outTransStep,
-                    outCorner
-                };
-            }
-            
-            if (buildingDirection == BuildingDirection.Right || buildingDirection == BuildingDirection.Left)
-            {
-                float directionMultipler = buildingDirection == BuildingDirection.Right ? 1 : -1;
-                float3 topParking = new float3(topCorner.x, parkingPos.y, 0);
-                float3 botParking = new float3(centerPoint.x + directionMultipler * nodeRadius * 1/4f , parkingPos.y, 0);
-                
-                float3 inTransStep = new float3(botCorner.x, inCorner.y, 0);
-                float3 outTransStep = new float3(botParking.x, outCorner.y, 0);
+                    float directionMultipler = buildingDirection == BuildingDirection.Right ? 1 : -1;
+                    float3 topParking = new float3(topCorner.x, parkingPos.y, 0);
+                    float3 botParking = new float3(centerPoint.x + directionMultipler * nodeRadius * 1 / 4f,
+                        parkingPos.y, 0);
 
-                //Skip bot corner because it has inCorner.x > botCorner.x
-                if ((roadDirection == Vector2.up && buildingDirection == BuildingDirection.Left) || (roadDirection == Vector2.down && buildingDirection ==BuildingDirection.Right))
-                {
-                    //Set bot parking && bot corner to the left side of lane
-                    botCorner.x = centerPoint.x + directionMultipler * nodeRadius * 1 / 2f;
-                    botParking.x = botCorner.x;
-                    
-                    //Update out and in trans step: inTranStep, base on topCorner
-                    inTransStep = new float3(topCorner.x, inCorner.y, 0);
-                    outTransStep = new float3(botParking.x, outCorner.y, 0);
+                    float3 inTransStep = new float3(botCorner.x, inCorner.y, 0);
+                    float3 outTransStep = new float3(botParking.x, outCorner.y, 0);
 
+                    //Skip bot corner because it has inCorner.x > botCorner.x
+                    if ((roadDirection == Vector2.up && buildingDirection == BuildingDirection.Left) ||
+                        (roadDirection == Vector2.down && buildingDirection == BuildingDirection.Right))
+                    {
+                        //Set bot parking && bot corner to the left side of lane
+                        botCorner.x = centerPoint.x + directionMultipler * nodeRadius * 1 / 2f;
+                        botParking.x = botCorner.x;
+
+                        //Update out and in trans step: inTranStep, base on topCorner
+                        inTransStep = new float3(topCorner.x, inCorner.y, 0);
+                        outTransStep = new float3(botParking.x, outCorner.y, 0);
+
+                        return new[]
+                        {
+                            inCorner, inTransStep, topCorner, topParking, parkingPos, botParking, outTransStep,
+                            outCorner
+                        };
+                    }
+
+                    if ((roadDirection == Vector2.down && buildingDirection == BuildingDirection.Left) ||
+                        (roadDirection == Vector2.up && buildingDirection == BuildingDirection.Right))
+                    {
+                        //Move y-axis of bot corner
+                        botCorner = new float3(centerPoint.x + directionMultipler * nodeRadius * 3 / 4f,
+                            parkingPos.y - directionMultipler * nodeRadius * 3 / 2f, 0);
+                        botParking.x = botCorner.x;
+
+                        //Re-calculate in/out trans
+                        inTransStep = new float3(botCorner.x, inCorner.y, 0);
+                        outTransStep = new float3(topParking.x, outCorner.y, 0);
+
+                        return new[]
+                        {
+                            inCorner, inTransStep, botCorner, botParking, parkingPos, topParking, outTransStep,
+                            outCorner
+                        };
+                    }
+
+                    //Normal
                     return new[]
                     {
-                        inCorner, inTransStep, topCorner, topParking, parkingPos, botParking, outTransStep, outCorner
+                        inCorner, inTransStep, botCorner, topCorner, topParking, parkingPos, botParking, outTransStep,
+                        outCorner
                     };
                 }
-                
-                if ((roadDirection == Vector2.down && buildingDirection == BuildingDirection.Left) || (roadDirection == Vector2.up && buildingDirection == BuildingDirection.Right))
-                {
-                    //Move y-axis of bot corner
-                    botCorner = new float3(centerPoint.x + directionMultipler * nodeRadius * 3/4f, parkingPos.y - directionMultipler * nodeRadius * 3/2f, 0);
-                    botParking.x = botCorner.x;
-                    
-                    //Re-calculate in/out trans
-                    inTransStep = new float3(botCorner.x, inCorner.y, 0);
-                    outTransStep = new float3(topParking.x, outCorner.y, 0);
-
-                    return new[]
-                    {
-                        inCorner, inTransStep, botCorner, botParking, parkingPos, topParking, outTransStep, outCorner
-                    };
-                }
-                
-                //Normal
-                return new[]
-                {
-                    inCorner, inTransStep, botCorner, topCorner, topParking, parkingPos, botParking, outTransStep,
-                    outCorner
-                };
             }
-            
+
             return new[] { float3.zero };
             
             //Instead of using get neighbours list of road node, we compare Y-axis or X-axis of roadPos to the origin node
@@ -559,51 +612,48 @@ namespace Game._00.Script._03.Traffic_System.Building
             Vector2 GetRoadNodeDirection(Vector2 roadPos, Vector2 buildingPos, BuildingDirection direction, ParkingLotSize size)
             {
                 float nodeRadius = GridManager.NodeRadius;
-                if (direction == BuildingDirection.Up || direction == BuildingDirection.Down)
+                if (size == ParkingLotSize._1x1)
                 {
-                    if (roadPos.x > buildingPos.x)
+                    Vector2 dir = roadPos - buildingPos;
+                    if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y))
                     {
-                        return Vector2.left;
+                        return dir.x > 0 ? Vector2.left : Vector2.right;
                     }
-                    if (roadPos.x < buildingPos.x && buildingPos.x  - roadPos.x > 2 * nodeRadius)
+                    else
                     {
-                        return Vector2.right;
+                        return dir.y > 0 ? Vector2.down : Vector2.up;
                     }
-                    return direction == BuildingDirection.Up? Vector2.down : Vector2.up;
-                }
-                 if (direction == BuildingDirection.Right || direction == BuildingDirection.Left)
-                {
-                    if (roadPos.y > buildingPos.y && roadPos.y - buildingPos.y > 2f * nodeRadius)
-                    {
-                        return Vector2.down;
-                    }
-                
-                    if (roadPos.y < buildingPos.y)
-                    {
-                        return Vector2.up;
-                    }
-                    return direction == BuildingDirection.Right? Vector2.left : Vector2.right;
-                }
 
+                }
+                else
+                {
+                    if (direction == BuildingDirection.Up || direction == BuildingDirection.Down)
+                    {
+                        if (roadPos.x > buildingPos.x)
+                        {
+                            return Vector2.left;
+                        }
+                        if (roadPos.x < buildingPos.x && buildingPos.x  - roadPos.x > 2 * nodeRadius)
+                        {
+                            return Vector2.right;
+                        }
+                        return direction == BuildingDirection.Up? Vector2.down : Vector2.up;
+                    }
+                    if (direction == BuildingDirection.Right || direction == BuildingDirection.Left)
+                    {
+                        if (roadPos.y > buildingPos.y && roadPos.y - buildingPos.y > 2f * nodeRadius)
+                        {
+                            return Vector2.down;
+                        }
                 
-                //
-                // Node roadNode = GridManager.NodeFromWorldPosition(roadPos);
-                // List<Node> neighborus = roadNode.GetNeighbours();
-                // foreach (Node n in neighborus)
-                // {
-                //     //Avoid diagonal roadNode into calculation
-                //     if (n.BelongedBuilding == roadNode.BelongedBuilding && (Mathf.Approximately(n.WorldPosition.x, roadNode.WorldPosition.x) || Mathf.Approximately(n.WorldPosition.y, roadNode.WorldPosition.y)))
-                //     {
-                //         Vector2 dir = n.WorldPosition - roadNode.WorldPosition;
-                //         if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y))
-                //         {
-                //             return dir.x > 0 ? Vector2.right : Vector2.left;
-                //         }
-                //
-                //         return dir.y > 0 ? Vector2.up : Vector2.down;
-                //
-                //     }
-                // }
+                        if (roadPos.y < buildingPos.y)
+                        {
+                            return Vector2.up;
+                        }
+                        return direction == BuildingDirection.Right? Vector2.left : Vector2.right;
+                    }
+                }
+               
                 return Vector2.zero;
             }
             
@@ -683,29 +733,25 @@ namespace Game._00.Script._03.Traffic_System.Building
                   DebugUtility.Log($"{i+1}. {waypoints[i]}", this.ToString());
             }
         }
-        private void OnDrawGizmos()
-        {
-            if (_test_Waypoints != null && _test_Waypoints.Count > 0)
-            {
-                Gizmos.color = Color.red;
-                for (int i = 0; i < _test_Waypoints.Count-1; i++)
-                {
-                    Gizmos.DrawLine(_test_Waypoints[i], _test_Waypoints[i+1]);
-                }
-                
-                Gizmos.color = Color.yellow;
-                foreach (var waypoint in _test_Waypoints)
-                {
-                    Gizmos.DrawSphere(waypoint, 0.05f);
-                }
-                
-                Gizmos.color = Color.green;
-                Gizmos.DrawSphere(_parkingPoint, 0.05f);
-
-                Gizmos.color = Color.red;
-                Gizmos.DrawSphere(_roadNode.WorldPosition, 0.05f);
-            }
-        }
+        // private void OnDrawGizmos()
+        // {
+        //     if (_test_Waypoints != null && _test_Waypoints.Length > 0)
+        //     {
+        //         Gizmos.color = Color.red;
+        //         for (int i = 0; i < _test_Waypoints.Length-1; i++)
+        //         {
+        //             Gizmos.DrawLine(_test_Waypoints[i], _test_Waypoints[i+1]);
+        //         }
+        //         
+        //         Gizmos.color = Color.yellow;
+        //         foreach (var waypoint in _test_Waypoints)
+        //         {
+        //             Gizmos.DrawSphere(waypoint, 0.05f);
+        //         }
+        //         
+        //         Gizmos.DrawSphere(_roadNode.WorldPosition, 0.05f);
+        //     }
+        // }
 
         #endregion
         

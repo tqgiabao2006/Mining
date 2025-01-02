@@ -54,7 +54,7 @@ namespace Game._00.Script._03.Traffic_System.Building
             _carSpawnInfos.Add(BuildingType.Heart, new CarSpawnInfo()
             {
                 Car = ObjectFlags.RedBlood,
-                Amount = 5,
+                Amount = 2,
                 DelayTime = 0.5f
             });
             _carSpawnInfos.Add(BuildingType.NormalCell, new CarSpawnInfo()
@@ -137,26 +137,19 @@ namespace Game._00.Script._03.Traffic_System.Building
                 {
                     //Get all ouput buildings' parking nodes
                     BuildingBase building = buildingObj.GetComponent<BuildingBase>();
-                    List<Node> parkingNodes = new List<Node>();
+                    List<Node> roadNodes = new List<Node>();
                     foreach (BuildingBase b in GetOutputBuildings(building.BuildingType))
                     {
-                        if (b.parkingLotSize == ParkingLotSize._1x1) //The 1x1 building the car move to the building
-                        {
-                            parkingNodes.Add(GridManager.NodeFromWorldPosition(b.transform.position));
-                        }
-                        else
-                        {
-                            parkingNodes.AddRange(b.ParkingNodes);
-                        }
+                       roadNodes.Add(b.RoadNode);
                     }
 
-                    if (parkingNodes.Count == 0)
+                    if (roadNodes.Count == 0)
                     {
                         return;
                     }
 
-                    Node startNode = building.ParkingNodes[0];
-                    Node endNode = givenData(parkingNodes, building.ParkingNodes[0]);
+                    Node startNode = building.RoadNode;
+                    Node endNode = givenData(roadNodes, building.RoadNode);
                     
                     if (endNode != null)
                     {

@@ -1,3 +1,4 @@
+using Game._00.Script._02.Grid_setting;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -31,7 +32,7 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
             FollowPathJob followPathJob = new FollowPathJob
             {
                 DeltaTime = SystemAPI.Time.DeltaTime,
-                PhysicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>()
+                PhysicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>(),
             };
             state.Dependency = followPathJob.ScheduleParallel(state.Dependency);
         }
@@ -41,7 +42,7 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
     {
         public float DeltaTime;
         [ReadOnly] public PhysicsWorldSingleton PhysicsWorld;
-
+ 
        // private bool isBackWard
         public void Execute(CarAspect car)
         {

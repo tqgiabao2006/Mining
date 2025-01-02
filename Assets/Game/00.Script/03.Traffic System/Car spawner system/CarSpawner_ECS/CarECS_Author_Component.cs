@@ -68,8 +68,8 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
         public int CurrentIndex;
     }
 
-    [InternalBufferCapacity(6)] //Max element is 6 ways point from the road node to parking lot to road node
-    public struct ParkingWaypoints : IBufferElementData
+    [InternalBufferCapacity(10)] 
+    public struct ParkingWaypoint : IBufferElementData
     {
         public float3 Value;
     }

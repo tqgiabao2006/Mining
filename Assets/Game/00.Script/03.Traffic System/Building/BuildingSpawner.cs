@@ -102,8 +102,8 @@ namespace Game._00.Script._03.Traffic_System.Building
             //Level 1:
             _waveInfos[0] = new SpawningWaveInfo(0, 3, 5, new List<BuildingInfo>()
             {
-                new BuildingInfo(BuildingType.Heart, 1, 0f),
-                new BuildingInfo(BuildingType.NormalCell, 1, 1f),
+                new BuildingInfo(BuildingType.NormalCell, 1, 0f),
+                new BuildingInfo(BuildingType.Heart, 1, 2f),
                 new BuildingInfo(BuildingType.NormalCell, 2, 4f),
                 new BuildingInfo(BuildingType.Heart, 1, 5f),
             });
@@ -182,18 +182,14 @@ namespace Game._00.Script._03.Traffic_System.Building
                     BuildingBase buildingComp = buildingObj.GetComponent<BuildingBase>();
                 
                     Vector2 spawnedPos = GetRandomPosition(ref maxRoadLength, waveInfo.ZoneRadius, _usedPositions);
-                    
-                    //Test only
-                    DebugUtility.Log("Test spawn at 0.5f,0.5f", this.ToString());
-                    spawnedPos = new Vector2(0.5f, 0.5f);
                 
                     Node buildingNode = GridManager.NodeFromWorldPosition(spawnedPos);
 
                     buildingComp.Initialize(buildingNode, buildingType, spawnedPos);
                     _buildingManager.RegisterBuilding(buildingComp);
-                    buildingObj.transform.position = SetTransformOnSize(buildingComp.parkingLotSize, buildingComp.BuildingDirection, spawnedPos);
+                    buildingObj.transform.position = SetTransformOnSize(buildingComp.size, buildingComp.BuildingDirection, spawnedPos);
                     buildingObj.transform.rotation = SetRotationOnDirection(buildingComp.BuildingDirection);
-                    buildingObj.transform.localScale = SetScaleOnSize(buildingComp.parkingLotSize);
+                    buildingObj.transform.localScale = SetScaleOnSize(buildingComp.size);
                     buildingObj.SetActive(true);
 
                     Vector3 SetScaleOnSize(ParkingLotSize size)

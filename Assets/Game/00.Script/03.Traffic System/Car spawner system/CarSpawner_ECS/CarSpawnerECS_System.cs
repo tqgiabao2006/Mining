@@ -77,9 +77,9 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
             }
             float3 spawnPosition = new float3(spawnData.StartPos.x, spawnData.StartPos.y, 0);
 
-            if (!EntityManager.HasComponent<ParkingWaypoints>(spawnedEntity))
+            if (!EntityManager.HasComponent<ParkingWaypoint>(spawnedEntity))
             {
-                EntityManager.AddBuffer<ParkingWaypoints>(spawnedEntity);
+                EntityManager.AddBuffer<ParkingWaypoint>(spawnedEntity);
             }
             
             // Set components directly using EntityManager
