@@ -217,26 +217,13 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
         {
             public void OnCreate(ref SystemState state)
             {
-                // Fundamental components
-                state.RequireForUpdate<State>();
-                state.RequireForUpdate<Speed>();
-                state.RequireForUpdate<LocalTransform>();
-
-                // Path-following components
                 state.RequireForUpdate<FollowPathData>();
-
-                // Traffic simulation components
+                state.RequireForUpdate<State>();
+                state.RequireForUpdate<EnterExitPoint>();
+                state.RequireForUpdate<LocalTransform>();
+                state.RequireForUpdate<Speed>();
                 state.RequireForUpdate<StopDistance>();
                 state.RequireForUpdate<ColliderBound>();
-
-                // Parking and waypoint components
-                state.RequireForUpdate<ParkingLot>();
-                state.RequireForUpdate<EnterExitPoint>();
-                state.RequireForUpdate<IsParking>();
-                state.RequireForUpdate<ParkingData>();
-
-                // Physics system components
-                state.RequireForUpdate<PhysicsWorldSingleton>();
             }
 
             public void OnUpdate(ref SystemState state)
@@ -246,107 +233,96 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                     DeltaTime = SystemAPI.Time.DeltaTime,
                     PhysicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>(),
                 };
-                Debug.Log("Has car aspsect");
-                // state.Dependency = followPathJob.ScheduleParallel(state.Dependency);
-                Test test = new Test();
-                test.ScheduleParallel();
-
+                state.Dependency = followPathJob.ScheduleParallel(state.Dependency);
             }
         }
 
 
-        public partial struct Test : IJobEntity
-        {
-            public void Execute()
-            {
-                Debug.Log("Test");
-            }
-        }
+    
 
     [BurstCompile]
     public partial struct FollowPathJob : IJobEntity
     {
         [ReadOnly] public float DeltaTime;
         [ReadOnly] public PhysicsWorldSingleton PhysicsWorld;
-        public void Execute(CarAspect car)
+        public void Execute(ref FollowPathData followPathData, ref State state, ref EnterExitPoint enterExitPoint, ref LocalTransform localTransform, ref Speed speedStat,in StopDistance stopDistance, in ColliderBound colliderBound)
         {
             //Check state before execution
-            if (!car.FollowPathData.ValueRO.WaypointsBlob.IsCreated || !car.CheckCanRun() || car.State.ValueRO.Value != CarState.FollowingPath) return;
+            if (!followPathData.WaypointsBlob.IsCreated || state.Value != CarState.FollowingPath) return;
          
-            ref Unity.Entities.BlobArray<float3> waypoints = ref car.FollowPathData.ValueRO.WaypointsBlob.Value;
+            ref Unity.Entities.BlobArray<float3> waypoints = ref followPathData.WaypointsBlob.Value;
             
             //Because this is a rounded path from start -> building -> start, that each waypoint has at least 1 in parallel
             int enterIndex = waypoints.Length / 2;
             int exitIndex = enterIndex + 1;
             
-            car.EnterExitPoint.ValueRW.EnterIndex = enterIndex;
-            car.EnterExitPoint.ValueRW.ExitIndex = exitIndex;
-            car.EnterExitPoint.ValueRW.Enter = waypoints[enterIndex];
-            car.EnterExitPoint.ValueRW.Exit = waypoints[exitIndex];
+            enterExitPoint.EnterIndex = enterIndex;
+            enterExitPoint.ExitIndex = exitIndex;
+            enterExitPoint.Enter = waypoints[enterIndex];
+            enterExitPoint.Exit = waypoints[exitIndex];
 
-            if (math.distance(car.LocalTransform.ValueRO.Position, car.EnterExitPoint.ValueRO.Enter) <= 0.05f)
+            if (math.distance(localTransform.Position, enterExitPoint.Enter) <= 0.05f)
             {
-                car.State.ValueRW.Value = CarState.Parking;
+                state.Value = CarState.Parking;
                 return;
             }
             
-            if (car.FollowPathData.ValueRO.CurrentIndex < waypoints.Length)
+            if (followPathData.CurrentIndex < waypoints.Length)
             {
-                float3 nextWaypoint = waypoints[car.FollowPathData.ValueRO.CurrentIndex];
-                float3 direction = math.normalize(nextWaypoint - car.LocalTransform.ValueRO.Position);
+                float3 nextWaypoint = waypoints[followPathData.CurrentIndex];
+                float3 direction = math.normalize(nextWaypoint - localTransform.Position);
                 
                 // Face to the next waypoint:
                 float angle = math.atan2(direction.y, direction.x) - 90 * Mathf.Deg2Rad; // -90 because by default, the prefab faces upward
-                car.LocalTransform.ValueRW.Rotation = quaternion.Euler(0, 0, angle);
-                
+               localTransform.Rotation = quaternion.Euler(0, 0, angle);
                 //Change speed when car are nearby
                 RaycastInput input = new RaycastInput()
                 {
-                    Start = car.LocalTransform.ValueRO.Position + direction * car.ColliderBound.ValueRO.Value,
-                    End = direction  * car.StopDistance.ValueRO.CheckDst,
+                    Start = localTransform.Position + direction * colliderBound.Value,
+                    End = direction  * stopDistance.CheckDst,
                     Filter = CollisionFilter.Default
                 };
                 
-                Debug.DrawRay(input.Start,  direction  * car.StopDistance.ValueRO.StopDst, Color.yellow);
+                Debug.DrawRay(input.Start,  direction  * stopDistance.StopDst, Color.yellow);
                 
                 //Because when come to corner, the ray cast will check cars from other lane which create endless traffic conjunction
                 //So we temporally uncheck when close to corner (math.distance < threshold)
-                if (math.distance(car.LocalTransform.ValueRO.Position, nextWaypoint) >= 0.5f)
+                if (math.distance(localTransform.Position, nextWaypoint) >= 0.5f)
                 {
                     if (PhysicsWorld.CastRay(input, out RaycastHit hit)) //Deceleration
                     {
-                        float distance = math.distance(car.LocalTransform.ValueRO.Position, hit.Position);
-                        if (distance <= car.StopDistance.ValueRO.StopDst + car.ColliderBound.ValueRO.Value &&
-                            distance > car.ColliderBound.ValueRO.Value) //Too close so stop
+                        float distance = math.distance(localTransform.Position, hit.Position);
+                        if (distance <= stopDistance.StopDst + colliderBound.Value &&
+                            distance > colliderBound.Value) //Too close so stop
                         {
-                            car.Speed.ValueRW.CurSpeed = 0;
+                            speedStat.CurSpeed = 0;
                         }
                         else
                         {
-                            float deceleration = (car.Speed.ValueRO.CurSpeed - car.Speed.ValueRO.MinSpeed) / car.Speed.ValueRO.TimeChangeSpeed;
-                            float speed = car.Speed.ValueRO.CurSpeed;
+                            float deceleration = (speedStat.CurSpeed -speedStat.MinSpeed) / speedStat.TimeChangeSpeed;
+                            float speed =speedStat.CurSpeed;
                             speed -= deceleration * DeltaTime;
-                            car.Speed.ValueRW.CurSpeed = math.clamp(speed, car.Speed.ValueRO.MinSpeed, car.Speed.ValueRO.MaxSpeed);
+                            speedStat.CurSpeed = math.clamp(speed, speedStat.MinSpeed, speedStat.MaxSpeed);
                         }
                     }
-                    else if (car.Speed.ValueRO.CurSpeed < car.Speed.ValueRO.MaxSpeed) //Acceleration
+                    else if (speedStat.CurSpeed <speedStat.MaxSpeed) //Acceleration
                     {
-                        float acceleration= ( car.Speed.ValueRO.MaxSpeed - car.Speed.ValueRO.CurSpeed)/car.Speed.ValueRO.TimeChangeSpeed;
-                        float speed = car.Speed.ValueRO.CurSpeed;
+                        float acceleration= ( speedStat.MaxSpeed - speedStat.CurSpeed)/speedStat.TimeChangeSpeed;
+                        float speed =speedStat.CurSpeed;
                         speed += acceleration * DeltaTime;
-                        car.Speed.ValueRW.CurSpeed = math.clamp(speed, car.Speed.ValueRO.MinSpeed, car.Speed.ValueRO.MaxSpeed);
+                        speedStat.CurSpeed = math.clamp(speed, speedStat.MinSpeed, speedStat.MaxSpeed);
                     }
                 }
 
 
-                if (math.distance(car.LocalTransform.ValueRO.Position, nextWaypoint) >=
+                if (math.distance(localTransform.Position, nextWaypoint) >=
                     0.05f) //Avoid null buildingDirection
                 {
-                    car.LocalTransform.ValueRW.Position += direction * car.Speed.ValueRO.CurSpeed * DeltaTime;
+                    localTransform.Position += direction * speedStat.CurSpeed * DeltaTime;
                 }
                 else
                 {
-                        car.FollowPathData.ValueRW.CurrentIndex++;
+                    followPathData.CurrentIndex++;
                 }
             }
         }
