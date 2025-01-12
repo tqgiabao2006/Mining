@@ -5,7 +5,9 @@ using Game._00.Script._00.Manager.Custom_Editor;
 using Game._00.Script._00.Manager.Observer;
 using Game._00.Script._02.Grid_setting;
 using Game._00.Script._03.Traffic_System.Mesh_Generator;
+using Unity.Entities;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 namespace Game._00.Script._03.Traffic_System.Building
@@ -61,7 +63,9 @@ namespace Game._00.Script._03.Traffic_System.Building
     
         [Header("BuildingBase Prefabs")]
         public List<BuildingPrefabPair> BuildingPrefabs = new List<BuildingPrefabPair>();
-    
+        
+        
+        [Header("Wave settings")]
         [SerializeField] public int maxWaves = 2;
         private SpawningWaveInfo[] _waveInfos;
 
@@ -78,6 +82,7 @@ namespace Game._00.Script._03.Traffic_System.Building
         private RoadMesh _roadMesh;
         private Invertory _invertory;
         private BuildingManager _buildingManager;
+        
     
         private void Start()
         {
@@ -97,6 +102,7 @@ namespace Game._00.Script._03.Traffic_System.Building
         
             _usedPositions = new List<Vector2>();
         }
+        
         private void WaveSetUp()
         {
             //Level 1:
@@ -104,8 +110,6 @@ namespace Game._00.Script._03.Traffic_System.Building
             {
                 new BuildingInfo(BuildingType.NormalCell, 1, 0f),
                 new BuildingInfo(BuildingType.Heart, 1, 2f),
-                new BuildingInfo(BuildingType.NormalCell, 2, 4f),
-                new BuildingInfo(BuildingType.Heart, 1, 5f),
             });
             //Level 2:
             _waveInfos[1] = new SpawningWaveInfo(1, 5, 10,new List<BuildingInfo>()
@@ -174,7 +178,7 @@ namespace Game._00.Script._03.Traffic_System.Building
                     if (!TryGetPrefab(buildingType, out buildingPrefab))
                     {
                         buildingPrefab = new GameObject(buildingType.ToString());
-                        Debug.Log("Can't find building prefab");
+                        DebugUtility.Log("Can't find building prefab", "Building Spawner");
                     }
                 
                     //Spawned object
@@ -184,7 +188,6 @@ namespace Game._00.Script._03.Traffic_System.Building
                     Vector2 spawnedPos = GetRandomPosition(ref maxRoadLength, waveInfo.ZoneRadius, _usedPositions);
                 
                     Node buildingNode = GridManager.NodeFromWorldPosition(spawnedPos);
-
                     buildingComp.Initialize(buildingNode, buildingType, spawnedPos);
                     _buildingManager.RegisterBuilding(buildingComp);
                     buildingObj.transform.position = SetTransformOnSize(buildingComp.size, buildingComp.BuildingDirection, spawnedPos);
@@ -298,7 +301,6 @@ namespace Game._00.Script._03.Traffic_System.Building
 
             return GridManager.NodeFromWorldPosition(Vector2.zero).WorldPosition;
         }
-    
         private int GetBuildingNumbByWave(SpawningWaveInfo waveInfo)
         {
             int sum = 0;
@@ -309,11 +311,8 @@ namespace Game._00.Script._03.Traffic_System.Building
 
             return sum;
         }
-
         #endregion
-    
-    
-    
+        
         #region Gizmos
 
         private void OnDrawGizmos()

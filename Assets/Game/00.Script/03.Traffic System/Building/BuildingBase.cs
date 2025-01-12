@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using Game._00.Script._00.Manager;
 using Game._00.Script._00.Manager.Custom_Editor;
 using Game._00.Script._02.Grid_setting;
 using Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS;
@@ -9,7 +7,6 @@ using Game._00.Script._03.Traffic_System.Road;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 namespace Game._00.Script._03.Traffic_System.Building
@@ -89,9 +86,6 @@ namespace Game._00.Script._03.Traffic_System.Building
             _parkingMesh = FindObjectOfType<ParkingMesh>();
 
             //Random between horizontal and vertical building
-            float random = Random.Range(0f, 1f);
-            bool isHorizontal = random <= 0.5f;
-
             this._roadManager = FindObjectOfType<RoadManager>();
             this.BuildingType = buildingType;
             this._worldPosition = worldPosition;
@@ -363,7 +357,6 @@ namespace Game._00.Script._03.Traffic_System.Building
                 {
                     closestNode.SetDrawable(true);
                 }
-                
                 _roadManager.CreateMesh(roadNode, GetRoadDirection(roadNode, _parkingNodes, buildingDirection)); 
              }
            
@@ -371,37 +364,51 @@ namespace Game._00.Script._03.Traffic_System.Building
         
         private void SetParkingPos(Vector2 originPos, BuildingDirection direction, ParkingLotSize size)
         {
-            float sizeMultipler = size == ParkingLotSize._2x2 ? 1 : 2;
-            float nodeRadius = GridManager.NodeRadius;
-            float nodeDiameter = GridManager.NodeDiameter;
-            
-            if (direction == BuildingDirection.Up || direction == BuildingDirection.Down)
-            {
-                float directionMultipler = direction == BuildingDirection.Up ? 1 : -1;
-                float3 center = new float3(originPos.x - nodeRadius, originPos.y + directionMultipler * sizeMultipler * nodeDiameter, 0);
-                float3 right = new float3(center.x + nodeRadius, center.y,0);
-                float3 left = new float3(center.x - nodeRadius, center.y, 0);
 
-                ParkingLot centerLot = new ParkingLot(center, true);
-                ParkingLot rightLot = new ParkingLot(right, true);
-                ParkingLot leftLot = new ParkingLot(left, true);
-                
-                _centerPos = center;
-                _parkingPos.AddRange(new []{leftLot, centerLot, rightLot});
-            }
-            else if(direction == BuildingDirection.Left || direction == BuildingDirection.Right)
+            if (size == ParkingLotSize._1x1)
             {
-                float directionMultipler = direction == BuildingDirection.Right? 1 : -1;
-                float3 center = new float3(originPos.x + directionMultipler * sizeMultipler * nodeDiameter, originPos.y + nodeRadius, 0);
-                float3 top = new float3(center.x, center.y + nodeRadius, 0);
-                float3 bot = new float3(center.x, center.y - nodeRadius, 0);
-                
+                float3 center = new float3(originPos.x, originPos.y, 0);
                 ParkingLot centerLot = new ParkingLot(center, true);
-                ParkingLot topLot = new ParkingLot(top, true);
-                ParkingLot botLot = new ParkingLot(bot, true);
-                
                 _centerPos = center;
-                _parkingPos.AddRange(new []{topLot, centerLot, botLot});
+                _parkingPos.Add(centerLot);
+                
+            }
+            else if(size == ParkingLotSize._2x2 || size == ParkingLotSize._2x3)
+            {
+                float sizeMultipler = size == ParkingLotSize._2x2 ? 1 : 2;
+                float nodeRadius = GridManager.NodeRadius;
+                float nodeDiameter = GridManager.NodeDiameter;
+
+                if (direction == BuildingDirection.Up || direction == BuildingDirection.Down)
+                {
+                    float directionMultipler = direction == BuildingDirection.Up ? 1 : -1;
+                    float3 center = new float3(originPos.x - nodeRadius,
+                        originPos.y + directionMultipler * sizeMultipler * nodeDiameter, 0);
+                    float3 right = new float3(center.x + nodeRadius, center.y, 0);
+                    float3 left = new float3(center.x - nodeRadius, center.y, 0);
+
+                    ParkingLot centerLot = new ParkingLot(center, true);
+                    ParkingLot rightLot = new ParkingLot(right, true);
+                    ParkingLot leftLot = new ParkingLot(left, true);
+
+                    _centerPos = center;
+                    _parkingPos.AddRange(new[] { leftLot, centerLot, rightLot });
+                }
+                else if (direction == BuildingDirection.Left || direction == BuildingDirection.Right)
+                {
+                    float directionMultipler = direction == BuildingDirection.Right ? 1 : -1;
+                    float3 center = new float3(originPos.x + directionMultipler * sizeMultipler * nodeDiameter,
+                        originPos.y + nodeRadius, 0);
+                    float3 top = new float3(center.x, center.y + nodeRadius, 0);
+                    float3 bot = new float3(center.x, center.y - nodeRadius, 0);
+
+                    ParkingLot centerLot = new ParkingLot(center, true);
+                    ParkingLot topLot = new ParkingLot(top, true);
+                    ParkingLot botLot = new ParkingLot(bot, true);
+
+                    _centerPos = center;
+                    _parkingPos.AddRange(new[] { topLot, centerLot, botLot });
+                }
             }
         }
             
@@ -430,7 +437,7 @@ namespace Game._00.Script._03.Traffic_System.Building
             if (_entityManager.HasBuffer<ParkingWaypoint>(car))
             {
                 DynamicBuffer<ParkingWaypoint> buffer = _entityManager.GetBuffer<ParkingWaypoint>(car); 
-                float3[] waypoints = GetParkingWaypoints(_originBuildingNode.WorldPosition, BuildingDirection, size,parkingPos, new float3(_centerPos), _roadNode.WorldPosition );
+                float3[] waypoints = GetParkingWaypoints(_originBuildingNode.WorldPosition, BuildingDirection, size, parkingPos, new float3(_centerPos), _roadNode.WorldPosition );
                 foreach (float3 waypoint in waypoints)
                 {
                     buffer.Add(new ParkingWaypoint()
@@ -438,7 +445,12 @@ namespace Game._00.Script._03.Traffic_System.Building
                         Value = waypoint,
                     });
                 }
+                ParkingLot parkingLot = new ParkingLot(parkingPos, false);
+                Car_spawner_system.CarSpawner_ECS.ParkingLot parkingComp = _entityManager.GetComponentData<Car_spawner_system.CarSpawner_ECS.ParkingLot>(car);
+                parkingComp.Value = parkingLot;
             }
+            
+            _parkingResquest.Dequeue();
         }
 
         #region Test
@@ -461,7 +473,6 @@ namespace Game._00.Script._03.Traffic_System.Building
              float nodeRadius = GridManager.NodeRadius;
              float roadWidth = RoadManager.RoadWidth;
             Vector2 roadDirection = GetRoadNodeDirection(roadPos, originPos, buildingDirection, size);
-            DebugUtility.Log("Road dir " + roadDirection, "Building: ");
 
             var inOutSteps = GetInOutCorner(roadPos, roadDirection);
             float3 inCorner = inOutSteps.Item1;
@@ -740,7 +751,7 @@ namespace Game._00.Script._03.Traffic_System.Building
         //         Gizmos.color = Color.red;
         //         for (int i = 0; i < _test_Waypoints.Length-1; i++)
         //         {
-        //             Gizmos.DrawLine(_test_Waypoints[i], _test_Waypoints[i+1]);
+        //             GizmXos.DrawLine(_test_Waypoints[i], _test_Waypoints[i+1]);
         //         }
         //         
         //         Gizmos.color = Color.yellow;

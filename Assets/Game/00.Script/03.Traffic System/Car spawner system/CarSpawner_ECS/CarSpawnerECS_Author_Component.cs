@@ -40,15 +40,11 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
         public Entity RedBlood;
         public Entity BlueBlood;
     }
-    
-    public struct SpawnData 
+
+    public struct SpawnData
     {
         public float3 StartPos;
         public float3 EndPos;
-        public BlobAssetReference<BlobArray<float3>>  Waypoints;
+        public BlobAssetReference<BlobArray<float3>> Waypoints;
     }
-
-
-  
-  
 }

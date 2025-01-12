@@ -27,6 +27,7 @@ namespace Game._00.Script._03.Traffic_System.Building
         //Use dictionary because two roads can be connected but not to others
         private Dictionary<int, List<BuildingBase>> _connectedBuildings = new Dictionary<int, List<BuildingBase>>();
         
+        
         private void Awake()
         {
             InputOutputMapSetup();
@@ -48,19 +49,19 @@ namespace Game._00.Script._03.Traffic_System.Building
             _carSpawnInfos.Add(BuildingType.Lung, new CarSpawnInfo()
             {
                 Car = ObjectFlags.RedBlood,
-                Amount = 2,
+                Amount = 1,
                 DelayTime = 1f,
             });
             _carSpawnInfos.Add(BuildingType.Heart, new CarSpawnInfo()
             {
                 Car = ObjectFlags.RedBlood,
-                Amount = 2,
+                Amount = 1,
                 DelayTime = 0.5f
             });
             _carSpawnInfos.Add(BuildingType.NormalCell, new CarSpawnInfo()
             {
                 Car = ObjectFlags.BlueBlood,
-                Amount = 2,
+                Amount = 1,
                 DelayTime = 2f
             });
         }

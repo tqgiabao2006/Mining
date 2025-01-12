@@ -1,15 +1,21 @@
 using Game._00.Script._00.Manager.Custom_Editor;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Physics;
 using Unity.Transforms;
 using UnityEngine;
 
 namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
 {
+    public enum CarState
+    {
+        FollowingPath,
+        Parking
+    }
     public class CarECS_Author_Component: MonoBehaviour
     { 
         [CustomReadOnly] [SerializeField] private float miningTime = 2f; 
-        [CustomReadOnly] [SerializeField] private float maxSpeed = 2f; 
+         [SerializeField] private float maxSpeed = 2f; 
         [SerializeField] private float minSpeed = 0.5f; 
         [CustomReadOnly] [SerializeField] private float timeChangeSpeed = 0.5f;
         [SerializeField] private float stopDistance = 0.2f;
@@ -26,7 +32,15 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                 {
                     return;
                 }
-                
+
+                //Core components
+                AddComponent(entity, new State());
+                AddComponent(entity, new Self()
+                {
+                    Value = entity,
+                });
+
+                // Follow path components
                 AddComponent(entity, new Speed()
                 {
                     CurSpeed = author.maxSpeed,
@@ -34,27 +48,38 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                     MinSpeed = author.minSpeed,
                     TimeChangeSpeed = author.timeChangeSpeed
                 });
-                AddComponent(entity, new CanRun()
+    
+                AddComponent(entity, new FollowPathData
                 {
-                    Value = false
+                    CurrentIndex = 0,
+                    WaypointsBlob = BlobAssetReference<BlobArray<float3>>.Null // Initialize later in system logic
                 });
+
+                // Traffic simulation components
+                AddComponent(entity, new CanRun() { Value = true });
                 AddComponent(entity, new StopDistance()
                 {
-                   StopDst  = author.stopDistance,
-                   CheckDst = author.checkDistance
+                    StopDst = author.stopDistance,
+                    CheckDst = author.checkDistance
                 });
-                AddComponent(entity, new ColliderBound()
-                {
-                    Value = author.colliderBound
-                });
+                AddComponent(entity, new ColliderBound() { Value = author.colliderBound });
+
+                // Parking components
+                AddBuffer<ParkingWaypoint>(entity);
+                AddComponent(entity, new ParkingData { CurrentIndex = 0, HasPath = false });
+                AddComponent(entity, new EnterExitPoint());
+                AddComponent(entity, new IsParking());
+
             }    
         }
     }
 
-    public struct ColliderBound : IComponentData
+    public struct State : IComponentData
     {
-        public float Value;
+        public CarState Value;
     }
+
+   
     public struct Speed : IComponentData
     {
         public float MaxSpeed;
@@ -73,10 +98,47 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
     {
         public float3 Value;
     }
+
+    public struct ParkingData : IComponentData
+    {
+        public int CurrentIndex;
+        public bool HasPath;
+    }
+
+    public struct ParkingLot : IComponentData
+    {
+        public Building.ParkingLot Value;
+    }
+
+    /// <summary>
+    /// Use for store enter, exit wayPoint in floa3[] waypoints to transition from following path to following parking lot
+    /// </summary>
+    public struct EnterExitPoint : IComponentData
+    {
+        public float3 Enter;
+        public float3 Exit;
+        public int EnterIndex;
+        public int ExitIndex;
+    }
+
+    public struct IsParking : IComponentData
+    {
+        public bool Value;
+    }
     
     public struct CanRun : IComponentData
     {
         public bool Value;
+    }
+    
+    public struct ColliderBound : IComponentData
+    {
+        public float Value;
+    }
+
+    public struct Self : IComponentData
+    {
+        public Entity Value;
     }
 
     public struct StopDistance : IComponentData
@@ -85,20 +147,5 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
         public float CheckDst; // Use to check for accelerating, decelerating
     }
     
-    [WithAll]
-    public readonly partial struct CarAspect: IAspect 
-    {
-        public readonly RefRW<Speed> Speed;
-        public readonly RefRW<FollowPathData> FollowPathData;
-        public readonly RefRW<LocalTransform> LocalTransform;
-        public readonly RefRO<CanRun> CanRun;
-        public readonly RefRO<StopDistance> StopDistance;
-        public readonly RefRO<ColliderBound> ColliderBound;
-        
-        public bool CheckCanRun()
-        {
-            return CanRun.ValueRO.Value;
-        }
-    }
 
 }
