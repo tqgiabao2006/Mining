@@ -65,10 +65,10 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                 AddComponent(entity, new ColliderBound() { Value = author.colliderBound });
 
                 // Parking components
-                AddBuffer<ParkingWaypoint>(entity);
                 AddComponent(entity, new ParkingData { CurrentIndex = 0, HasPath = false });
                 AddComponent(entity, new EnterExitPoint());
                 AddComponent(entity, new IsParking());
+                AddComponent(entity, new ParkingLot());
 
             }    
         }
@@ -93,17 +93,23 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
         public int CurrentIndex;
     }
 
-    [InternalBufferCapacity(10)] 
-    public struct ParkingWaypoint : IBufferElementData
+    public struct ParkingWaypoint
     {
         public float3 Value;
     }
 
     public struct ParkingData : IComponentData
     {
+        public BlobAssetReference<ParkingWaypointBlob> WaypointsBlob;
         public int CurrentIndex;
         public bool HasPath;
     }
+
+    public struct ParkingWaypointBlob
+    {
+        public BlobArray<ParkingWaypoint> Waypoints;
+    }
+
 
     public struct ParkingLot : IComponentData
     {

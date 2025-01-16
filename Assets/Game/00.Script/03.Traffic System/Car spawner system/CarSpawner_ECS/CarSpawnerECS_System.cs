@@ -76,11 +76,6 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                 spawnedEntity = EntityManager.Instantiate(objectHolder.BlueBlood);
             }
             float3 spawnPosition = new float3(spawnData.StartPos.x, spawnData.StartPos.y, 0);
-
-            if (!EntityManager.HasComponent<ParkingWaypoint>(spawnedEntity))
-            {
-                EntityManager.AddBuffer<ParkingWaypoint>(spawnedEntity);
-            }
             
             // Set components directly using EntityManager
             EntityManager.SetComponentData(spawnedEntity, new LocalTransform

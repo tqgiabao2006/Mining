@@ -4,6 +4,7 @@ using Game._00.Script._02.Grid_setting;
 using Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS;
 using Game._00.Script._03.Traffic_System.Mesh_Generator;
 using Game._00.Script._03.Traffic_System.Road;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
@@ -434,20 +435,40 @@ namespace Game._00.Script._03.Traffic_System.Building
                 }
             }
             
-            if (_entityManager.HasBuffer<ParkingWaypoint>(car))
+            if (_entityManager.HasComponent<ParkingData>(car))
             {
-                DynamicBuffer<ParkingWaypoint> buffer = _entityManager.GetBuffer<ParkingWaypoint>(car); 
-                float3[] waypoints = GetParkingWaypoints(_originBuildingNode.WorldPosition, BuildingDirection, size, parkingPos, new float3(_centerPos), _roadNode.WorldPosition );
-                foreach (float3 waypoint in waypoints)
+                // Calculate waypoints as before
+                float3[] waypoints = GetParkingWaypoints(
+                    _originBuildingNode.WorldPosition,
+                    BuildingDirection,
+                    size,
+                    parkingPos,
+                    new float3(_centerPos),
+                    _roadNode.WorldPosition
+                );
+
+                BlobBuilder blobBuilder = new BlobBuilder(Allocator.Temp);
+                ref ParkingWaypointBlob parkingWaypointBlob = ref blobBuilder.ConstructRoot<ParkingWaypointBlob>();
+
+                // Add waypoints to the Blob
+                BlobBuilderArray<ParkingWaypoint> blobBuilderArray = blobBuilder.Allocate(ref parkingWaypointBlob.Waypoints, waypoints.Length);
+                for (int i = 0; i < waypoints.Length; i++)
                 {
-                    buffer.Add(new ParkingWaypoint()
-                    {
-                        Value = waypoint,
-                    });
+                    blobBuilderArray[i] = new ParkingWaypoint { Value = waypoints[i] };
                 }
-                ParkingLot parkingLot = new ParkingLot(parkingPos, false);
-                Car_spawner_system.CarSpawner_ECS.ParkingLot parkingComp = _entityManager.GetComponentData<Car_spawner_system.CarSpawner_ECS.ParkingLot>(car);
-                parkingComp.Value = parkingLot;
+
+                BlobAssetReference<ParkingWaypointBlob> waypointsBlob = blobBuilder.CreateBlobAssetReference<ParkingWaypointBlob>(Allocator.Persistent);
+
+                ParkingData parkingData = new ParkingData
+                {
+                    WaypointsBlob = waypointsBlob,
+                    CurrentIndex = 0,  
+                    HasPath = true     
+                };
+
+                _entityManager.SetComponentData(car, parkingData);
+
+                blobBuilder.Dispose();
             }
             
             _parkingResquest.Dequeue();
