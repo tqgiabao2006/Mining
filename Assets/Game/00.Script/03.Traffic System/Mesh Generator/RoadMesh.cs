@@ -59,10 +59,10 @@ namespace Game._00.Script._03.Traffic_System.Mesh_Generator
         
         private float _roadWidth;
         private float _nodeRadius;
-    
-        private List<CombineInstance> meshCombineList = new List<CombineInstance>();
-        
-        private Dictionary<Node, CombineInstance> nodeCombineInstances = new Dictionary<Node, CombineInstance>();
+
+        private List<CombineInstance> meshCombineList;
+
+        private Dictionary<Node, CombineInstance> nodeCombineInstances; 
 
         #endregion
 
@@ -80,10 +80,15 @@ namespace Game._00.Script._03.Traffic_System.Mesh_Generator
             _roadManager = FindObjectOfType<RoadManager>();
             _gridManager = FindObjectOfType<GridManager>();
             
+            _material = _meshRenderer.material;
+            
             // Initialize lists for the mesh data
             _vertices = new List<Vector3>();
             _triangles = new List<int>();
             _uvs = new List<Vector2>();
+            
+            meshCombineList= new List<CombineInstance>();
+            nodeCombineInstances = new Dictionary<Node, CombineInstance>();
 
             _roadWidth = RoadManager.RoadWidth;
             _nodeRadius =GridManager.NodeRadius;
@@ -169,6 +174,7 @@ namespace Game._00.Script._03.Traffic_System.Mesh_Generator
                 _meshRenderer.material = roadMaterial;
                 _meshCollider.sharedMesh = combinedMesh;
             }
+            
         }
     
         private Mesh CreateMesh(Vector2 nodePos, BitwiseDirection bakedBitwiseDirection)

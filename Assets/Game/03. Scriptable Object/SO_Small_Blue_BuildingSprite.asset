@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd920b1ca7644fbf8070fb4c2ad1a6f3, type: 3}
+  m_Name: SO_Small_Blue_BuildingSprite
+  m_EditorClassIdentifier: 
+  sprites:
+  - sprite: {fileID: -1443184163, guid: 764132779e5344b8fb388fe1cefcb3c0, type: 3}
+    direction: 2
+  - sprite: {fileID: -425825285, guid: 764132779e5344b8fb388fe1cefcb3c0, type: 3}
+    direction: 0

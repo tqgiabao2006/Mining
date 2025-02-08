@@ -39,7 +39,12 @@ namespace Game._00.Script._03.Traffic_System.Building
   
     public abstract class BuildingBase : MonoBehaviour
     {
+        [SerializeField] private BuildingSpriteCollection spriteCollections;
 
+        public BuildingSpriteCollection SpriteCollections
+        {
+            get { return spriteCollections; }
+        }
         private RoadManager _roadManager;
         private EntityManager _entityManager;
         

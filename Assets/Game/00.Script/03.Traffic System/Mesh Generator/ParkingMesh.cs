@@ -5,7 +5,8 @@ using UnityEngine;
 
 namespace Game._00.Script._03.Traffic_System.Mesh_Generator
 {
-   
+    
+ 
     [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider))]
     public class ParkingMesh:MonoBehaviour
     {
@@ -19,10 +20,9 @@ namespace Game._00.Script._03.Traffic_System.Mesh_Generator
         private List<Vector3> _totalVertices;
         private List<int> _totalTriangles;
         private List<Vector2> _totalUvs;
-        
-        private List<CombineInstance> meshCombineList = new List<CombineInstance>();
-        
-        private Dictionary<Node, CombineInstance> nodeCombineInstances = new Dictionary<Node, CombineInstance>();
+
+        private List<CombineInstance> meshCombineList; 
+        private Dictionary<Node, CombineInstance> nodeCombineInstances; 
 
         private void Start()
         {
@@ -37,6 +37,9 @@ namespace Game._00.Script._03.Traffic_System.Mesh_Generator
             _totalVertices = new List<Vector3>();
             _totalTriangles = new List<int>();
             _totalUvs = new List<Vector2>();
+            
+            meshCombineList = new List<CombineInstance>();
+            nodeCombineInstances = new Dictionary<Node, CombineInstance>(); 
         }
 
         public void PlaceBuildingMesh(Node node, ParkingLotSize parkingSize, BuildingDirection buildingDirection)

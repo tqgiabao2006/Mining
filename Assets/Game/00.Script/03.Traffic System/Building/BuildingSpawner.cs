@@ -186,31 +186,19 @@ namespace Game._00.Script._03.Traffic_System.Building
                     BuildingBase buildingComp = buildingObj.GetComponent<BuildingBase>();
                 
                     Vector2 spawnedPos = GetRandomPosition(ref maxRoadLength, waveInfo.ZoneRadius, _usedPositions);
-                
+                    
+                    //Get and initialize class
                     Node buildingNode = GridManager.NodeFromWorldPosition(spawnedPos);
                     buildingComp.Initialize(buildingNode, buildingType, spawnedPos);
                     _buildingManager.RegisterBuilding(buildingComp);
+                    
+                    //Set Sprite
+                    Sprite sprite = buildingComp.SpriteCollections.GetBuildingSprite(buildingComp.BuildingDirection, buildingComp.size);
+                    buildingObj.GetComponent<SpriteRenderer>().sprite =sprite; 
+                    
+                    //Set Transform
                     buildingObj.transform.position = SetTransformOnSize(buildingComp.size, buildingComp.BuildingDirection, spawnedPos);
-                    buildingObj.transform.rotation = SetRotationOnDirection(buildingComp.BuildingDirection);
-                    buildingObj.transform.localScale = SetScaleOnSize(buildingComp.size);
                     buildingObj.SetActive(true);
-
-                    Vector3 SetScaleOnSize(ParkingLotSize size)
-                    {
-                        return size switch
-                        {
-                            ParkingLotSize._2x2 => new Vector3(1.5f, 0.9f, 1),
-                            ParkingLotSize._2x3 => new Vector3(1.5f, 1.5f, 1),
-                            _ => new Vector3(1, 1, 1),
-                        };
-                    }
-                
-                    Quaternion SetRotationOnDirection(BuildingDirection direction) =>
-                        direction switch
-                        {
-                            BuildingDirection.Left or BuildingDirection.Right => Quaternion.Euler(0, 0, -90),
-                            _ => Quaternion.Euler(0, 0, 0)
-                        };
 
                     Vector3 SetTransformOnSize(ParkingLotSize parkingLotSize, BuildingDirection direction, Vector2 spawnPos)
                     {
