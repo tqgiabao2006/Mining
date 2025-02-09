@@ -194,8 +194,7 @@ namespace Game._00.Script._03.Traffic_System.Building
                     
                     //Set Sprite
                     Sprite sprite = buildingComp.SpriteCollections.GetBuildingSprite(buildingComp.BuildingDirection, buildingComp.size);
-                    buildingObj.GetComponent<SpriteRenderer>().sprite =sprite; 
-                    
+                    buildingObj.GetComponent<SpriteRenderer>().sprite =sprite;
                     //Set Transform
                     buildingObj.transform.position = SetTransformOnSize(buildingComp.size, buildingComp.BuildingDirection, spawnedPos);
                     buildingObj.SetActive(true);

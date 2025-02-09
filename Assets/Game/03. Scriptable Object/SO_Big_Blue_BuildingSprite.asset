@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: SO_Big_Blue_BuildingSprite
   m_EditorClassIdentifier: 
   sprites:
-  - sprite: {fileID: 298356296, guid: 764132779e5344b8fb388fe1cefcb3c0, type: 3}
+  - sprite: {fileID: -2114033013, guid: a2b21e582ed8b4c52b4a877e5f508e8d, type: 3}
     direction: 1
-  - sprite: {fileID: -2080061599, guid: 764132779e5344b8fb388fe1cefcb3c0, type: 3}
+  - sprite: {fileID: 144137901, guid: a2b21e582ed8b4c52b4a877e5f508e8d, type: 3}
     direction: 2
-  - sprite: {fileID: -1084526813, guid: 764132779e5344b8fb388fe1cefcb3c0, type: 3}
+  - sprite: {fileID: 168986904, guid: a2b21e582ed8b4c52b4a877e5f508e8d, type: 3}
     direction: 0
-  - sprite: {fileID: 875766485, guid: 764132779e5344b8fb388fe1cefcb3c0, type: 3}
+  - sprite: {fileID: 1798001699, guid: a2b21e582ed8b4c52b4a877e5f508e8d, type: 3}
     direction: 3

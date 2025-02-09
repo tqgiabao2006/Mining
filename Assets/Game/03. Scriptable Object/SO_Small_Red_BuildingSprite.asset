@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SO_Small_Red_BuildingSprite
   m_EditorClassIdentifier: 
   sprites:
-  - sprite: {fileID: -697253855, guid: 764132779e5344b8fb388fe1cefcb3c0, type: 3}
+  - sprite: {fileID: 1811276431, guid: 231aad76f2c32406fbe73b641e64a134, type: 3}
     direction: 2
-  - sprite: {fileID: -558216108, guid: 764132779e5344b8fb388fe1cefcb3c0, type: 3}
-    direction: 0
+  - sprite: {fileID: 1908798067, guid: 231aad76f2c32406fbe73b641e64a134, type: 3}
+    direction: 1

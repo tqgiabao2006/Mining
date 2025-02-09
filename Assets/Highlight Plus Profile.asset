@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8e9253636bf2648bd813257f451f8486, type: 3}
-  m_Name: SelectedAndHighlighted
+  m_Name: Highlight Plus Profile
   m_EditorClassIdentifier: 
   effectGroup: 0
   effectGroupLayer:
@@ -30,7 +30,7 @@ MonoBehaviour:
   cameraDistanceFadeFar: 1000
   constantWidth: 1
   minimumWidth: 0
-  overlay: 0
+  overlay: 0.5
   overlayMode: 0
   overlayColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   overlayAnimationSpeed: 1
@@ -42,7 +42,7 @@ MonoBehaviour:
   overlayTextureScrolling: {x: 0, y: 0}
   overlayVisibility: 0
   outline: 1
-  outlineColor: {r: 0.9528302, g: 0.6067551, b: 0.6067551, a: 1}
+  outlineColor: {r: 0, g: 0, b: 0, a: 1}
   outlineColorStyle: 0
   outlineGradient:
     serializedVersion: 2
@@ -75,18 +75,18 @@ MonoBehaviour:
     m_NumColorKeys: 2
     m_NumAlphaKeys: 2
   outlineGradientInLocalSpace: 0
-  outlineBlurPasses: 1
-  outlineWidth: 1
-  outlineQuality: 2
+  outlineBlurPasses: 2
+  outlineWidth: 1.5
+  outlineQuality: 1
   outlineEdgeMode: 0
   outlineEdgeThreshold: 0.995
   outlineSharpness: 1
-  outlineDownsampling: 1
-  outlineContourStyle: 1
+  outlineDownsampling: 2
+  outlineContourStyle: 0
   outlineVisibility: 0
   outlineIndependent: 0
   outlineMaskMode: 0
-  glow: 0
+  glow: 1
   glowWidth: 0.5
   glowQuality: 1
   glowBlurMethod: 0
@@ -114,7 +114,7 @@ MonoBehaviour:
     alpha: 0.4
     color: {r: 0.64, g: 1, b: 0, a: 1}
   glowMaskMode: 0
-  innerGlow: 0
+  innerGlow: 0.5
   innerGlowWidth: 1
   innerGlowBlendMode: 0
   innerGlowColor: {r: 1, g: 1, b: 1, a: 1}
@@ -138,7 +138,7 @@ MonoBehaviour:
   targetFXStayDuration: 1.5
   targetFXVisibility: 1
   iconFX: 0
-  iconFXMesh: {fileID: 3613567641014311022, guid: 0619ab933f4044ef7bca0b64517837b3, type: 3}
+  iconFXMesh: {fileID: 0}
   iconFXLightColor: {r: 1, g: 1, b: 1, a: 1}
   iconFXDarkColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   iconFXRotationSpeed: 50
