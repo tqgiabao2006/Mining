@@ -49,10 +49,9 @@ namespace Game._00.Script._03.Traffic_System.Mesh_Generator
     
         //Class
         private RoadManager _roadManager;
+
         private GridManager _gridManager;
-        
-        
-        //Basic congig
+        //Basic config
         private List<Vector3> _vertices;
         private List<int> _triangles; 
         private List<Vector2> _uvs;
