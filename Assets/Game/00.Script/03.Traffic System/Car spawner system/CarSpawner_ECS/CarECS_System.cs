@@ -120,14 +120,13 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
     }
 
     
-    // [BurstCompile]
     public partial struct ParkingJob : IJobEntity
     {
         [ReadOnly] public PhysicsWorldSingleton PhysicsWorld;
         [ReadOnly] public float DeltaTime;
         public void Execute(ref ParkingData parkingData, in State state, ref Speed speedStats, ref LocalTransform localTransform, in StopDistance stopDistance, in ColliderBound colliderBound )
         {
-            if (state.Value != CarState.Parking) return;
+            Debug.Log("Parking Job");
             ref BlobArray<ParkingWaypoint> waypoints = ref parkingData.WaypointsBlob.Value.Waypoints;
             float3 nextWaypoint = waypoints[parkingData.CurrentIndex].Value;
             float3 direction = math.normalize(nextWaypoint - localTransform.Position);
@@ -232,10 +231,11 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
         [ReadOnly] public PhysicsWorldSingleton PhysicsWorld;
         public void Execute(ref FollowPathData followPathData, ref State state, ref EnterExitPoint enterExitPoint, ref LocalTransform localTransform, ref Speed speedStat,in StopDistance stopDistance, in ColliderBound colliderBound)
         {
+            
             //Check state before execution
             if (!followPathData.WaypointsBlob.IsCreated || state.Value != CarState.FollowingPath) return;
-         
-            ref Unity.Entities.BlobArray<float3> waypoints = ref followPathData.WaypointsBlob.Value;
+            
+            ref BlobArray<float3> waypoints = ref followPathData.WaypointsBlob.Value;
             
             //Because this is a rounded path from start -> building -> start, that each waypoint has at least 1 in parallel
             int enterIndex = waypoints.Length / 2;

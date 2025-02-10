@@ -461,7 +461,7 @@ namespace Game._00.Script._03.Traffic_System.Building
                 {
                     blobBuilderArray[i] = new ParkingWaypoint { Value = waypoints[i] };
                 }
-
+                
                 BlobAssetReference<ParkingWaypointBlob> waypointsBlob = blobBuilder.CreateBlobAssetReference<ParkingWaypointBlob>(Allocator.Persistent);
 
                 ParkingData parkingData = new ParkingData
@@ -479,7 +479,6 @@ namespace Game._00.Script._03.Traffic_System.Building
             _parkingResquest.Dequeue();
         }
 
-        #region Test
          /// <summary>
          /// Get way points to direct the car to park following these rules:
          /// 1/ Always go from the right of a lane. If it is an outward lane, it = 1/4f Node radius (divided) Radius 2 lane, road. If it inward lane (lane close to building), it = 1/2 Node radius, 1 lane road
@@ -762,7 +761,7 @@ namespace Game._00.Script._03.Traffic_System.Building
                 };
             }
          }
-         
+       #if UNITY_EDITOR  
         private void PrintWaypoints(float3[] waypoints)
         {
             for (int i = 0; i < waypoints.Length; i++)
@@ -770,6 +769,7 @@ namespace Game._00.Script._03.Traffic_System.Building
                   DebugUtility.Log($"{i+1}. {waypoints[i]}", this.ToString());
             }
         }
+        #endif
         // private void OnDrawGizmos()
         // {
         //     if (_test_Waypoints != null && _test_Waypoints.Length > 0)
@@ -789,8 +789,5 @@ namespace Game._00.Script._03.Traffic_System.Building
         //         Gizmos.DrawSphere(_roadNode.WorldPosition, 0.05f);
         //     }
         // }
-
-        #endregion
-        
     }
 }

@@ -495,7 +495,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49fe3c293a25c4a709ec8b2499fe01b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  displayOnGizmos: 1
+  displayOnGizmos: 0
   walkableDisplay: 0
   drawableDisplay: 0
   UnwalkableMask:

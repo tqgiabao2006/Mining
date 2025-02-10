@@ -249,9 +249,6 @@ namespace Game._00.Script._02.Grid_setting
                     {
                         Gizmos.color = n.Walkable ? penaltyColor : Color.red;
 
-                    }else if (drawableDisplay)
-                    {
-                        Gizmos.color = n.CanDraw ? Color.white : Color.gray;
                     }
                     // Draw the gizmo cube at the node's position
                     Gizmos.DrawCube(n.WorldPosition, Vector2.one * (NodeDiameter -0.05f));
