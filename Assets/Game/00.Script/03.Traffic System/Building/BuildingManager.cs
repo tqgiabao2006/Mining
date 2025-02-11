@@ -46,21 +46,9 @@ namespace Game._00.Script._03.Traffic_System.Building
         public void CarSpawnInfoSetup()
         {
             _carSpawnInfos = new Dictionary<BuildingType, CarSpawnInfo>();
-            _carSpawnInfos.Add(BuildingType.Lung, new CarSpawnInfo()
-            {
-                Car = ObjectFlags.RedBlood,
-                Amount = 1,
-                DelayTime = 1f,
-            });
-            _carSpawnInfos.Add(BuildingType.Heart, new CarSpawnInfo()
-            {
-                Car = ObjectFlags.RedBlood,
-                Amount = 1,
-                DelayTime = 0.5f
-            });
             _carSpawnInfos.Add(BuildingType.NormalCell, new CarSpawnInfo()
             {
-                Car = ObjectFlags.BlueBlood,
+                Car = ObjectFlags.RedBlood,
                 Amount = 1,
                 DelayTime = 2f
             });

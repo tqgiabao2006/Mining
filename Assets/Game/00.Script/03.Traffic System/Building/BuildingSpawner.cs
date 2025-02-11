@@ -110,13 +110,7 @@ namespace Game._00.Script._03.Traffic_System.Building
             {
                 new BuildingInfo(BuildingType.NormalCell, 1, 0f),
                 new BuildingInfo(BuildingType.Heart, 1, 2f),
-            });
-            //Level 2:
-            _waveInfos[1] = new SpawningWaveInfo(1, 5, 10,new List<BuildingInfo>()
-            {
-                new BuildingInfo(BuildingType.Lung, 1, 0f),
-                new BuildingInfo(BuildingType.NormalCell, 1, 3f),
-                new BuildingInfo(BuildingType.Lung, 1, 4f)
+
             });
         }
         #endregion
