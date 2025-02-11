@@ -1176,6 +1176,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c986db57e726454f87291a69114065a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  debugPrefab: {fileID: 3149333464667473236, guid: 0dbab008e3dc94fa3bbf5ff8f052f953, type: 3}
+  displayWaypoints: 1
 --- !u!114 &496835285
 MonoBehaviour:
   m_ObjectHideFlags: 0

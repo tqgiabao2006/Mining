@@ -429,20 +429,23 @@ namespace Game._00.Script._03.Traffic_System.Building
         public void GetParkingRequest(Entity car)
         {
             _parkingResquest.Enqueue(car); 
-            //Check if is any slot available
+            // Check if any slot is available
             float3 parkingPos = float3.zero;
+            bool foundSlot = false;
+
             for (int i = 0; i < _parkingPos.Count; i++)
             {
                 if (_parkingPos[i].IsEmpty)
                 {
                     parkingPos = _parkingPos[i].Position;
+                    foundSlot = true;
                     break;
                 }
             }
-            
-            if (_entityManager.HasComponent<ParkingData>(car))
+
+            // Ensure the entity has ParkingData before modifying it
+            if (_entityManager.HasComponent<ParkingData>(car) && foundSlot)
             {
-                // Calculate waypoints as before
                 float3[] waypoints = GetParkingWaypoints(
                     _originBuildingNode.WorldPosition,
                     BuildingDirection,
@@ -461,7 +464,7 @@ namespace Game._00.Script._03.Traffic_System.Building
                 {
                     blobBuilderArray[i] = new ParkingWaypoint { Value = waypoints[i] };
                 }
-                
+
                 BlobAssetReference<ParkingWaypointBlob> waypointsBlob = blobBuilder.CreateBlobAssetReference<ParkingWaypointBlob>(Allocator.Persistent);
 
                 ParkingData parkingData = new ParkingData
@@ -472,12 +475,16 @@ namespace Game._00.Script._03.Traffic_System.Building
                 };
 
                 _entityManager.SetComponentData(car, parkingData);
-
                 blobBuilder.Dispose();
             }
-            
+            else
+            {
+                DebugUtility.LogWarning($"Parking request failed for entity {car}, no available slots or missing ParkingData.", this.name);
+            }
+
             _parkingResquest.Dequeue();
         }
+
 
          /// <summary>
          /// Get way points to direct the car to park following these rules:

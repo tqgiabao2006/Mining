@@ -39,7 +39,7 @@ namespace Game._00.Script._03.Traffic_System.Building
         private void InputOutputMapSetup()
         {
             _outputMap.Add(BuildingType.Lung, new List<BuildingType>() { BuildingType.NormalCell, BuildingType.Heart });
-            _outputMap.Add(BuildingType.Heart, new List<BuildingType>() { BuildingType.Lung, BuildingType.NormalCell });
+            _outputMap.Add(BuildingType.Heart, new List<BuildingType>() { });
             _outputMap.Add(BuildingType.NormalCell, new List<BuildingType>() { BuildingType.Heart });
         }
         

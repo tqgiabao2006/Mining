@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Game._00.Script._00.Manager;
 using Game._00.Script._03.Traffic_System.Road;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Game._00.Script._03.Traffic_System.PathFinding
 {
@@ -13,6 +14,9 @@ namespace Game._00.Script._03.Traffic_System.PathFinding
         private PathFinding _pathFinding;
         private bool _isProcessingPath;
         private PathRequest _currentRequest;
+
+        [SerializeField] public GameObject debugPrefab; 
+        [SerializeField] public bool displayWaypoints;
 
         private void Start()
         {
@@ -30,10 +34,15 @@ namespace Game._00.Script._03.Traffic_System.PathFinding
             if (waypoints != null && waypoints.Length > 0)
             {
                Vector3[] ellipseWaypoints = EllipsePath(waypoints, RoadManager.RoadWidth/ 4f);
+
+               if (displayWaypoints)
+               {
+                   DisplayPathWaypoints(ellipseWaypoints);
+               }
+               
                return ellipseWaypoints;
-
             }
-
+            
             return new Vector3[]{};
         }
 
@@ -101,6 +110,16 @@ namespace Game._00.Script._03.Traffic_System.PathFinding
             }
 
             return ellipsePathWaypoints.ToArray();
+            
+           
+        }
+        public void DisplayPathWaypoints(Vector3[] waypoints)
+        {
+            foreach (Vector3 p in waypoints) 
+            {
+                Instantiate(debugPrefab,p, Quaternion.identity);
+                   
+            }
         }
 
         public struct PathRequest
@@ -115,4 +134,5 @@ namespace Game._00.Script._03.Traffic_System.PathFinding
             }
         }
     }
+    
 }

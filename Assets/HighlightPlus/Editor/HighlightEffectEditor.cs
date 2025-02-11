@@ -741,7 +741,7 @@ namespace HighlightPlus {
 
 
                 if (!Application.isPlaying) {
-                    EditorGUILayout.HelpBox("Enter Play Mode to test this feature. In your code, call effect.HitFX() method to execute this hit effect.", MessageType.Info);
+                    EditorGUILayout.HelpBox("BigEnter Play Mode to test this feature. In your code, call effect.HitFX() method to execute this hit effect.", MessageType.Info);
                 }
                 else {
                     EditorGUI.indentLevel++;

@@ -66,7 +66,10 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
 
                 // Parking components
                 AddComponent(entity, new ParkingData { CurrentIndex = 0, HasPath = false });
-                AddComponent(entity, new EnterExitPoint());
+                AddComponent(entity, new EnterExitPoint()
+                {
+                    IsForward = true
+                });
                 AddComponent(entity, new IsParking());
                 AddComponent(entity, new ParkingLot());
 
@@ -121,10 +124,14 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
     /// </summary>
     public struct EnterExitPoint : IComponentData
     {
-        public float3 Enter;
+        public float3 BigEnter; //Enter large building
+        public float3 SmallEnter; //Enter back to small house
         public float3 Exit;
+        
         public int EnterIndex;
         public int ExitIndex;
+
+        public bool IsForward; //Check the direction is it entering or returning back
     }
 
     public struct IsParking : IComponentData
