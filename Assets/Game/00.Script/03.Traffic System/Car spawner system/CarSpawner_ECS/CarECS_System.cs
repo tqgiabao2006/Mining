@@ -222,34 +222,34 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
 
     }
     
-        [BurstCompile]
-        [CreateAfter(typeof(BuildPhysicsWorld))]
-        [UpdateAfter(typeof(PhysicsSimulationGroup))]
-        partial struct FollowPathSystem : ISystem
+    [BurstCompile]
+    [CreateAfter(typeof(BuildPhysicsWorld))]
+    [UpdateAfter(typeof(PhysicsSimulationGroup))]
+    partial struct FollowPathSystem : ISystem
+    {
+        public void OnCreate(ref SystemState state)
         {
-            public void OnCreate(ref SystemState state)
-            {
-                state.RequireForUpdate<PhysicsWorldSingleton>();
-                
-                state.RequireForUpdate<FollowPathData>();
-                state.RequireForUpdate<State>();
-                state.RequireForUpdate<EnterExitPoint>();
-                state.RequireForUpdate<LocalTransform>();
-                state.RequireForUpdate<Speed>();
-                state.RequireForUpdate<StopDistance>();
-                state.RequireForUpdate<ColliderBound>();
-            }
-
-            public void OnUpdate(ref SystemState state)
-            {
-                FollowPathJob followPathJob = new FollowPathJob
-                {
-                    DeltaTime = SystemAPI.Time.DeltaTime,
-                    PhysicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>(),
-                };
-                followPathJob.ScheduleParallel();
-            }
+            state.RequireForUpdate<PhysicsWorldSingleton>();
+            
+            state.RequireForUpdate<FollowPathData>();
+            state.RequireForUpdate<State>();
+            state.RequireForUpdate<EnterExitPoint>();
+            state.RequireForUpdate<LocalTransform>();
+            state.RequireForUpdate<Speed>();
+            state.RequireForUpdate<StopDistance>();
+            state.RequireForUpdate<ColliderBound>();
         }
+
+        public void OnUpdate(ref SystemState state)
+        {
+            FollowPathJob followPathJob = new FollowPathJob
+            {
+                DeltaTime = SystemAPI.Time.DeltaTime,
+                PhysicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>(),
+            };
+            followPathJob.ScheduleParallel();
+        }
+    }
 
         
     [BurstCompile]

@@ -49,7 +49,7 @@ namespace Game._00.Script._03.Traffic_System.Building
             _carSpawnInfos.Add(BuildingType.NormalCell, new CarSpawnInfo()
             {
                 Car = ObjectFlags.RedBlood,
-                Amount = 1,
+                Amount = 5,
                 DelayTime = 2f
             });
         }
