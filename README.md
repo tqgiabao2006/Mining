@@ -12,83 +12,87 @@
 
 ### 🎯 Key Features
 - 🏗 **Road System** – Design organic road networks like blood veins.  
-- 🤖 **AI-driven Pathfinding** – Uses **A* algorithm** for vehicle navigation.  
+- 🤖 **AI-driven Pathfinding** – Uses the **A* algorithm** for vehicle navigation.  
 - ⚙️ **Procedural Mesh Generation** – Dynamic road structures adapt to player design.  
 - 🔀 **Multi-threading with ECS** – Performance-optimized simulation.  
 ---
 
-### Details
-**1.🏗 Road Systems**
-- Grid class:
-  + This classed is given a vector 2 of a **map size** to calculate with a constant **node size**
-  + Main features: Store data of all current **Node**, return **Node** based on given vector2 position
-- Node class:
-  + Main property: vector2 Grid Position, bool IsWalkable, float Penalty (to calculate penalty lane), List<Node> Neighbors
-  + Main featurs: It stored in a Heap data structure to optimize path finding algorithm
+### 📌 Details
 
-![GridImage](https://github.com/tqgiabao2006/Blood-vein/raw/main/ReadMe/BloodVein_Grid.png)
+#### **1. 🏗 Road Systems**
+- **Grid Class:**
+  - This class is given a Vector2 of a **map size** to calculate with a constant **node size**.
+  - Main features: Stores data of all current **Nodes** and returns a **Node** based on the given Vector2 position.
+- **Node Class:**
+  - Main properties: `Vector2 Grid Position`, `bool IsWalkable`, `float Penalty` (for penalty lanes), `List<Node> Neighbors`.
+  - Stored in a **Heap** data structure to optimize the pathfinding algorithm.
 
-*Grid image, with red color indicating a unwalkable node*
+![Grid Image](https://github.com/tqgiabao2006/Blood-vein/raw/main/ReadMe/BloodVein_Grid.png)
 
-![HeapImage](https://github.com/tqgiabao2006/Blood-vein/raw/main/ReadMe/Heap.png)
+*Grid image, with red color indicating an unwalkable node.*
 
-*Heap interface to optimize path finding alorigthm*
+![Heap Image](https://github.com/tqgiabao2006/Blood-vein/raw/main/ReadMe/Heap.png)
+
+*Heap interface to optimize the pathfinding algorithm.*
  
 ---
-**2.🤖 A-Start Pathfinding Algorithm**
+
+#### **2. 🤖 A* Pathfinding Algorithm**
 A* (A-Star) is a widely used **graph traversal and pathfinding algorithm** that finds the **shortest path** from a starting point to a target.
 
 **✨ How It Works**
-A* combines:  
-- **G(n)** → The actual cost from the start node to the current node.  
-- **H(n)** → The estimated cost (heuristic) from the current node to the goal.  
-- **F(n) = G(n) + H(n)** → The total estimated cost of the path.  
+A* combines:
+- **G(n)** → The actual cost from the start node to the current node.
+- **H(n)** → The estimated cost (heuristic) from the current node to the goal.
+- **F(n) = G(n) + H(n)** → The total estimated cost of the path.
 
 The algorithm **prioritizes nodes with the lowest `F(n)`**, ensuring an optimal and efficient path.  
 
-**🕹 Application in Blood Vein** 
-In **Minging**, A* is used for **vehicle movement and network optimization**, allowing mining cars to navigate through the road system efficiently.  
+**🕹 Application in Blood Vein**  
+In **Mining**, A* is used for **vehicle movement and network optimization**, allowing mining cars to navigate efficiently.
 
 **📌 Why A***  
 ✔ **Optimal & Efficient** – Finds the shortest path with minimal cost.  
 ✔ **Heuristic-Based** – Can be tuned for different movement styles.  
 ✔ **Scalable** – Works for both simple grids and complex road networks.  
-✔ **Realistic and Random** - Can be easily editted with some random mistake to make it realistic
-
----
-**3. ⚙️ Procedural Mesh Generation**
-- **Road Mesh**:
-  + Pre-calculate 4 standard types of shape with different angles between : 180 degree (Continuous road), 135 degree, 90 degree (Corner road), 45 degree
-  + Use enum **Direction** assigned with bitwise interger to merge direction. Iterate through node's neighbor list, and calculate direction between them to get all directions
-  + Then, calculate number of standard shape to use, then rotate them to wanted shape
-
-![BitwiseDirection](https://github.com/tqgiabao2006/Blood-vein/raw/main/ReadMe/Enum%20Direction.png)
-
-![GetBakedDirections](https://github.com/tqgiabao2006/Blood-vein/raw/main/ReadMe/Get%20direction.png)
-
-  + Finally, use polar coordinate to create a smooth curve in sharp angle
-
-![CurveMesh](https://github.com/tqgiabao2006/Blood-vein/raw/main/ReadMe/Smooth%20curve.png)
-
-- **Parking lot Mesh**:
-  + Create a rounded rectangle based on building's size and direction around the building
+✔ **Realistic and Random** – Can be modified with random variations to create more realistic behavior.  
 
 ---
 
-**4. 🔀Multi-threading with ECS**
+#### **3. ⚙️ Procedural Mesh Generation**
+- **Road Mesh:**
+  - Pre-calculates four standard shape types with different angles: 180° (continuous road), 135°, 90° (corner road), and 45°.
+  - Uses an enum **Direction**, assigned with bitwise integers to merge directions. Iterates through a node's neighbor list and calculates the direction between them.
+  - Determines the number of standard shapes required, then rotates them accordingly.
+
+![Bitwise Direction](https://github.com/tqgiabao2006/Blood-vein/raw/main/ReadMe/Enum%20Direction.png)
+
+![Get Baked Directions](https://github.com/tqgiabao2006/Blood-vein/raw/main/ReadMe/Get%20direction.png)
+
+  - Finally, uses polar coordinates to create smooth curves at sharp angles.
+
+![Curve Mesh](https://github.com/tqgiabao2006/Blood-vein/raw/main/ReadMe/Smooth%20curve.png)
+
+- **Parking Lot Mesh:**
+  - Creates a rounded rectangle based on the building's size and direction.
+
+---
+
+#### **4. 🔀 Multi-threading with ECS**
 - **Why Use It?**
-  + **Performance**: With the growing complexity of Mining, I needed a way to handle large amounts of AI-driven entities (mining cars, roads) and data efficiently.
-  + **Scalability**: The game simulates a complex environment, and I needed to ensure smooth performance even as the complexity grows over time.
-  + **Multithreading**: To avoid performance bottlenecks in critical operations like pathfinding and vehicle movement.
-- **How It Was Applied**
-- **ECS (Entity Component System)**: I used ECS to decouple game data (position, speed, etc.) from logic, allowing for better memory use and faster CPU processing.
-- **Multithreading**: **Multithreading** was implemented to distribute intensive tasks (like pathfinding and vehicle moving updates) across multiple CPU cores, speeding up processing, maintain over **1000 FPS+** even with **1000 cars**
-- **Burst Compiler**: Applied **Burst** to optimize performance-critical code (pathfinding and vehicle movement), resulting in highly efficient execution at runtime.
+  - **Performance**: Needed to handle large amounts of AI-driven entities (mining cars, roads) efficiently.
+  - **Scalability**: Ensures smooth performance as complexity grows.
+  - **Multithreading**: Avoids performance bottlenecks in pathfinding and vehicle movement.
+
+- **How It Was Applied:**
+  - **ECS (Entity Component System)**: Decouples game data (position, speed, etc.) from logic, improving memory usage and CPU performance.
+  - **Multithreading**: Distributes intensive tasks across multiple CPU cores, maintaining **1000+ FPS** even with **1000 cars**.
+  - **Burst Compiler**: Optimizes performance-critical code, improving runtime execution efficiency.
 
 ### **Drawbacks**
-- **Imperfect**: Despite being powerful, it has some limit, espcially coming with complicated logic with uncertainty data (user-defined data type that change unpredictaly )like spawning buildings. This process requires the involvement of mutliples clases with data may be changed by player (Calculate remaining roads to make sure player can at least create a connection between recently-built houses and others)
-- **Complexity**: DOTS requires a different way of thinking about game architecture, which increases the complexity of development. I have been stuck for 2 weeks for the moving mechanics of cars.
-- **Debugging**: Multithreading and asynchronous tasks can make debugging more challenging, as race conditions and thread synchronization issues may arise.
+- **Complexity**: DOTS requires a new approach to game architecture, increasing development difficulty.
+- **Debugging Challenges**: Multithreading introduces race conditions and synchronization issues.
+- **Imperfect for Uncertain Data**: User-defined data types that change unpredictably can cause issues in road calculations and building placement.
 
 ![ECS](https://github.com/tqgiabao2006/Blood-vein/raw/main/ReadMe/ECS.png)
 
@@ -112,7 +116,7 @@ In **Minging**, A* is used for **vehicle movement and network optimization**, al
 
 ---
 
-## 🎮 Current status  
+## 🎮 Current Status  
 📦 **Developing**
 
 ---
@@ -121,16 +125,17 @@ In **Minging**, A* is used for **vehicle movement and network optimization**, al
 🔹 **[ ] Multiplayer Mode** – Co-op city building.  
 🔹 **[ ] Improved AI Steering** – Smarter vehicle movement.  
 🔹 **[ ] Procedural Environment** – Dynamic terrain growth.  
-🔹 **[ ] Turn to 3D Persepctive Game**  
+🔹 **[ ] Transition to 3D Perspective**  
 
 ---
 
 ## 🏆 Contributors & Credits  
 👨‍💻 **Ben** (*Mad Scientist of Game Lab*) – Solo Developer  
 🎵 **Music & SFX:** Open-source / Custom Compositions  
-📖 **Special Thanks:** [Unity VietNam Community]  
+📖 **Special Thanks:** [Unity Vietnam Community], and Senior Game Artist Tung Anh as an advisor  
+
 ---
 
 ## ⭐ Support & Feedback  
-💬 **Have feedback?** Open an [issue](https://github.com/tqgiabao2006/blood-vein/issues) or connect on [Twitter](https://twitter.com/yourhandle).  
+💬 **Have feedback?** Open an [issue](https://github.com/tqgiabao2006/blood-vein/issues) or contact me via email: tqgiabao2006@gmail.com.  
 🎮 **Follow my journey:** [🔗 Portfolio](https://your-portfolio-link.com)  
