@@ -6,16 +6,19 @@
 ---
 
 ## 🚀 Game Overview  
-*Blood Vein* is a **resource management simulation** where you design a **vascular network** to efficiently distribute mining cars underwater. With **Game AI, multi-threading, and procedural generation**, experience the challenge of optimizing pathways using **A* pathfinding and ECS-based logic**.
+*Blood Vein* is a **resource management simulation** where you design a **traffic network** to efficiently distribute mining cars underwater. With **Game AI, multi-threading, and procedural generation**, experience the challenge of optimizing pathways using **A* pathfinding and ECS-based logic**.
 
 ### 🎯 Key Features
-- 🏗 **Vascular Road System** – Design organic road networks like blood veins.  
+- 🏗 **Road System** – Design organic road networks like blood veins.
 - 🤖 **AI-driven Pathfinding** – Uses **A* algorithm** for vehicle navigation.  
 - ⚙️ **Procedural Mesh Generation** – Dynamic road structures adapt to player design.  
 - 🔀 **Multi-threading with ECS** – Performance-optimized simulation.  
-- 🎨 **Stylized Visuals** – Unique underwater city aesthetic.  
 
 ---
+
+### Details
+- **Road System**
+  
 
 ## 🖼 Screenshots  
 | ![Screenshot1](https://your-image-link.com) | ![Screenshot2](https://your-image-link.com) |  
