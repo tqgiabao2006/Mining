@@ -58,7 +58,9 @@ In **Minging**, A* is used for **vehicle movement and network optimization**, al
   + Pre-calculate 4 standard types of shape with different angles between : 180 degree (Continuous road), 135 degree, 90 degree (Corner road), 45 degree
   + Use enum **Direction** assigned with bitwise interger to merge direction. Iterate through node's neighbor list, and calculate direction between them to get all directions
   + Then, calculate number of standard shape to use, then rotate them to wanted shape
+
 ![BitwiseDirection](https://your-image-link.com)
+
 ![GetBakedDirections](https://your-image-link.com)
 
   + Finally, use polar coordinate to create a smooth curve in sharp angle
@@ -83,7 +85,7 @@ In **Minging**, A* is used for **vehicle movement and network optimization**, al
 - **Imperfect**: Despite being powerful, it has some limit, espcially coming with complicated logic with uncertainty data (user-defined data type that change unpredictaly )like spawning buildings. This process requires the involvement of mutliples clases with data may be changed by player (Calculate remaining roads to make sure player can at least create a connection between recently-built houses and others)
 - **Complexity**: DOTS requires a different way of thinking about game architecture, which increases the complexity of development. I have been stuck for 2 weeks for the moving mechanics of cars.
 - **Debugging**: Multithreading and asynchronous tasks can make debugging more challenging, as race conditions and thread synchronization issues may arise.
- 
+
 ![ECS](https://your-image-link.com)
 
 ---
