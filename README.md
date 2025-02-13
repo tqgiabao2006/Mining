@@ -1,10 +1,7 @@
-# 🎮 Blood Vein - *A Vascular-Inspired Mining City Builder*
-
-![Game Banner](https://your-image-link.com)
-
+# Mining - *A Mining City Builder*
+![Blood Vein Logo](https://github.com/tqgiabao2006/Blood-vein/blob/main/ReadMe/MiningLogo.png?raw=true)
 [![Unity](https://img.shields.io/badge/Made_with-Unity-000?logo=unity&style=for-the-badge)](https://unity.com/)  
-[![License](https://img.shields.io/github/license/yourname/blood-vein?style=for-the-badge)](LICENSE)  
-[![GitHub Repo](https://img.shields.io/badge/View_on-GitHub-blue?style=for-the-badge&logo=github)](https://github.com/yourname/blood-vein)
+🔗 **GitHub Repo:** [Blood Vein](https://github.com/tqgiabao2006/Blood-vein)
 
 ---
 
