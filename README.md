@@ -97,6 +97,12 @@ In **Mining**, A* is used for **vehicle movement and network optimization**, all
 ![ECS](https://github.com/tqgiabao2006/Blood-vein/raw/main/ReadMe/ECS.png)
 
 ---
+## 🎥 Demo Gameplay Video
+<video width="640" height="360" autoplay controls>
+  <source src="https://github.com/tqgiabao2006/Blood-vein/raw/main/ReadMe/BloodVein_GamePlay.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+---
 
 ## 🛠 Tech Stack  
 | **Technology**   | **Usage**  |  
