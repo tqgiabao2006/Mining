@@ -3,7 +3,7 @@
 ![Blood Vein Logo](https://github.com/tqgiabao2006/Blood-vein/blob/main/ReadMe/MiningLogo.png?raw=true)
 
 [![Unity](https://img.shields.io/badge/Made_with-Unity-000?logo=unity&style=for-the-badge)](https://unity.com/)  
-[![GitHub Repo](https://img.shields.io/badge/View_on-GitHub-blue?style=for-the-badge&logo=github)]((https://github.com/tqgiabao2006/Blood-vein))
+[![GitHub Repo](https://img.shields.io/badge/View_on-GitHub-blue?style=for-the-badge&logo=github)](https://github.com/tqgiabao2006/Blood-vein)
 
 ---
 
@@ -25,11 +25,12 @@
 - Node class:
   + Main property: vector2 Grid Position, bool IsWalkable, float Penalty (to calculate penalty lane), List<Node> Neighbors
   + Main featurs: It stored in a Heap data structure to optimize path finding algorithm
-![GridImage]()
+
+![GridImage](https://github.com/tqgiabao2006/Blood-vein/raw/main/ReadMe/BloodVein_Grid.png)
 
 *Grid image, with red color indicating a unwalkable node*
 
-![HeapImage]()
+![HeapImage](https://github.com/tqgiabao2006/Blood-vein/raw/main/ReadMe/Heap.png)
 
 *Heap interface to optimize path finding alorigthm*
  
@@ -59,13 +60,13 @@ In **Minging**, A* is used for **vehicle movement and network optimization**, al
   + Use enum **Direction** assigned with bitwise interger to merge direction. Iterate through node's neighbor list, and calculate direction between them to get all directions
   + Then, calculate number of standard shape to use, then rotate them to wanted shape
 
-![BitwiseDirection](https://your-image-link.com)
+![BitwiseDirection](https://github.com/tqgiabao2006/Blood-vein/raw/main/ReadMe/Enum%20Direction.png)
 
-![GetBakedDirections](https://your-image-link.com)
+![GetBakedDirections](https://github.com/tqgiabao2006/Blood-vein/raw/main/ReadMe/Get%20direction.png)
 
   + Finally, use polar coordinate to create a smooth curve in sharp angle
 
-![CurveMesh](https://your-image-link.com)
+![CurveMesh](https://github.com/tqgiabao2006/Blood-vein/raw/main/ReadMe/Smooth%20curve.png)
 
 - **Parking lot Mesh**:
   + Create a rounded rectangle based on building's size and direction around the building
@@ -86,7 +87,7 @@ In **Minging**, A* is used for **vehicle movement and network optimization**, al
 - **Complexity**: DOTS requires a different way of thinking about game architecture, which increases the complexity of development. I have been stuck for 2 weeks for the moving mechanics of cars.
 - **Debugging**: Multithreading and asynchronous tasks can make debugging more challenging, as race conditions and thread synchronization issues may arise.
 
-![ECS](https://your-image-link.com)
+![ECS](https://github.com/tqgiabao2006/Blood-vein/raw/main/ReadMe/ECS.png)
 
 ---
 
