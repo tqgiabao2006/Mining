@@ -18,7 +18,7 @@
 ---
 
 ### Details
-1.🏗 **Road Systems**
+**1.🏗 Road Systems**
 - Grid class:
   + This classed is given a vector 2 of a **map size** to calculate with a constant **node size**
   + Main features: Store data of all current **Node**, return **Node** based on given vector2 position
@@ -34,7 +34,8 @@
 
 *Heap interface to optimize path finding alorigthm*
  
-2.🤖 **A-Start Pathfinding Algorithm**
+---
+**2.🤖 A-Start Pathfinding Algorithm**
 A* (A-Star) is a widely used **graph traversal and pathfinding algorithm** that finds the **shortest path** from a starting point to a target.
 
 **✨ How It Works**
@@ -54,7 +55,8 @@ In **Minging**, A* is used for **vehicle movement and network optimization**, al
 ✔ **Scalable** – Works for both simple grids and complex road networks.  
 ✔ **Realistic and Random** - Can be easily editted with some random mistake to make it realistic
 
-3. ⚙️ **Procedural Mesh Generation**
+---
+**3. ⚙️ Procedural Mesh Generation**
 - **Road Mesh**:
   + Pre-calculate 4 standard types of shape with different angles between : 180 degree (Continuous road), 135 degree, 90 degree (Corner road), 45 degree
   + Use enum **Direction** assigned with bitwise interger to merge direction. Iterate through node's neighbor list, and calculate direction between them to get all directions
@@ -71,8 +73,9 @@ In **Minging**, A* is used for **vehicle movement and network optimization**, al
 - **Parking lot Mesh**:
   + Create a rounded rectangle based on building's size and direction around the building
 
+---
 
-4. 🔀**Multi-threading with ECS**
+**4. 🔀Multi-threading with ECS**
 - **Why Use It?**
   + **Performance**: With the growing complexity of Mining, I needed a way to handle large amounts of AI-driven entities (mining cars, roads) and data efficiently.
   + **Scalability**: The game simulates a complex environment, and I needed to ensure smooth performance even as the complexity grows over time.
@@ -118,6 +121,7 @@ In **Minging**, A* is used for **vehicle movement and network optimization**, al
 🔹 **[ ] Multiplayer Mode** – Co-op city building.  
 🔹 **[ ] Improved AI Steering** – Smarter vehicle movement.  
 🔹 **[ ] Procedural Environment** – Dynamic terrain growth.  
+🔹 **[ ] Turn to 3D Persepctive Game**  
 
 ---
 
