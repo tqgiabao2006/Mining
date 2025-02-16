@@ -5,6 +5,7 @@ using Game._00.Script._03.Traffic_System.Building;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Physics;
 using Unity.Physics.Systems;
@@ -52,16 +53,14 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
             var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>();
             float deltaTime = SystemAPI.Time.DeltaTime;
 
-            foreach ((CarAspect car, Entity entity) in SystemAPI.Query<CarAspect>().WithEntityAccess())
+      
+            JobHandle parkingJobHandle = new ParkingJob
             {
-                if (car.State.ValueRO.Value != CarState.Parking) continue;
-                ParkingJob parkingJob = new ParkingJob
-                {
-                    DeltaTime = deltaTime,
-                    PhysicsWorld = physicsWorld,
-                };
-                parkingJob.ScheduleParallel();
-            }
+                DeltaTime = deltaTime,
+                PhysicsWorld = physicsWorld,
+            }.ScheduleParallel(state.Dependency); // Assign previous dependency
+
+            state.Dependency = parkingJobHandle; // Ensure proper job completion before next update
         }
     }
     
@@ -95,9 +94,10 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
         public void OnUpdate(ref SystemState state)
         {
             _entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+            
+            state.Dependency.Complete();
             foreach ((CarAspect car, Entity entity) in SystemAPI.Query<CarAspect>().WithEntityAccess())
             {
-                
                 if (car.State.ValueRO.Value == CarState.FollowingPath && 
                     (math.distance(car.LocalTransform.ValueRO.Position, car.EnterExitPoint.ValueRO.BigEnter) <= 0.05f && car.EnterExitPoint.ValueRO.IsForward) //If reach enter large, enter small
                      || (math.distance(car.LocalTransform.ValueRO.Position, car.EnterExitPoint.ValueRO.SmallEnter) <= 0.05f && !car.EnterExitPoint.ValueRO.IsForward))
@@ -347,8 +347,6 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                         followPathData.CurrentIndex++;
                     }
                 }
-                
-                Debug.Log(followPathData.CurrentIndex);
             }
         }
     }

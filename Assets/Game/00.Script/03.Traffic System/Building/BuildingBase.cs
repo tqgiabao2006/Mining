@@ -57,10 +57,17 @@ namespace Game._00.Script._03.Traffic_System.Building
         public List<Node> ParkingNodes
         {
             get {return _parkingNodes;}  
+            set {_parkingNodes = value;}
         }
 
-        private List<ParkingLot> _parkingPos;
+        public List<ParkingLot> ParkingPos; //Parking lots positions
+        
         private float3 _centerPos;
+
+        public float3 CenterPos
+        {
+            set { _centerPos = value; }
+        }
         public Node OriginBuildingNode
         {
             get { return _originBuildingNode; }
@@ -68,7 +75,8 @@ namespace Game._00.Script._03.Traffic_System.Building
         private Node _roadNode;
         public Node RoadNode
         {
-            get{return _roadNode;}
+          get { return _roadNode; }
+          set { _roadNode = value; }
         }
 
         public Vector2 WorldPosition
@@ -98,20 +106,8 @@ namespace Game._00.Script._03.Traffic_System.Building
             this._originBuildingNode = GridManager.NodeFromWorldPosition(worldPosition);
 
             _parkingNodes = new List<Node>();
-            _parkingPos = new List<ParkingLot>();
-
-            BuildingDirection[] directions = new[]
-                { BuildingDirection.Down, BuildingDirection.Up, BuildingDirection.Left, BuildingDirection.Right };
-            int randomIndex = Random.Range(1, directions.Length);
-            BuildingDirection = directions[randomIndex];
+            ParkingPos = new List<ParkingLot>();
             
-            //This has to be called first to set up for the next function, save parking nodes to set adj list to road nodes later
-            SetBuildingAndInsideRoads(node, size, BuildingDirection);
-            // Invoke("DeactivateBuilding", LifeTime);
-            SpawnRoad(node, size, BuildingDirection, randomIndex);
-            
-            SetParkingPos(_originBuildingNode.WorldPosition, BuildingDirection, size);
-
             //After finish initialize parking lots, initlize bool[] to track if the parking lot is available
             _parkingResquest = new Queue<Entity>();
             
@@ -121,303 +117,7 @@ namespace Game._00.Script._03.Traffic_System.Building
         {
             this.gameObject.SetActive(false);
         }
-
-        /// <summary>
-        /// Set building (unWalkable, not empty node), based on size and buildingDirection.
-        /// BitwiseDirection = right => building on left, road on right.
-        /// Directions are limited to [Up, Down, Left, Right].
-        /// </summary>
-        /// <param name="originalBuildingNode"></param>
-        /// <param name="parkingLotSize"></param>
-        /// <param name="buildingDirection"></param>
-        private void SetBuildingAndInsideRoads(Node originalBuildingNode, ParkingLotSize parkingLotSize, BuildingDirection buildingDirection)
-        {
-            Vector2 position = originalBuildingNode.WorldPosition;
-            float nodeDiameter = GridManager.NodeDiameter;
-
-            (List<Vector2>, List<Vector2>) GetBuildingWalkableOffsets(ParkingLotSize size, BuildingDirection dir)
-            {
-                List<Vector2> buildingOffsets = new();
-                List<Vector2> walkableOffsets = new();
-                
-                if (size == ParkingLotSize._1x1)
-                {
-                    buildingOffsets.Add(Vector2.zero); // Single node for 1x1
-                   walkableOffsets.Add(Vector2.zero);
-                }
-                else if (size == ParkingLotSize._2x2)
-                {
-                    if (dir == BuildingDirection.Up || dir == BuildingDirection.Down) //Basically, the second building node spawned on the left of original node
-                    {
-                        float directionMultiplier = dir == BuildingDirection.Up ? 1 : -1;
-                        buildingOffsets.AddRange(new[] { Vector2.zero, new Vector2(-nodeDiameter, 0) });
-                        walkableOffsets.AddRange( new[] {new Vector2(-nodeDiameter, nodeDiameter * directionMultiplier), new Vector2(0, nodeDiameter * directionMultiplier)});
-                    }
-                    else // Left or Right
-                    {
-                        float directionMultiplier = dir == BuildingDirection.Right ? 1 : -1; //Basically, the second building node spawned on the top of original node
-                        buildingOffsets.AddRange(new[] { Vector2.zero, new Vector2(0, nodeDiameter) });
-                        walkableOffsets.AddRange( new[] {new Vector2(nodeDiameter * directionMultiplier, nodeDiameter), new Vector2(nodeDiameter * directionMultiplier, 0)});
-                    }
-                }
-                else if (size == ParkingLotSize._2x3)
-                {
-                    if (dir == BuildingDirection.Up || dir == BuildingDirection.Down)
-                    {
-                        float directionMultiplier = dir == BuildingDirection.Up ? 1 : -1;
-                        buildingOffsets.AddRange(new[]
-                        {
-                            Vector2.zero,
-                            new Vector2(-nodeDiameter, 0),
-                            new Vector2(0, nodeDiameter * directionMultiplier),
-                            new Vector2(-nodeDiameter, nodeDiameter * directionMultiplier)
-                        });
-                        
-                        walkableOffsets.AddRange(new[]
-                        {
-                            new Vector2(0, nodeDiameter * directionMultiplier * 2),
-                            new Vector2(-nodeDiameter, nodeDiameter * directionMultiplier*2)
-                        });
-                    }
-                    else // Left or Right
-                    {
-                        float directionMultiplier = dir == BuildingDirection.Right ? 1 : -1;
-                        buildingOffsets.AddRange(new[]
-                        {
-                            Vector2.zero,
-                            new Vector2(nodeDiameter * directionMultiplier, 0),
-                            new Vector2(0, nodeDiameter),
-                            new Vector2(nodeDiameter * directionMultiplier, nodeDiameter)
-                        });
-                        walkableOffsets.AddRange(new[]
-                        {
-                            new Vector2(nodeDiameter * directionMultiplier * 2 , 0),
-                            new Vector2(nodeDiameter * directionMultiplier * 2, nodeDiameter)
-                        });
-                    }
-                }
-                return (buildingOffsets, walkableOffsets);
-            }
-
-            // Iterate through calculated offsets and apply building settings
-            List<Vector2> buildingOffsets = GetBuildingWalkableOffsets(parkingLotSize, buildingDirection).Item1;
-            foreach (Vector2 offset in buildingOffsets)
-            {
-                Node buildingNode = GridManager.NodeFromWorldPosition(position + offset);
-                buildingNode.SetBuilding(true);
-                buildingNode.SetWalkable(false);
-                _parkingMesh.PlaceBuildingMesh(originalBuildingNode, parkingLotSize, buildingDirection);
-            }
-            
-            List<Vector2> walkableOffsets = GetBuildingWalkableOffsets(parkingLotSize, buildingDirection).Item2;
-            foreach (Vector2 offset in walkableOffsets)
-            {
-                //Set this like a road with RoadManager, set but not create mesh
-                Node insideRoadNode = GridManager.NodeFromWorldPosition(position + offset);
-               
-                _parkingNodes.Add(insideRoadNode);
-                insideRoadNode.SetBelongedBuilding(this.gameObject);
-                
-                insideRoadNode.SetEmpty(false);
-                insideRoadNode.SetWalkable(true);
-
-                //Because the 1x1 single house, the car can go inside the house
-                if (parkingLotSize != ParkingLotSize._1x1)
-                {
-                    insideRoadNode.SetDrawable(false);
-                }
-                _roadManager.PlaceNode(insideRoadNode);
-            }
-
-            _roadManager.PlaceNode(originalBuildingNode);
-            _parkingMesh.PlaceBuildingMesh(originalBuildingNode, parkingLotSize, buildingDirection );
-        }
         
-        /// <summary>
-        /// Spawns a road node based on the parking lot size and buildingDirection.
-        /// </summary>
-        /// <param name="buildingNode"></param>
-        /// <param name="parkingLotSize"></param>
-        /// <param name="buildingDirection"></param>
-        /// <param name="roadRngIndex"> [0,3] </param>
-        private void SpawnRoad(Node buildingNode, ParkingLotSize parkingLotSize, BuildingDirection buildingDirection, int roadRngIndex)
-        {
-            Vector2 position = buildingNode.WorldPosition;
-            float nodeDiameter = GridManager.NodeDiameter;
-            
-            // xMult, yMult must be positive, only useful when only change 1 offset, X or Y
-            Vector2 GetOffset(BuildingDirection direction, float xMult, float yMult)
-            {
-                return direction switch
-                {
-                    BuildingDirection.Up => new Vector2(0, yMult * nodeDiameter),
-                    BuildingDirection.Down => new Vector2(0, -yMult * nodeDiameter),
-                    BuildingDirection.Right => new Vector2(xMult * nodeDiameter, 0),
-                    BuildingDirection.Left => new Vector2(-xMult * nodeDiameter, 0),
-                    _ => new Vector2(0, 0)
-                };
-            }
-            
-            if (parkingLotSize == ParkingLotSize._1x1)
-            {
-                Vector2 offset = GetOffset(buildingDirection, 1, 1); // Same multiplier for _1x1
-                Node roadNode = GridManager.NodeFromWorldPosition(position + offset);
-
-                _roadNode = roadNode;
-                _roadNode.SetBelongedBuilding(this.gameObject);
-                
-                _roadManager.PlaceNode(roadNode);
-                _roadManager.SetAdjList(roadNode, buildingNode);
-                _roadManager.CreateMesh(roadNode);
-            }
-            else if (parkingLotSize == ParkingLotSize._2x2 || parkingLotSize == ParkingLotSize._2x3)
-            {
-                float maxMultipler = parkingLotSize == ParkingLotSize._2x2 ? 2 : 3; //Multiply with node Diameter
-
-                Vector2[] offsets;
-                // Define possible offsets for _2x2 based on random ranges
-                if( buildingDirection == BuildingDirection.Up || buildingDirection == BuildingDirection.Down)
-                {
-                    float directionMultipler = buildingDirection ==BuildingDirection.Up ? 1 : -1;
-                    offsets = new[]
-                    {
-                        new Vector2(nodeDiameter, nodeDiameter * (maxMultipler -1) * directionMultipler),
-                        new Vector2(0, nodeDiameter * directionMultipler * maxMultipler),
-                        new Vector2(- nodeDiameter, nodeDiameter * directionMultipler * maxMultipler),
-                        new Vector2(-2 * nodeDiameter, nodeDiameter * (maxMultipler -1) * directionMultipler)
-                    };
-                }else if (buildingDirection ==  BuildingDirection.Left || buildingDirection ==  BuildingDirection.Right)
-                {
-                    float directionMultipler = buildingDirection == BuildingDirection.Right ? 1 : -1;
-                   offsets = new[]
-                    {
-                        new Vector2(directionMultipler * nodeDiameter * (maxMultipler - 1), 2 * nodeDiameter),
-                        new Vector2(directionMultipler * nodeDiameter * maxMultipler, nodeDiameter),
-                        new Vector2(directionMultipler * nodeDiameter * maxMultipler, 0),
-                        new Vector2(directionMultipler * nodeDiameter * (maxMultipler - 1), -nodeDiameter),
-                    };
-
-                }
-                else
-                {
-                    offsets = new Vector2[] { };
-                }
-                
-                Vector2 chosenOffset = offsets[roadRngIndex];
-                Node roadNode = GridManager.NodeFromWorldPosition(position + chosenOffset);
-                
-                
-                //Get buildingDirection of a road;
-                BitwiseDirection GetRoadDirection(Node roadNode, List<Node> parkingNodes, BuildingDirection direction)
-                {
-                    float roadX = roadNode.WorldPosition.x;
-                    float roadY = roadNode.WorldPosition.y;
-
-                    float parking1X = _parkingNodes[0].WorldPosition.x;
-                    float parking2X = _parkingNodes[1].WorldPosition.x;
-                
-                    float parking1Y = _parkingNodes[0].WorldPosition.y;
-                    float parking2Y = _parkingNodes[1].WorldPosition.y;
-
-                    //Check perpendicular case
-                    if (Mathf.Approximately(roadX, parking1X)) //Left and right
-                    { 
-                        return (roadY > parking1Y && roadY > parking2Y) ? BitwiseDirection.Bottom : BitwiseDirection.Up;
-                    
-                    }
-                    if (Mathf.Approximately(roadY, parking2Y))
-                    {
-                        return (roadX > parking1X && roadX > parking2X) ? BitwiseDirection.Left : BitwiseDirection.Right;
-                    }
-                    
-                    //Check same buildingDirection case => return = buildingDirection
-                        
-                    return direction switch
-                    {
-                        BuildingDirection.Up => BitwiseDirection.Bottom,
-                        BuildingDirection.Down => BitwiseDirection.Up,
-                        BuildingDirection.Left => BitwiseDirection.Right,
-                        BuildingDirection.Right => BitwiseDirection.Left,
-                    };
-                }
-                _roadNode = roadNode;
-                _roadNode.SetBelongedBuilding(this.gameObject);
-                _roadManager.PlaceNode(roadNode);
-
-                //Get the closest node to the road node, set it to drawable to make it connect to the road node
-                float minDst = float.MaxValue;
-                Node closestNode = null;
-                foreach (Node parkingNode in _parkingNodes)
-                {
-                    _roadManager.SetAdjList(roadNode, parkingNode);
-                    float dst = Vector2.Distance(roadNode.WorldPosition, parkingNode.WorldPosition);
-                    if (dst < minDst)
-                    {
-                        minDst = dst;
-                        closestNode = parkingNode;
-                    }
-                }
-                
-                //Set closest walkable node to drawable
-                if (closestNode != null)
-                {
-                    closestNode.SetDrawable(true);
-                }
-                _roadManager.CreateMesh(roadNode, GetRoadDirection(roadNode, _parkingNodes, buildingDirection)); 
-             }
-           
-        }
-        
-        private void SetParkingPos(Vector2 originPos, BuildingDirection direction, ParkingLotSize size)
-        {
-
-            if (size == ParkingLotSize._1x1)
-            {
-                float3 center = new float3(originPos.x, originPos.y, 0);
-                ParkingLot centerLot = new ParkingLot(center, true);
-                _centerPos = center;
-                _parkingPos.Add(centerLot);
-                
-            }
-            else if(size == ParkingLotSize._2x2 || size == ParkingLotSize._2x3)
-            {
-                float sizeMultipler = size == ParkingLotSize._2x2 ? 1 : 2;
-                float nodeRadius = GridManager.NodeRadius;
-                float nodeDiameter = GridManager.NodeDiameter;
-
-                if (direction == BuildingDirection.Up || direction == BuildingDirection.Down)
-                {
-                    float directionMultipler = direction == BuildingDirection.Up ? 1 : -1;
-                    float3 center = new float3(originPos.x - nodeRadius,
-                        originPos.y + directionMultipler * sizeMultipler * nodeDiameter, 0);
-                    float3 right = new float3(center.x + nodeRadius, center.y, 0);
-                    float3 left = new float3(center.x - nodeRadius, center.y, 0);
-
-                    ParkingLot centerLot = new ParkingLot(center, true);
-                    ParkingLot rightLot = new ParkingLot(right, true);
-                    ParkingLot leftLot = new ParkingLot(left, true);
-
-                    _centerPos = center;
-                    _parkingPos.AddRange(new[] { leftLot, centerLot, rightLot });
-                }
-                else if (direction == BuildingDirection.Left || direction == BuildingDirection.Right)
-                {
-                    float directionMultipler = direction == BuildingDirection.Right ? 1 : -1;
-                    float3 center = new float3(originPos.x + directionMultipler * sizeMultipler * nodeDiameter,
-                        originPos.y + nodeRadius, 0);
-                    float3 top = new float3(center.x, center.y + nodeRadius, 0);
-                    float3 bot = new float3(center.x, center.y - nodeRadius, 0);
-
-                    ParkingLot centerLot = new ParkingLot(center, true);
-                    ParkingLot topLot = new ParkingLot(top, true);
-                    ParkingLot botLot = new ParkingLot(bot, true);
-
-                    _centerPos = center;
-                    _parkingPos.AddRange(new[] { topLot, centerLot, botLot });
-                }
-            }
-        }
-            
         /// <summary>
         /// Recieve a parking request, if available, create waypoints in parking lot
         /// 2x1 parking node is divided by 4 |/ / / /|, number of parking lots = 3,
@@ -433,11 +133,11 @@ namespace Game._00.Script._03.Traffic_System.Building
             float3 parkingPos = float3.zero;
             bool foundSlot = false;
 
-            for (int i = 0; i < _parkingPos.Count; i++)
+            for (int i = 0; i < ParkingPos.Count; i++)
             {
-                if (_parkingPos[i].IsEmpty)
+                if (ParkingPos[i].IsEmpty)
                 {
-                    parkingPos = _parkingPos[i].Position;
+                    parkingPos = ParkingPos[i].Position;
                     foundSlot = true;
                     break;
                 }
@@ -731,7 +431,6 @@ namespace Game._00.Script._03.Traffic_System.Building
                     _ => (float3.zero, float3.zero)
                 };
 
-
             }
             
             (float3, float3) GetInOutCorner(Vector2 roadPos, Vector2 roadDirection)
@@ -777,24 +476,24 @@ namespace Game._00.Script._03.Traffic_System.Building
             }
         }
         #endif
-        // private void OnDrawGizmos()
-        // {
-        //     if (_test_Waypoints != null && _test_Waypoints.Length > 0)
-        //     {
-        //         Gizmos.color = Color.red;
-        //         for (int i = 0; i < _test_Waypoints.Length-1; i++)
-        //         {
-        //             GizmXos.DrawLine(_test_Waypoints[i], _test_Waypoints[i+1]);
-        //         }
-        //         
-        //         Gizmos.color = Color.yellow;
-        //         foreach (var waypoint in _test_Waypoints)
-        //         {
-        //             Gizmos.DrawSphere(waypoint, 0.05f);
-        //         }
-        //         
-        //         Gizmos.DrawSphere(_roadNode.WorldPosition, 0.05f);
-        //     }
-        // }
+        private void OnDrawGizmos()
+        {
+            if (ParkingNodes.Count > 0 && _originBuildingNode != null)
+            {
+                Gizmos.color = Color.yellow;
+                foreach (var waypoint in ParkingNodes)
+                {
+                    Gizmos.DrawWireSphere(waypoint.WorldPosition, 0.5f);
+                }
+                
+                Gizmos.color = Color.green;
+                Gizmos.DrawWireSphere(_roadNode.WorldPosition, 0.5f);
+                
+                Gizmos.color = Color.red;
+                Gizmos.DrawWireSphere(_originBuildingNode.WorldPosition, 0.5f);
+            }
+        }
     }
+    
+    
 }

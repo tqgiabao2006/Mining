@@ -34,8 +34,10 @@ namespace Game._00.Script._02.Grid_setting
 	
 		int heapIndex;
 
-		private bool _isEmpty; //Used to avoid spawning road in buildings, parking lots, or other roads
-		public bool IsEmpty {get {return _isEmpty;}}
+		public bool IsEmpty
+		{
+			get { return !_isBuilding && !_isRoad; }
+		}
 	
 		private bool _isRoad;
 
@@ -74,33 +76,19 @@ namespace Game._00.Script._02.Grid_setting
 			this.MovementPenalty = penalty;
 			this._graphIndex = -1;
 			this.GridManager = gridManager;
-			this._isEmpty = true;
-
 			_canDraw = true;
 		}
 
 		public void SetRoad(bool isRoad)
 		{
 			_isRoad = isRoad;
-			if (isRoad)
-			{
-				_isEmpty = false;
-			}
 			_walkable = isRoad;
 		}
 
-		public void SetEmpty(bool isEmpty)
-		{
-			_isEmpty = isEmpty;
-		}
 
 		public void SetBuilding(bool isBuilding)
 		{
 			_isBuilding = isBuilding;
-			if (isBuilding)
-			{
-				_isEmpty = false;
-			}
 		}
 
 		public void SetDrawable(bool isDrawable)
