@@ -802,52 +802,37 @@ namespace Game._00.Script._03.Traffic_System.Building
                     continue;
                 }else 
                 {
-                    if (size == ParkingLotSize._1x1)
+                    List<BuildingSpawnInfo> result = new List<BuildingSpawnInfo>();
+
+                    while (stack.Count > 0)
                     {
-                        return new List<BuildingSpawnInfo>
-                        {
-                            new BuildingSpawnInfo(){Position =  spawnNode.WorldPosition, BuildingDirection = BuildingDirection.Up},
-                            new BuildingSpawnInfo(){Position =spawnNode.WorldPosition, BuildingDirection = BuildingDirection.Down},
-                            new BuildingSpawnInfo(){Position =spawnNode.WorldPosition, BuildingDirection = BuildingDirection.Left},
-                            new BuildingSpawnInfo(){Position =spawnNode.WorldPosition, BuildingDirection = BuildingDirection.Right},
-                        }; 
+                        var (dir, buildingDirection) = stack.Peek();
+                        stack.Pop();
+                        
+                       List<Node> nodes =  SetBuildingAndInsideRoads(spawnNode, size, buildingDirection);
+
+                       bool isValid = true;
+                       foreach (Node node in nodes)
+                       {
+                           if (!node.IsEmpty)
+                           {
+                               isValid = false;
+                               break;
+                           }
+                       }
+
+                       if (isValid)
+                       {
+                           result.Add(new BuildingSpawnInfo(){Position = spawnNode.WorldPosition, BuildingDirection = buildingDirection});
+                       }
+
+
                     }
-                    else
+                    if (result.Count > 0)
                     {
-                        int sizeMultiplier = size == ParkingLotSize._2x2 ? 2 : 3;
-                        List<BuildingSpawnInfo> result = new List<BuildingSpawnInfo>();
-
-                        while (stack.Count > 0)
-                        {
-                            var (dir, buildingDirection) = stack.Peek();
-                            stack.Pop();
-                            
-                           List<Node> nodes =  SetBuildingAndInsideRoads(spawnNode, size, buildingDirection);
-
-                           bool isValid = true;
-                           foreach (Node node in nodes)
-                           {
-                               if (!node.IsEmpty)
-                               {
-                                   isValid = false;
-                                   break;
-                               }
-                           }
-
-                           if (isValid)
-                           {
-                               result.Add(new BuildingSpawnInfo(){Position = spawnNode.WorldPosition, BuildingDirection = buildingDirection});
-                           }
-
-
-                        }
-                        if (result.Count > 0)
-                        {
-                            return result;
-                        }
+                        return result;
+                    }
                         attempt++;
-                    }
-                   
                 }
             } while (attempt < maxAttempt);
 
