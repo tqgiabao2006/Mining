@@ -21,24 +21,25 @@ namespace Game._00.Script._03.Traffic_System.Building
             get => _currentBuildings;
         }
         private Dictionary<BuildingType, CarSpawnInfo> _carSpawnInfos;
-        
-        private Dictionary<GameObject, List<Node>>_unconnectedBuildings = new Dictionary<GameObject, List<Node>>();
+
+        private Dictionary<GameObject, List<Node>> _unconnectedBuildings;
         
         //Use dictionary because two roads can be connected but not to others
-        private Dictionary<int, List<BuildingBase>> _connectedBuildings = new Dictionary<int, List<BuildingBase>>();
+        private Dictionary<int, List<BuildingBase>> _connectedBuildings; 
         
         
-        private void Awake()
+        private void Start()
         {
             InputOutputMapSetup();
             ObserversSetup();
             CarSpawnInfoSetup();
+            _connectedBuildings = new Dictionary<int, List<BuildingBase>>();
+            _unconnectedBuildings = new Dictionary<GameObject, List<Node>>();
         }
         
         #region Set up
         private void InputOutputMapSetup()
         {
-            _outputMap.Add(BuildingType.Lung, new List<BuildingType>() { BuildingType.NormalCell, BuildingType.Heart });
             _outputMap.Add(BuildingType.Heart, new List<BuildingType>() { });
             _outputMap.Add(BuildingType.NormalCell, new List<BuildingType>() { BuildingType.Heart });
         }
@@ -49,7 +50,7 @@ namespace Game._00.Script._03.Traffic_System.Building
             _carSpawnInfos.Add(BuildingType.NormalCell, new CarSpawnInfo()
             {
                 Car = ObjectFlags.RedBlood,
-                Amount = 5,
+                Amount = 2,
                 DelayTime = 2f
             });
         }
@@ -124,17 +125,17 @@ namespace Game._00.Script._03.Traffic_System.Building
             
                 foreach (GameObject buildingObj in _unconnectedBuildings.Keys)
                 {
-                    //Get all ouput buildings' parking nodes
+                    //Get all output buildings' parking nodes
                     BuildingBase building = buildingObj.GetComponent<BuildingBase>();
                     List<Node> roadNodes = new List<Node>();
                     foreach (BuildingBase b in GetOutputBuildings(building.BuildingType))
                     {
                        roadNodes.Add(b.RoadNode);
                     }
-
+                    
                     if (roadNodes.Count == 0)
                     {
-                        return;
+                        continue;
                     }
 
                     Node startNode = building.RoadNode;
@@ -161,11 +162,13 @@ namespace Game._00.Script._03.Traffic_System.Building
                         _connectedBuildings[building.OriginBuildingNode.GraphIndex].Add(endNode.BelongedBuilding.GetComponent<BuildingBase>());
                     }
                 }
+                Debug.Log("Before " + _unconnectedBuildings.Count);
                 //Remove unconnected building
                 foreach (GameObject buildingObj in removedObj)
                 {
                     _unconnectedBuildings.Remove(buildingObj);
                 }
+                Debug.Log("After " + _unconnectedBuildings.Count );
             }
         }
     }
