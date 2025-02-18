@@ -155,13 +155,11 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                 return;
             }
             
-            Debug.Log("out " + parkingData.CurrentIndex);
 
             ref BlobArray<ParkingWaypoint> waypoints = ref parkingData.WaypointsBlob.Value.Waypoints;
             
             if (parkingData.CurrentIndex < waypoints.Length)
             {
-                Debug.Log("In " + parkingData.CurrentIndex);
 
                 float3 nextWaypoint = waypoints[parkingData.CurrentIndex].Value;
                 float3 direction = math.normalize(nextWaypoint - localTransform.Position);
@@ -333,7 +331,6 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                     0.05f) //Avoid null buildingDirection
                 {
                     localTransform.Position += direction * speedStat.CurSpeed * DeltaTime;
-                    Debug.Log("Moving");
                 }
                 else if(followPathData.CurrentIndex < waypoints.Length - 1)                
                 {
