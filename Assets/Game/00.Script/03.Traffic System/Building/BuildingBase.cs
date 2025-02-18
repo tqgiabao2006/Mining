@@ -60,6 +60,8 @@ namespace Game._00.Script._03.Traffic_System.Building
             set {_parkingNodes = value;}
         }
 
+        private List<float3> _test_parkingWaypoints;
+
         public List<ParkingLot> ParkingPos; //Parking lots positions
         
         private float3 _centerPos;
@@ -94,10 +96,12 @@ namespace Game._00.Script._03.Traffic_System.Building
         [SerializeField] public ParkingLotSize size = ParkingLotSize._1x1;
         public BuildingDirection BuildingDirection { get; private set; }
 
-        public void Initialize(Node node, BuildingType buildingType, Vector2 worldPosition)
+        public void Initialize(Node node, BuildingType buildingType, BuildingDirection direction,Vector2 worldPosition)
         {
             _entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
             _parkingMesh = FindObjectOfType<ParkingMesh>();
+            
+            this.BuildingDirection = direction;
 
             //Random between horizontal and vertical building
             this._roadManager = FindObjectOfType<RoadManager>();
@@ -110,6 +114,11 @@ namespace Game._00.Script._03.Traffic_System.Building
             
             //After finish initialize parking lots, initlize bool[] to track if the parking lot is available
             _parkingResquest = new Queue<Entity>();
+            
+            //Test-only
+            #if    UNITY_EDITOR
+            _test_parkingWaypoints = new List<float3>();
+            #endif
             
         }
 
@@ -146,6 +155,7 @@ namespace Game._00.Script._03.Traffic_System.Building
             // Ensure the entity has ParkingData before modifying it
             if (_entityManager.HasComponent<ParkingData>(car) && foundSlot)
             {
+                
                 float3[] waypoints = GetParkingWaypoints(
                     _originBuildingNode.WorldPosition,
                     BuildingDirection,
@@ -154,6 +164,8 @@ namespace Game._00.Script._03.Traffic_System.Building
                     new float3(_centerPos),
                     _roadNode.WorldPosition
                 );
+                
+                _test_parkingWaypoints.AddRange(waypoints);
 
                 BlobBuilder blobBuilder = new BlobBuilder(Allocator.Temp);
                 ref ParkingWaypointBlob parkingWaypointBlob = ref blobBuilder.ConstructRoot<ParkingWaypointBlob>();
@@ -478,12 +490,18 @@ namespace Game._00.Script._03.Traffic_System.Building
         #endif
         private void OnDrawGizmos()
         {
-            if (ParkingNodes.Count > 0 && _originBuildingNode != null)
+            if (ParkingNodes != null && _originBuildingNode != null && _test_parkingWaypoints != null)
             {
                 Gizmos.color = Color.yellow;
                 foreach (var waypoint in ParkingNodes)
                 {
                     Gizmos.DrawWireSphere(waypoint.WorldPosition, 0.5f);
+                }
+
+                Gizmos.color = Color.yellow;
+                foreach (var node in _test_parkingWaypoints)
+                {
+                    Gizmos.DrawSphere(node, 0.05f);
                 }
                 
                 Gizmos.color = Color.green;

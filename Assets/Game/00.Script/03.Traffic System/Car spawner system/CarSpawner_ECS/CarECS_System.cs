@@ -95,9 +95,10 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
         {
             _entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
             
-            state.Dependency.Complete();
             foreach ((CarAspect car, Entity entity) in SystemAPI.Query<CarAspect>().WithEntityAccess())
             {
+                Debug.Log(car.State.ValueRO.Value);
+
                 if (car.State.ValueRO.Value == CarState.FollowingPath && 
                     (math.distance(car.LocalTransform.ValueRO.Position, car.EnterExitPoint.ValueRO.BigEnter) <= 0.05f && car.EnterExitPoint.ValueRO.IsForward) //If reach enter large, enter small
                      || (math.distance(car.LocalTransform.ValueRO.Position, car.EnterExitPoint.ValueRO.SmallEnter) <= 0.05f && !car.EnterExitPoint.ValueRO.IsForward))
@@ -157,9 +158,11 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
             float3 nextWaypoint = waypoints[parkingData.CurrentIndex].Value;
             float3 direction = math.normalize(nextWaypoint - localTransform.Position);
             
-            // Face to the next waypoint:
-            float angle = math.atan2(direction.y, direction.x) - 90 * Mathf.Deg2Rad;
-            localTransform.Rotation = quaternion.Euler(0, 0, angle);
+            if (parkingData.CurrentIndex != waypoints.Length - 1)
+            {
+                float angle = math.atan2(direction.y, direction.x) - 90 * Mathf.Deg2Rad; // -90 because by default, the prefab faces upward
+                localTransform.Rotation = quaternion.Euler(0, 0, angle); 
+            }
 
             if (parkingData.CurrentIndex < waypoints.Length -1)
             {
@@ -288,14 +291,17 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                 float3 direction = math.normalize(nextWaypoint - localTransform.Position);
 
                 // Face to the next waypoint:
-                float angle = math.atan2(direction.y, direction.x) -
-                              90 * Mathf.Deg2Rad; // -90 because by default, the prefab faces upward
-                localTransform.Rotation = quaternion.Euler(0, 0, angle);
-                //Change speed when car are nearby
+                if (followPathData.CurrentIndex != waypoints.Length - 1)
+                {
+                    float angle = math.atan2(direction.y, direction.x) - 90 * Mathf.Deg2Rad; // -90 because by default, the prefab faces upward
+                    localTransform.Rotation = quaternion.Euler(0, 0, angle);
+                    //Change speed when car are nearby
+                }
+                
                 RaycastInput input = new RaycastInput()
                 {
                     Start = localTransform.Position + direction * colliderBound.Value,
-                    End = direction * stopDistance.CheckDst,
+                    End = localTransform.Position + direction * stopDistance.CheckDst,
                     Filter = CollisionFilter.Default
                 };
 

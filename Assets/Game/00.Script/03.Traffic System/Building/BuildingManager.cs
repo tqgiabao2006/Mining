@@ -50,7 +50,7 @@ namespace Game._00.Script._03.Traffic_System.Building
             _carSpawnInfos.Add(BuildingType.NormalCell, new CarSpawnInfo()
             {
                 Car = ObjectFlags.RedBlood,
-                Amount = 2,
+                Amount = 1,
                 DelayTime = 2f
             });
         }
@@ -162,13 +162,11 @@ namespace Game._00.Script._03.Traffic_System.Building
                         _connectedBuildings[building.OriginBuildingNode.GraphIndex].Add(endNode.BelongedBuilding.GetComponent<BuildingBase>());
                     }
                 }
-                Debug.Log("Before " + _unconnectedBuildings.Count);
                 //Remove unconnected building
                 foreach (GameObject buildingObj in removedObj)
                 {
                     _unconnectedBuildings.Remove(buildingObj);
                 }
-                Debug.Log("After " + _unconnectedBuildings.Count );
             }
         }
     }

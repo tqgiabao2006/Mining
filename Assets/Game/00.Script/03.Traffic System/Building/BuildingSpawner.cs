@@ -199,14 +199,18 @@ namespace Game._00.Script._03.Traffic_System.Building
                     
                     List<BuildingSpawnInfo> buildingSpawnInfos = GetBuildingSpawn(waveInfo.ZoneRadius, buildingComp.size);
 
+                    if (buildingSpawnInfos.Count == 0)
+                    {
+                        continue;
+                    }
                     int randomIndex = Random.Range(0, buildingSpawnInfos.Count);
                     
                     //Get and initialize class
                     Vector2 buildingPos = buildingSpawnInfos[randomIndex].Position;
                     BuildingDirection buildingDirection = buildingSpawnInfos[randomIndex].BuildingDirection;
- 
+                    
                     Node buildingNode = GridManager.NodeFromWorldPosition(buildingPos);
-                    buildingComp.Initialize(buildingNode, buildingType, buildingPos);
+                    buildingComp.Initialize(buildingNode, buildingType, buildingDirection,buildingPos);
                     
 
                     //Set Sprite
@@ -218,7 +222,6 @@ namespace Game._00.Script._03.Traffic_System.Building
                     buildingObj.SetActive(true);
 
                   
-
                     //This has to be called first to set up for the next function, save parking nodes to set adj list to road nodes later
                     SetBuildingAndInsideRoads(buildingComp, buildingNode, buildingComp.size, buildingDirection);
                     buildingComp.CenterPos = GetCenterPos(buildingPos, buildingDirection, buildingComp.size);
