@@ -59,7 +59,6 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                 DeltaTime = deltaTime,
                 PhysicsWorld = physicsWorld,
             }.ScheduleParallel(state.Dependency); // Assign previous dependency
-
             state.Dependency = parkingJobHandle; // Ensure proper job completion before next update
         }
     }
@@ -120,13 +119,15 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                 else if (car.State.ValueRO.Value == CarState.Parking &&
                          car.ParkingData.ValueRO.WaypointsBlob.IsCreated)
                 {
-                    if (car.ParkingData.ValueRO.CurrentIndex >= car.ParkingData.ValueRO.WaypointsBlob.Value.Waypoints.Length - 1)
+                    if (car.ParkingData.ValueRO.CurrentIndex == car.ParkingData.ValueRO.WaypointsBlob.Value.Waypoints.Length - 1 && car.ParkingData.ValueRO.HasPath
+                        && math.distance(car.LocalTransform.ValueRO.Position, car.ParkingData.ValueRO.WaypointsBlob.Value.Waypoints[car.ParkingData.ValueRO.CurrentIndex].Value) <= 0.05f)
                     { 
                         car.EnterExitPoint.ValueRW.IsForward = !car.EnterExitPoint.ValueRO.IsForward;
                         car.ParkingData.ValueRW.HasPath = false;
-                        car.State.ValueRW.Value = CarState.FollowingPath;
                         
-                        //Reset current index of follow path data based on direction 
+                        car.ParkingData.ValueRW.WaypointsBlob = default;
+                        car.State.ValueRW.Value = CarState.FollowingPath;
+    
                         if (!car.EnterExitPoint.ValueRW.IsForward) //If return to small => set to exit of big building
                         {
                             car.FollowPathData.ValueRW.CurrentIndex = car.EnterExitPoint.ValueRO.ExitIndex; // Set to exit waypoint 
@@ -135,8 +136,8 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                         {
                             car.FollowPathData.ValueRW.CurrentIndex = 0;
                         }
-                       
                     }
+
                 }
             }
         }
@@ -149,23 +150,28 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
         [ReadOnly] public float DeltaTime;
         public void Execute(ref ParkingData parkingData, ref State state, ref Speed speedStats, ref LocalTransform localTransform, in StopDistance stopDistance, in ColliderBound colliderBound )
         {
-            if (!parkingData.WaypointsBlob.IsCreated || parkingData.WaypointsBlob.Value.Waypoints.Length == 0)
+            if (!parkingData.WaypointsBlob.IsCreated || parkingData.WaypointsBlob.Value.Waypoints.Length == 0 ||state.Value != CarState.Parking)
             {
                 return;
             }
             
-            ref BlobArray<ParkingWaypoint> waypoints = ref parkingData.WaypointsBlob.Value.Waypoints;
-            float3 nextWaypoint = waypoints[parkingData.CurrentIndex].Value;
-            float3 direction = math.normalize(nextWaypoint - localTransform.Position);
-            
-            if (parkingData.CurrentIndex != waypoints.Length - 1)
-            {
-                float angle = math.atan2(direction.y, direction.x) - 90 * Mathf.Deg2Rad; // -90 because by default, the prefab faces upward
-                localTransform.Rotation = quaternion.Euler(0, 0, angle); 
-            }
+            Debug.Log("out " + parkingData.CurrentIndex);
 
-            if (parkingData.CurrentIndex < waypoints.Length -1)
+            ref BlobArray<ParkingWaypoint> waypoints = ref parkingData.WaypointsBlob.Value.Waypoints;
+            
+            if (parkingData.CurrentIndex < waypoints.Length)
             {
+                Debug.Log("In " + parkingData.CurrentIndex);
+
+                float3 nextWaypoint = waypoints[parkingData.CurrentIndex].Value;
+                float3 direction = math.normalize(nextWaypoint - localTransform.Position);
+                
+                if (parkingData.CurrentIndex < waypoints.Length -1)
+                {
+                    float angle = math.atan2(direction.y, direction.x) - 90 * Mathf.Deg2Rad; // -90 because by default, the prefab faces upward
+                    localTransform.Rotation = quaternion.Euler(0, 0, angle); 
+                }
+                
                 // Only perform deceleration and raycast when appropriate (you might have a different threshold for this)
                 if (math.distance(localTransform.Position, nextWaypoint) >= 0.5f)
                 {
@@ -205,20 +211,13 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                 }
 
                 float distanceToWaypoint = math.distance(localTransform.Position, nextWaypoint);
-                if (distanceToWaypoint >= 0.05f) // Still moving towards waypoint
+                if (distanceToWaypoint >= 0.02f) // Still moving towards waypoint
                 {
                     localTransform.Position += direction * speedStats.CurSpeed * DeltaTime;
                 }
-                else // Reached waypoint
+                else if(parkingData.CurrentIndex < waypoints.Length)
                 {
-                    if (parkingData.CurrentIndex == waypoints.Length - 1)
-                    {
-                        state.Value = CarState.FollowingPath;
-                    }
-                    else
-                    {
-                        parkingData.CurrentIndex++;
-                    }
+                    parkingData.CurrentIndex++;
                 }
             }
         }
@@ -279,19 +278,13 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
             
             enterExitPoint.SmallEnter = waypoints[waypoints.Length - 1];   
             
-            if (math.distance(localTransform.Position, enterExitPoint.BigEnter) <= 0.05f)
-            {
-                state.Value = CarState.Parking;
-                return;
-            }
-
             if (followPathData.CurrentIndex < waypoints.Length)
             {
                 float3 nextWaypoint = waypoints[followPathData.CurrentIndex];
                 float3 direction = math.normalize(nextWaypoint - localTransform.Position);
 
                 // Face to the next waypoint:
-                if (followPathData.CurrentIndex != waypoints.Length - 1)
+                if (followPathData.CurrentIndex < waypoints.Length - 1)
                 {
                     float angle = math.atan2(direction.y, direction.x) - 90 * Mathf.Deg2Rad; // -90 because by default, the prefab faces upward
                     localTransform.Rotation = quaternion.Euler(0, 0, angle);
@@ -340,18 +333,11 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                     0.05f) //Avoid null buildingDirection
                 {
                     localTransform.Position += direction * speedStat.CurSpeed * DeltaTime;
+                    Debug.Log("Moving");
                 }
-                else
+                else if(followPathData.CurrentIndex < waypoints.Length - 1)                
                 {
-                    //When reach final point transition back to parking
-                    if (followPathData.CurrentIndex == waypoints.Length - 1)
-                    { 
-                        state.Value = CarState.Parking;
-                    }
-                    else
-                    {
-                        followPathData.CurrentIndex++;
-                    }
+                    followPathData.CurrentIndex++;
                 }
             }
         }
