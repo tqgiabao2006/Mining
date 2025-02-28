@@ -4,6 +4,7 @@ using Unity.Transforms;
 
 [assembly: RegisterGenericComponentType(typeof(State))]
 [assembly: RegisterGenericComponentType(typeof(Entity))]
+[assembly: RegisterGenericComponentType(typeof(OriginBuildingRoad))]
     
 [assembly: RegisterGenericComponentType(typeof(Speed))]
 [assembly: RegisterGenericComponentType(typeof(FollowPathData))]
@@ -14,7 +15,6 @@ using Unity.Transforms;
 [assembly: RegisterGenericComponentType(typeof(ColliderBound))]
     
 [assembly: RegisterGenericComponentType(typeof(ParkingLot))]
-[assembly: RegisterGenericComponentType(typeof(EnterExitPoint))]
 [assembly: RegisterGenericComponentType(typeof(IsParking))]
 [assembly: RegisterGenericComponentType(typeof(ParkingData))]
 namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
@@ -24,6 +24,7 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
         // Fundamental components
         public readonly RefRW<State> State;
         public readonly Entity Self;
+        public readonly RefRW<OriginBuildingRoad> OriginBuilding;
 
         // Follow path components
         public readonly RefRW<Speed> Speed;
@@ -37,7 +38,6 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
 
         // Follow parking waypoints components
         public readonly RefRW<ParkingLot> ParkingLot;
-        public readonly RefRW<EnterExitPoint> EnterExitPoint;
         public readonly RefRW<IsParking> IsParking;
         public readonly RefRW<ParkingData> ParkingData;
 

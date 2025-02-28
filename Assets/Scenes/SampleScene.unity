@@ -1176,8 +1176,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c986db57e726454f87291a69114065a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debugPrefab: {fileID: 3149333464667473236, guid: 0dbab008e3dc94fa3bbf5ff8f052f953, type: 3}
+  isGizmos: 1
   displayWaypoints: 1
+  originalLines: 1
 --- !u!114 &496835285
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1297,7 +1298,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 5.52
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -1407,15 +1408,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -3888481672020999207, guid: 2b0b15d62145740db9b0e1e0d639995f, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8742538545776668643, guid: 2b0b15d62145740db9b0e1e0d639995f, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.2850122
+      value: 0.25667554
       objectReference: {fileID: 0}
     - target: {fileID: 8742538545776668643, guid: 2b0b15d62145740db9b0e1e0d639995f, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.2850122
+      value: 0.40206668
       objectReference: {fileID: 0}
     - target: {fileID: 8742538545776668643, guid: 2b0b15d62145740db9b0e1e0d639995f, type: 3}
       propertyPath: m_LocalScale.z
@@ -1423,11 +1424,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8742538545776668643, guid: 2b0b15d62145740db9b0e1e0d639995f, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 20.5
+      value: 7.3
       objectReference: {fileID: 0}
     - target: {fileID: 8742538545776668643, guid: 2b0b15d62145740db9b0e1e0d639995f, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -6.8
+      value: 0.0973
       objectReference: {fileID: 0}
     - target: {fileID: 8742538545776668643, guid: 2b0b15d62145740db9b0e1e0d639995f, type: 3}
       propertyPath: m_LocalPosition.z

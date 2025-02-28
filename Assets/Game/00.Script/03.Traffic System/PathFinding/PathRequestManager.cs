@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Game._00.Script._00.Manager;
 using Game._00.Script._03.Traffic_System.Road;
@@ -6,6 +7,15 @@ using UnityEngine.Serialization;
 
 namespace Game._00.Script._03.Traffic_System.PathFinding
 {
+    #if UNITY_EDITOR
+    public struct PathDebugData
+    {
+        public List<Vector3> Waypoints;
+        public List<Vector3> OriginalPaths;
+    }
+    #endif
+    
+
     /// <summary>
     /// Working as a bridge from pathfinding, and unit base to try create new thread => optimize, decoupling
     /// </summary>
@@ -15,9 +25,14 @@ namespace Game._00.Script._03.Traffic_System.PathFinding
         private bool _isProcessingPath;
         private PathRequest _currentRequest;
 
-        [SerializeField] public GameObject debugPrefab; 
-        [SerializeField] public bool displayWaypoints;
-
+        //Debug-only
+        
+        #if UNITY_EDITOR
+        [SerializeField] private bool isGizmos;
+        [SerializeField] private bool displayWaypoints;
+        [SerializeField] private bool originalLines;
+        private List<PathDebugData> _debugData;
+        #endif
         private void Start()
         {
             Initialize();
@@ -25,6 +40,7 @@ namespace Game._00.Script._03.Traffic_System.PathFinding
         public void Initialize()
         {
             _pathFinding = GetComponent<PathFinding>();
+            _debugData = new List<PathDebugData>();
         }
 
         public Vector3[] GetPathWaypoints(Vector3 startPos, Vector3 endPos)
@@ -33,94 +49,102 @@ namespace Game._00.Script._03.Traffic_System.PathFinding
             Vector3[] waypoints = _pathFinding.GetFuncFindPath()?.Invoke(pathRequest);
             if (waypoints != null && waypoints.Length > 0)
             {
-               Vector3[] ellipseWaypoints = EllipsePath(waypoints, RoadManager.RoadWidth/ 4f);
-
-               if (displayWaypoints)
-               {
-                   DisplayPathWaypoints(ellipseWaypoints);
-               }
+               Vector3[] path = Path(waypoints, RoadManager.RoadWidth/ 4f);
                
-               return ellipseWaypoints;
+               #if UNITY_EDITOR
+               _debugData.Add(new PathDebugData()
+               {
+                   OriginalPaths = new List<Vector3>(waypoints),
+                   Waypoints = new List<Vector3>(path),
+                   
+               });
+               #endif
+
+                return path;
             }
             
             return new Vector3[]{};
         }
 
         /// <summary>
-        /// Turn a straight line into an ellipse rounded path for car to follow
         /// Car always run on the right side *from their buildingDirection*
         /// Method: Calculate buildingDirection between 2 points, calculate perpendicular vector to it buildingDirection
         /// normalized it then multiple by 1/2 half roadWidth
         /// </summary>
         /// <param name="pathWaypoints"></param>
         /// <returns></returns>
-        public Vector3[] EllipsePath(Vector3[] pathWaypoints, float quarterRoadWidth)
+        public Vector3[] Path(Vector3[] pathWaypoints, float quarterRoadWidth)
         {
-            //Double waypoints
-            List<Vector3> ellipsePathWaypoints = new List<Vector3>();
+            List<Vector3> waypoints = new List<Vector3>();
 
             //Half normal path
-            for (int i = 0; i < pathWaypoints.Length - 1; i++)
+            for (int i = 0; i < pathWaypoints.Length - 2; i++)
             {
                 Vector2 direction = (pathWaypoints[i + 1] - pathWaypoints[i]);
                 Vector2 perDirection = (new Vector2(direction.y, -direction.x)).normalized;
 
                 Vector3 shiftedPoint1 = new Vector3(quarterRoadWidth * perDirection.x + pathWaypoints[i].x
                     , quarterRoadWidth * perDirection.y + pathWaypoints[i].y, 0);
-                if (!ellipsePathWaypoints.Contains(shiftedPoint1))
+                if (!waypoints.Contains(shiftedPoint1))
                 {
-                    ellipsePathWaypoints.Add(shiftedPoint1);
+                    waypoints.Add(shiftedPoint1);
                 }
-
+                
                 Vector3 shilftedPoint2 = new Vector3(quarterRoadWidth * perDirection.x + pathWaypoints[i + 1].x
                     , quarterRoadWidth * perDirection.y + pathWaypoints[i + 1].y, 0);
 
-                if (!ellipsePathWaypoints.Contains(shilftedPoint2))
+                if (!waypoints.Contains(shilftedPoint2))
                 {
-                    ellipsePathWaypoints.Add(shilftedPoint2);
+                    waypoints.Add(shilftedPoint2);
                 }
             }
-
-            //Half reverse path
-            for (int i = pathWaypoints.Length - 1; i > 0; i--)
-            {
-                Vector2 direction = (pathWaypoints[i - 1] - pathWaypoints[i]);
-                if (direction == Vector2.zero)
-                {
-                    continue;
-                }
-
-                Vector2 perDirection = new Vector2(direction.y, -direction.x).normalized;
-
-                Vector3 shiftedPoint1 = new Vector3(quarterRoadWidth * perDirection.x + pathWaypoints[i].x
-                    , quarterRoadWidth * perDirection.y + pathWaypoints[i].y, 0);
-                if (!ellipsePathWaypoints.Contains(shiftedPoint1))
-                {
-                    ellipsePathWaypoints.Add(shiftedPoint1);
-                }
-
-                Vector3 shilftedPoint2 = new Vector3(quarterRoadWidth * perDirection.x + pathWaypoints[i - 1].x
-                    , quarterRoadWidth * perDirection.y + pathWaypoints[i - 1].y, 0);
-
-                if (!ellipsePathWaypoints.Contains(shilftedPoint2))
-                {
-                    ellipsePathWaypoints.Add(shilftedPoint2);
-                }
-
-            }
-
-            return ellipsePathWaypoints.ToArray();
+            
+            waypoints.Add(pathWaypoints[pathWaypoints.Length - 1]);
+            return waypoints.ToArray();
             
            
         }
-        public void DisplayPathWaypoints(Vector3[] waypoints)
+        
+        #if UNITY_EDITOR
+        public void OnDrawGizmos()
         {
-            foreach (Vector3 p in waypoints) 
+            if (!isGizmos || _debugData == null || _debugData.Count == 0)
             {
-                Instantiate(debugPrefab,p, Quaternion.identity);
-                   
+                return;
+            }
+            
+            foreach (PathDebugData debugData in _debugData)
+            {
+                if (displayWaypoints)
+                {
+                    Gizmos.color = Color.red;
+                    for (int i = 0; i < debugData.Waypoints.Count; i++)
+                    {
+                        Gizmos.DrawSphere(debugData.Waypoints[i], 0.05f);
+                        if (i<  debugData.Waypoints.Count - 1)
+                        {
+                            Gizmos.DrawLine(debugData.Waypoints[i], debugData.Waypoints[i+1]);
+                        }
+                    }
+                }
+
+                if (originalLines)
+                {
+                    Gizmos.color = Color.yellow;
+                    for (int i = 0; i < debugData.OriginalPaths.Count; i++)
+                    {
+                        Gizmos.DrawSphere(debugData.OriginalPaths[i], 0.05f);
+                        if (i < debugData.OriginalPaths.Count - 1)
+                        {
+                            Gizmos.DrawLine(debugData.OriginalPaths[i], debugData.OriginalPaths[i + 1]);
+                        }
+                    }
+
+                }
             }
         }
+        #endif
+
 
         public struct PathRequest
         {

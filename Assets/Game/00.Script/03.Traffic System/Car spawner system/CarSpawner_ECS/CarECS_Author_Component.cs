@@ -1,4 +1,5 @@
 using Game._00.Script._00.Manager.Custom_Editor;
+using Game._00.Script._03.Traffic_System.Building;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Physics;
@@ -10,7 +11,8 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
     public enum CarState
     {
         FollowingPath,
-        Parking
+        Parking,
+        Mining
     }
     public class CarECS_Author_Component: MonoBehaviour
     { 
@@ -52,7 +54,6 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                 AddComponent(entity, new FollowPathData
                 {
                     CurrentIndex = 0,
-                    WaypointsBlob = BlobAssetReference<BlobArray<float3>>.Null // Initialize later in system logic
                 });
 
                 // Traffic simulation components
@@ -66,12 +67,14 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
 
                 // Parking components
                 AddComponent(entity, new ParkingData { CurrentIndex = 0, HasPath = false });
-                AddComponent(entity, new EnterExitPoint()
-                {
-                    IsForward = true
-                });
                 AddComponent(entity, new IsParking());
                 AddComponent(entity, new ParkingLot());
+                AddComponent(entity, new MiningTime()
+                {
+                    Value = 2f
+                });
+                
+                AddComponent(entity, new OriginBuildingRoad());
 
             }    
         }
@@ -82,7 +85,11 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
         public CarState Value;
     }
 
-   
+    public struct OriginBuildingRoad : IComponentData
+    {
+        public Vector3 Position;
+    }
+
     public struct Speed : IComponentData
     {
         public float MaxSpeed;
@@ -92,18 +99,29 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
     }
     public struct FollowPathData : IComponentData
     {
-        public BlobAssetReference<BlobArray<float3>> WaypointsBlob;
+        public BlobAssetReference<FollowPathWaypointBlob> WaypointsBlob;
         public int CurrentIndex;
     }
 
+    public struct PathWaypoint
+    {
+        public float3 Value;
+    }
+    public struct FollowPathWaypointBlob
+    {
+        public BlobArray<PathWaypoint> Waypoints;
+    }
+    
     public struct ParkingWaypoint
     {
         public float3 Value;
     }
 
+    
     public struct ParkingData : IComponentData
     {
         public BlobAssetReference<ParkingWaypointBlob> WaypointsBlob;
+        public float3 ParkingPos;
         public int CurrentIndex;
         public bool HasPath;
     }
@@ -113,28 +131,18 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
         public BlobArray<ParkingWaypoint> Waypoints;
     }
 
+    public struct MiningTime: IComponentData
+    {
+        public float Value;
+    }
+
 
     public struct ParkingLot : IComponentData
     {
         public Building.ParkingLot Value;
     }
-
-    /// <summary>
-    /// Use for store enter, exit wayPoint in floa3[] waypoints to transition from following path to following parking lot
-    /// </summary>
-    public struct EnterExitPoint : IComponentData
-    {
-        public float3 BigEnter; //Enter large building
-        public float3 SmallEnter; //Enter back to small house
-        public float3 Exit;
-        
-        public int EnterIndex;
-        public int ExitIndex;
-
-        public bool IsForward; //Check the direction is it entering or returning back
-    }
-
-    public struct IsParking : IComponentData
+    
+     public struct IsParking : IComponentData
     {
         public bool Value;
     }

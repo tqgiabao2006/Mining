@@ -183,6 +183,7 @@ namespace Game._00.Script._03.Traffic_System.Building
                 {
                     WaypointsBlob = waypointsBlob,
                     CurrentIndex = 0,  
+                    ParkingPos =  parkingPos,
                     HasPath = true     
                 };
 
@@ -196,7 +197,7 @@ namespace Game._00.Script._03.Traffic_System.Building
 
             _parkingResquest.Dequeue();
         }
-
+        
 
          /// <summary>
          /// Get way points to direct the car to park following these rules:

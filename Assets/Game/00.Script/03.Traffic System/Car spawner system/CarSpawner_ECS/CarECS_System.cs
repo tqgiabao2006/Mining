@@ -2,6 +2,7 @@ using System.IO;
 using Game._00.Script._00.Manager.Custom_Editor;
 using Game._00.Script._02.Grid_setting;
 using Game._00.Script._03.Traffic_System.Building;
+using Game._00.Script._03.Traffic_System.PathFinding;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -38,7 +39,6 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
 
             // Parking and waypoint components
             state.RequireForUpdate<ParkingLot>();
-            state.RequireForUpdate<EnterExitPoint>();
             state.RequireForUpdate<IsParking>();
             state.RequireForUpdate<ParkingData>();
 
@@ -63,44 +63,47 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
         }
     }
     
-    partial struct CarStateTransitionSystem : ISystem
+    public partial class CarStateTransitionSystem : SystemBase
     {
-        EntityManager _entityManager;
-        public void OnCreate(ref SystemState state)
+        private EntityManager _entityManager;
+        private PathRequestManager _pathRequestManager;
+        protected override void OnCreate()
         {
-            state.RequireForUpdate<PhysicsWorldSingleton>();
+            RequireForUpdate<PhysicsWorldSingleton>();
             
             // Fundamental components
-            state.RequireForUpdate<State>();
-            state.RequireForUpdate<Speed>();
-            state.RequireForUpdate<LocalTransform>();
+           RequireForUpdate<State>();
+           RequireForUpdate<Speed>();
+           RequireForUpdate<LocalTransform>();
 
             // Path-following components
-            state.RequireForUpdate<FollowPathData>();
+            RequireForUpdate<FollowPathData>();
 
             // Traffic simulation components
-            state.RequireForUpdate<StopDistance>();
-            state.RequireForUpdate<ColliderBound>();
+            RequireForUpdate<StopDistance>();
+            RequireForUpdate<ColliderBound>();
 
             // Parking and waypoint components
-            state.RequireForUpdate<ParkingLot>();
-            state.RequireForUpdate<EnterExitPoint>();
-            state.RequireForUpdate<IsParking>();
-            state.RequireForUpdate<ParkingData>();
+            RequireForUpdate<ParkingLot>();
+            RequireForUpdate<IsParking>();
+            RequireForUpdate<ParkingData>();
         }
 
 
-        public void OnUpdate(ref SystemState state)
+        protected override void OnUpdate()
         {
             _entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+
+            if (_pathRequestManager == null)
+            {
+                _pathRequestManager = PathRequestManager.Instance;
+            }
             
             foreach ((CarAspect car, Entity entity) in SystemAPI.Query<CarAspect>().WithEntityAccess())
             {
-                Debug.Log(car.State.ValueRO.Value);
-
-                if (car.State.ValueRO.Value == CarState.FollowingPath && 
-                    (math.distance(car.LocalTransform.ValueRO.Position, car.EnterExitPoint.ValueRO.BigEnter) <= 0.05f && car.EnterExitPoint.ValueRO.IsForward) //If reach enter large, enter small
-                     || (math.distance(car.LocalTransform.ValueRO.Position, car.EnterExitPoint.ValueRO.SmallEnter) <= 0.05f && !car.EnterExitPoint.ValueRO.IsForward))
+                if (car.State.ValueRO.Value == CarState.FollowingPath
+                    && math.distance(car.LocalTransform.ValueRO.Position, car.FollowPathData.ValueRO.WaypointsBlob.Value.Waypoints[car.FollowPathData.ValueRO.WaypointsBlob.Value.Waypoints.Length - 1].Value) <= 0.05f
+                     && car.FollowPathData.ValueRW.CurrentIndex == car.FollowPathData.ValueRO.WaypointsBlob.Value.Waypoints.Length - 1)
                 {
                     Node node = GridManager.NodeFromWorldPosition(new Vector2(car.LocalTransform.ValueRO.Position.x, car.LocalTransform.ValueRO.Position.y));
                     if (node.BelongedBuilding == null) continue;
@@ -113,6 +116,11 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                         continue;
                     }
 
+                    if (!car.ParkingData.ValueRO.WaypointsBlob.IsCreated)
+                    {
+                        car.ParkingData.ValueRW.WaypointsBlob.Dispose();
+                    }
+
                     car.ParkingData.ValueRW.CurrentIndex = 0; 
                     car.State.ValueRW.Value = CarState.Parking;
                 }
@@ -121,21 +129,15 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                 {
                     if (car.ParkingData.ValueRO.CurrentIndex == car.ParkingData.ValueRO.WaypointsBlob.Value.Waypoints.Length - 1 && car.ParkingData.ValueRO.HasPath
                         && math.distance(car.LocalTransform.ValueRO.Position, car.ParkingData.ValueRO.WaypointsBlob.Value.Waypoints[car.ParkingData.ValueRO.CurrentIndex].Value) <= 0.05f)
-                    { 
-                        car.EnterExitPoint.ValueRW.IsForward = !car.EnterExitPoint.ValueRO.IsForward;
-                        car.ParkingData.ValueRW.HasPath = false;
-                        
-                        car.ParkingData.ValueRW.WaypointsBlob = default;
+                    {
+                        if (!car.ParkingData.ValueRO.WaypointsBlob.IsCreated)
+                        {
+                            car.ParkingData.ValueRW.WaypointsBlob.Dispose();
+                        }
+                        Vector3[] path = _pathRequestManager.GetPathWaypoints(car.LocalTransform.ValueRO.Position, car.OriginBuilding.ValueRO.Position);
+
+
                         car.State.ValueRW.Value = CarState.FollowingPath;
-    
-                        if (!car.EnterExitPoint.ValueRW.IsForward) //If return to small => set to exit of big building
-                        {
-                            car.FollowPathData.ValueRW.CurrentIndex = car.EnterExitPoint.ValueRO.ExitIndex; // Set to exit waypoint 
-                        }
-                        else //If from small to big => set = 0;
-                        {
-                            car.FollowPathData.ValueRW.CurrentIndex = 0;
-                        }
                     }
 
                 }
@@ -233,7 +235,6 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
             
             state.RequireForUpdate<FollowPathData>();
             state.RequireForUpdate<State>();
-            state.RequireForUpdate<EnterExitPoint>();
             state.RequireForUpdate<LocalTransform>();
             state.RequireForUpdate<Speed>();
             state.RequireForUpdate<StopDistance>();
@@ -257,28 +258,22 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
     {
         [ReadOnly] public float DeltaTime;
         [ReadOnly] public PhysicsWorldSingleton PhysicsWorld;
-        public void Execute(ref FollowPathData followPathData, ref State state, ref EnterExitPoint enterExitPoint, ref LocalTransform localTransform, ref Speed speedStat,in StopDistance stopDistance, in ColliderBound colliderBound)
+        public void Execute(ref FollowPathData followPathData, ref State state, ref LocalTransform localTransform, ref Speed speedStat,in StopDistance stopDistance, in ColliderBound colliderBound)
         {
             
             //Check state before execution
             if (!followPathData.WaypointsBlob.IsCreated || state.Value != CarState.FollowingPath) return;
             
-            ref BlobArray<float3> waypoints = ref followPathData.WaypointsBlob.Value;
+            ref BlobArray<PathWaypoint> waypoints = ref followPathData.WaypointsBlob.Value.Waypoints;
             //Because this is a rounded path from start -> building -> start, that each waypoint has at least 1 in parallel
             int mid = waypoints.Length / 2;
             int enterIndex = mid-1;
             int exitIndex = mid;
             
-            enterExitPoint.EnterIndex = enterIndex;
-            enterExitPoint.ExitIndex = exitIndex;
-            enterExitPoint.BigEnter = waypoints[enterIndex];
-            enterExitPoint.Exit = waypoints[exitIndex];
-            
-            enterExitPoint.SmallEnter = waypoints[waypoints.Length - 1];   
             
             if (followPathData.CurrentIndex < waypoints.Length)
             {
-                float3 nextWaypoint = waypoints[followPathData.CurrentIndex];
+                float3 nextWaypoint = waypoints[followPathData.CurrentIndex].Value;
                 float3 direction = math.normalize(nextWaypoint - localTransform.Position);
 
                 // Face to the next waypoint:

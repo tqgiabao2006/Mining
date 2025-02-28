@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Game._00.Script._00.Manager.Observer;
 using Game._00.Script._03.Traffic_System.PathFinding;
 using Unity.Burst;
@@ -7,6 +8,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 using Game._00.Script._02.Grid_setting;
+using Game._00.Script._03.Traffic_System.Building;
 using Unity.Transforms;
 
 namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
@@ -22,7 +24,8 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
         {
             RequireForUpdate<SpawnGameObjectHolder>();
         }
-        
+
+     
         public void OnNotified(object data, string flag)
         {
             if (data is ValueTuple<Node, Node, string> && flag == NotificationFlags.SpawnCar)
@@ -36,14 +39,16 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                     return;
                 }    
                 
-                ValueTuple<Node, Node, string> startEndBuildings = (ValueTuple<Node, Node, string>)data;
+                ValueTuple< Node, Node, string> startEndBuildings = (ValueTuple< Node, Node, string>)data;
                 Vector3[] waypoints = _pathRequestManager.GetPathWaypoints(startEndBuildings.Item1.WorldPosition, startEndBuildings.Item2.WorldPosition);
                 BlobAssetReference<BlobArray<float3>> waypointsBlob = CreateWaypointsBlob(waypoints);
                 SpawnCarEntity(startEndBuildings.Item3, new SpawnData()
                 {
-                    StartPos = new float3(startEndBuildings.Item1.WorldPosition.x, startEndBuildings.Item1.WorldPosition.y, 0),
-                    EndPos = new float3(startEndBuildings.Item2.WorldPosition.x, startEndBuildings.Item2.WorldPosition.y, 0),
-                    Waypoints = waypointsBlob, 
+                    StartPos = new float3(startEndBuildings.Item1.WorldPosition.x,
+                        startEndBuildings.Item1.WorldPosition.y, 0),
+                    EndPos = new float3(startEndBuildings.Item2.WorldPosition.x,
+                        startEndBuildings.Item2.WorldPosition.y, 0),
+                    Waypoints = waypointsBlob,
                 });
                 _isNotified = false;
             }
@@ -84,15 +89,33 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                 Rotation = quaternion.identity,
                 Scale = 0.4f
             });
+            
+            BlobBuilder blobBuilder = new BlobBuilder(Allocator.Temp);
+            ref FollowPathWaypointBlob followPathWaypointBlob = ref blobBuilder.ConstructRoot<FollowPathWaypointBlob>();
+
+            BlobBuilderArray<CarSpawner_ECS.PathWaypoint> blobBuilderArray = blobBuilder.Allocate(ref followPathWaypointBlob.Waypoints, spawnData.Waypoints.Value.Length);
+            for (int i = 0; i < spawnData.Waypoints.Value.Length; i++)
+            {
+                blobBuilderArray[i] = new PathWaypoint { Value = spawnData.Waypoints.Value[i] };
+            }
+
+            BlobAssetReference<FollowPathWaypointBlob> followPathWaypointBlobReference = blobBuilder.CreateBlobAssetReference<FollowPathWaypointBlob>(Allocator.Temp);
 
             EntityManager.AddComponentData(spawnedEntity, new FollowPathData()
             {
-                WaypointsBlob = spawnData.Waypoints
+                WaypointsBlob = followPathWaypointBlobReference
             });
+
+            blobBuilder.Dispose();
             
             EntityManager.SetComponentData(spawnedEntity, new CanRun()
             {
                 Value = true,
+            });
+            
+            EntityManager.SetComponentData(spawnedEntity, new OriginBuildingRoad()
+            {
+                Position = spawnData.StartPos
             });
         }
         
