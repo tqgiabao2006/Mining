@@ -176,13 +176,6 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
             if (parkingData.CurrentIndex >= waypoints.Length)
                 return;
 
-                
-                // Only perform deceleration and raycast when appropriate (you might have a different threshold for this)
-                if (math.distance(localTransform.Position, nextWaypoint) >= 0.5f)
-                {
-                    RaycastInput input = new RaycastInput()
-                    {
-                        Start = localTransform.Position + direction * colliderBound.Value,
             float3 nextWaypoint = waypoints[parkingData.CurrentIndex].Value;
             float3 direction = math.normalize(nextWaypoint - localTransform.Position);
             float distanceToWaypoint = math.distance(localTransform.Position, nextWaypoint);
