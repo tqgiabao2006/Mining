@@ -103,31 +103,30 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
 
             foreach ((CarAspect car, Entity entity) in SystemAPI.Query<CarAspect>().WithEntityAccess())
             {
+                Debug.Log(car.State.ValueRO.Value);
                 if (car.State.ValueRO.Value == CarState.FollowingPath
-                    && math.distance(car.LocalTransform.ValueRO.Position,
-                        car.FollowPathData.ValueRO.WaypointsBlob.Value
-                            .Waypoints[car.FollowPathData.ValueRO.WaypointsBlob.Value.Waypoints.Length - 1].Value) <=
-                    0.05f
-                    && car.FollowPathData.ValueRW.CurrentIndex ==
-                    car.FollowPathData.ValueRO.WaypointsBlob.Value.Waypoints.Length - 1)
+                    && math.distance(car.LocalTransform.ValueRO.Position, car.FollowPathData.ValueRO.WaypointsBlob.Value[car.FollowPathData.ValueRO.WaypointsBlob.Value.Length - 1]) <= 0.05f && car.FollowPathData.ValueRW.CurrentIndex ==
+                    car.FollowPathData.ValueRO.WaypointsBlob.Value.Length - 1)
                 {
                     Node node = GridManager.NodeFromWorldPosition(new Vector2(car.LocalTransform.ValueRO.Position.x,
                         car.LocalTransform.ValueRO.Position.y));
                     if (node.BelongedBuilding == null) continue;
 
                     BuildingBase building = node.BelongedBuilding.GetComponent<BuildingBase>();
+                    
                     building.GetParkingRequest(entity); // Ensure parking waypoints exist
-
-                    if (!car.ParkingData.ValueRO.HasPath || !car.ParkingData.ValueRO.WaypointsBlob.IsCreated)
-                    {
-                        continue;
-                    }
 
                     if (!car.ParkingData.ValueRO.WaypointsBlob.IsCreated)
                     {
                         car.ParkingData.ValueRW.WaypointsBlob.Dispose();
                     }
 
+                    if (car.NextDestination.ValueRO.IsGoWork)
+                    {
+                        car.NextDestination.ValueRW.Business = building.RoadNode.WorldPosition;
+                    }
+                    
+                    car.NextDestination.ValueRW.IsGoWork = !car.NextDestination.ValueRO.IsGoWork;
                     car.ParkingData.ValueRW.CurrentIndex = 0;
                     car.State.ValueRW.Value = CarState.Parking;
                 }
@@ -135,21 +134,39 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                          car.ParkingData.ValueRO.WaypointsBlob.IsCreated)
                 {
                     if (car.ParkingData.ValueRO.CurrentIndex ==
-                        car.ParkingData.ValueRO.WaypointsBlob.Value.Waypoints.Length - 1 &&
-                        car.ParkingData.ValueRO.HasPath
-                        && math.distance(car.LocalTransform.ValueRO.Position,
-                            car.ParkingData.ValueRO.WaypointsBlob.Value.Waypoints[car.ParkingData.ValueRO.CurrentIndex]
-                                .Value) <= 0.05f)
+                        car.ParkingData.ValueRO.WaypointsBlob.Value.Length - 1 && math.distance(car.LocalTransform.ValueRO.Position, car.ParkingData.ValueRO.WaypointsBlob.Value[car.ParkingData.ValueRO.CurrentIndex]) <= 0.05f)
                     {
                         if (!car.ParkingData.ValueRO.WaypointsBlob.IsCreated)
                         {
                             car.ParkingData.ValueRW.WaypointsBlob.Dispose();
                         }
+                        
+                        Node node = GridManager.NodeFromWorldPosition(new Vector2(car.LocalTransform.ValueRO.Position.x,
+                            car.LocalTransform.ValueRO.Position.y));
+                        
+                        if (node.BelongedBuilding == null) continue;
 
-                        Vector3[] path = _pathRequestManager.GetPathWaypoints(car.LocalTransform.ValueRO.Position,
-                            car.OriginBuilding.ValueRO.Position);
+                        BuildingBase building = node.BelongedBuilding.GetComponent<BuildingBase>();
+                        
+                        //Get path
+                        Vector3 nextDestination = car.NextDestination.ValueRO.IsGoWork
+                            ? car.NextDestination.ValueRO.Business
+                            : car.NextDestination.ValueRO.Home; 
+                        
+                        Vector3[] path = _pathRequestManager.GetPathWaypoints(building.RoadNode.WorldPosition, nextDestination);
+                        
+                        BlobBuilder builder = new BlobBuilder(Allocator.Temp);
+                        ref BlobArray<float3> root = ref builder.ConstructRoot<BlobArray<float3>>();
+                        var waypoint = builder.Allocate(ref root, path.Length);
 
+                        for (int i = 0; i < path.Length; i++)
+                        {
+                            waypoint[i] = path[i];
+                        }
 
+                        //Reset and set new data
+                        car.FollowPathData.ValueRW.WaypointsBlob = builder.CreateBlobAssetReference<BlobArray<float3>>(Allocator.Persistent); 
+                        car.FollowPathData.ValueRW.CurrentIndex = 0;
                         car.State.ValueRW.Value = CarState.FollowingPath;
                     }
 
@@ -168,15 +185,15 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
         public void Execute(ref ParkingData parkingData, ref State state, ref Speed speedStats,
             ref LocalTransform localTransform, in StopDistance stopDistance, in ColliderBound colliderBound)
         {
-            if (!parkingData.WaypointsBlob.IsCreated || parkingData.WaypointsBlob.Value.Waypoints.Length == 0 ||
+            if (!parkingData.WaypointsBlob.IsCreated || parkingData.WaypointsBlob.Value.Length == 0 ||
                 state.Value != CarState.Parking)
                 return;
 
-            ref BlobArray<ParkingWaypoint> waypoints = ref parkingData.WaypointsBlob.Value.Waypoints;
+            ref BlobArray<float3> waypoints = ref parkingData.WaypointsBlob.Value;
             if (parkingData.CurrentIndex >= waypoints.Length)
                 return;
 
-            float3 nextWaypoint = waypoints[parkingData.CurrentIndex].Value;
+            float3 nextWaypoint = waypoints[parkingData.CurrentIndex];
             float3 direction = math.normalize(nextWaypoint - localTransform.Position);
             float distanceToWaypoint = math.distance(localTransform.Position, nextWaypoint);
 
@@ -275,11 +292,11 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                 if (!followPathData.WaypointsBlob.IsCreated || state.Value != CarState.FollowingPath)
                     return;
 
-                ref BlobArray<PathWaypoint> waypoints = ref followPathData.WaypointsBlob.Value.Waypoints;
+                ref BlobArray<float3> waypoints = ref followPathData.WaypointsBlob.Value;
                 if (followPathData.CurrentIndex >= waypoints.Length)
                     return;
 
-                float3 nextWaypoint = waypoints[followPathData.CurrentIndex].Value;
+                float3 nextWaypoint = waypoints[followPathData.CurrentIndex];
                 float3 direction = math.normalize(nextWaypoint - localTransform.Position);
                 float distanceToWaypoint = math.distance(localTransform.Position, nextWaypoint);
 

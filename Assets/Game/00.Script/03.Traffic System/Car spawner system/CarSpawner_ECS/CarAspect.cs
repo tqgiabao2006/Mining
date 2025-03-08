@@ -4,7 +4,7 @@ using Unity.Transforms;
 
 [assembly: RegisterGenericComponentType(typeof(State))]
 [assembly: RegisterGenericComponentType(typeof(Entity))]
-[assembly: RegisterGenericComponentType(typeof(OriginBuildingRoad))]
+[assembly: RegisterGenericComponentType(typeof(NextDestination))]
     
 [assembly: RegisterGenericComponentType(typeof(Speed))]
 [assembly: RegisterGenericComponentType(typeof(FollowPathData))]
@@ -24,7 +24,7 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
         // Fundamental components
         public readonly RefRW<State> State;
         public readonly Entity Self;
-        public readonly RefRW<OriginBuildingRoad> OriginBuilding;
+        public readonly RefRW<NextDestination> NextDestination;
 
         // Follow path components
         public readonly RefRW<Speed> Speed;

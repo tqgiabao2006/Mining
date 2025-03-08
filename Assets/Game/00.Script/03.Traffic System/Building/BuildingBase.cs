@@ -7,6 +7,7 @@ using Game._00.Script._03.Traffic_System.Road;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Physics;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -168,16 +169,16 @@ namespace Game._00.Script._03.Traffic_System.Building
                 _test_parkingWaypoints.AddRange(waypoints);
 
                 BlobBuilder blobBuilder = new BlobBuilder(Allocator.Temp);
-                ref ParkingWaypointBlob parkingWaypointBlob = ref blobBuilder.ConstructRoot<ParkingWaypointBlob>();
+                ref BlobArray<float3> parkingWaypointBlob = ref blobBuilder.ConstructRoot<BlobArray<float3>>();
 
                 // Add waypoints to the Blob
-                BlobBuilderArray<ParkingWaypoint> blobBuilderArray = blobBuilder.Allocate(ref parkingWaypointBlob.Waypoints, waypoints.Length);
+                BlobBuilderArray<float3> blobBuilderArray = blobBuilder.Allocate(ref parkingWaypointBlob, waypoints.Length);
                 for (int i = 0; i < waypoints.Length; i++)
                 {
-                    blobBuilderArray[i] = new ParkingWaypoint { Value = waypoints[i] };
+                    blobBuilderArray[i] = waypoints[i]; 
                 }
 
-                BlobAssetReference<ParkingWaypointBlob> waypointsBlob = blobBuilder.CreateBlobAssetReference<ParkingWaypointBlob>(Allocator.Persistent);
+                BlobAssetReference<BlobArray<float3>> waypointsBlob = blobBuilder.CreateBlobAssetReference<BlobArray<float3>>(Allocator.Persistent);
 
                 ParkingData parkingData = new ParkingData
                 {

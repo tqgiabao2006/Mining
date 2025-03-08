@@ -74,7 +74,7 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                     Value = 2f
                 });
                 
-                AddComponent(entity, new OriginBuildingRoad());
+                AddComponent(entity, new NextDestination());
 
             }    
         }
@@ -85,9 +85,11 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
         public CarState Value;
     }
 
-    public struct OriginBuildingRoad : IComponentData
+    public struct NextDestination : IComponentData
     {
-        public Vector3 Position;
+        public Vector3 Business;
+        public Vector3 Home;
+        public bool IsGoWork;
     }
 
     public struct Speed : IComponentData
@@ -99,36 +101,17 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
     }
     public struct FollowPathData : IComponentData
     {
-        public BlobAssetReference<FollowPathWaypointBlob> WaypointsBlob;
+        public BlobAssetReference<BlobArray<float3>> WaypointsBlob;
         public int CurrentIndex;
     }
 
-    public struct PathWaypoint
-    {
-        public float3 Value;
-    }
-    public struct FollowPathWaypointBlob
-    {
-        public BlobArray<PathWaypoint> Waypoints;
-    }
-    
-    public struct ParkingWaypoint
-    {
-        public float3 Value;
-    }
 
-    
     public struct ParkingData : IComponentData
     {
-        public BlobAssetReference<ParkingWaypointBlob> WaypointsBlob;
+        public BlobAssetReference<BlobArray<float3>> WaypointsBlob;
         public float3 ParkingPos;
         public int CurrentIndex;
         public bool HasPath;
-    }
-
-    public struct ParkingWaypointBlob
-    {
-        public BlobArray<ParkingWaypoint> Waypoints;
     }
 
     public struct MiningTime: IComponentData

@@ -9,7 +9,9 @@ using Unity.Mathematics;
 using UnityEngine;
 using Game._00.Script._02.Grid_setting;
 using Game._00.Script._03.Traffic_System.Building;
+using Unity.Physics;
 using Unity.Transforms;
+using BlobBuilder = Unity.Entities.BlobBuilder;
 
 namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
 {
@@ -90,32 +92,20 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                 Scale = 0.4f
             });
             
-            BlobBuilder blobBuilder = new BlobBuilder(Allocator.Temp);
-            ref FollowPathWaypointBlob followPathWaypointBlob = ref blobBuilder.ConstructRoot<FollowPathWaypointBlob>();
-
-            BlobBuilderArray<CarSpawner_ECS.PathWaypoint> blobBuilderArray = blobBuilder.Allocate(ref followPathWaypointBlob.Waypoints, spawnData.Waypoints.Value.Length);
-            for (int i = 0; i < spawnData.Waypoints.Value.Length; i++)
-            {
-                blobBuilderArray[i] = new PathWaypoint { Value = spawnData.Waypoints.Value[i] };
-            }
-
-            BlobAssetReference<FollowPathWaypointBlob> followPathWaypointBlobReference = blobBuilder.CreateBlobAssetReference<FollowPathWaypointBlob>(Allocator.Temp);
-
             EntityManager.AddComponentData(spawnedEntity, new FollowPathData()
             {
-                WaypointsBlob = followPathWaypointBlobReference
+                WaypointsBlob = spawnData.Waypoints 
             });
 
-            blobBuilder.Dispose();
-            
             EntityManager.SetComponentData(spawnedEntity, new CanRun()
             {
                 Value = true,
             });
             
-            EntityManager.SetComponentData(spawnedEntity, new OriginBuildingRoad()
+            EntityManager.SetComponentData(spawnedEntity, new NextDestination()
             {
-                Position = spawnData.StartPos
+               Home = spawnPosition,
+               IsGoWork =  true
             });
         }
         
