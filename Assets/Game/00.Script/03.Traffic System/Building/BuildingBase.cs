@@ -48,6 +48,16 @@ namespace Game._00.Script._03.Traffic_System.Building
         }
         private RoadManager _roadManager;
         private EntityManager _entityManager;
+
+        [SerializeField] private int demands;
+        private bool DemandCar
+        {
+            get
+            {
+                return demands > 0; 
+                
+            }
+        }
         
         protected Vector2 _worldPosition;
         
@@ -199,7 +209,7 @@ namespace Game._00.Script._03.Traffic_System.Building
             _parkingResquest.Dequeue();
         }
         
-
+        
          /// <summary>
          /// Get way points to direct the car to park following these rules:
          /// 1/ Always go from the right of a lane. If it is an outward lane, it = 1/4f Node radius (divided) Radius 2 lane, road. If it inward lane (lane close to building), it = 1/2 Node radius, 1 lane road

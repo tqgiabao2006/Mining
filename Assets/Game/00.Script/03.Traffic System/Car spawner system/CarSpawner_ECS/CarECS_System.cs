@@ -280,8 +280,8 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
     }
 
 
-        [BurstCompile]
-        public partial struct FollowPathJob : IJobEntity
+    [BurstCompile] 
+    public partial struct FollowPathJob : IJobEntity
         {
             [ReadOnly] public float DeltaTime;
             [ReadOnly] public PhysicsWorldSingleton PhysicsWorld;
@@ -352,4 +352,5 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                     localTransform.Position += direction * speed * DeltaTime;
             }
         }
-    }
+    
+}
