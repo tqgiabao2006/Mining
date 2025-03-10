@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Game._00.Script._01.PlacingSystem
 {
-    public class PlacingSystem : SubjectBase
+    public class PlacingSystem : MonoBehaviour
       {
         [Header("Gizmos Setting")] [SerializeField]
         public bool showGizmos = true;
@@ -53,7 +53,6 @@ namespace Game._00.Script._01.PlacingSystem
             _roadManager = FindObjectOfType<RoadManager>();
         
             //Obsever set up
-            ObserversSetup();
         
             //Threshold set up:
             _baseThreshold = GridManager.NodeRadius / 1.5f;
@@ -74,19 +73,9 @@ namespace Game._00.Script._01.PlacingSystem
                 _isPlacing = true;
                 _selectedNodes.Clear();
             
-                //Notify obsevers:
-                Notify(true, NotificationFlags.PlacingState);
-
                 // Start with the initial node
                 _curNode = GridManager.NodeFromWorldPosition(_mousePos);
                 _selectedNodes.Add(_curNode);
-            }
-
-            if (Input.GetMouseButtonUp(0)) // Stop placing when mouse button is released
-            {
-                _isPlacing = false;
-                Notify(false, NotificationFlags.PlacingState);
-                Notify(true, NotificationFlags.CheckingConnection);
             }
 
             if (_isPlacing)
@@ -113,25 +102,13 @@ namespace Game._00.Script._01.PlacingSystem
                 }
             }
 
+            if (Input.GetMouseButtonUp(0))
+            {
+                _isPlacing = false;
+            }
             _lastMousePos = _mousePos;
         }
 
-        #region Obsever
-    
- 
-        public override void ObserversSetup()
-        {
-            _observers.Add(_gameStateManager);
-            _observers.Add(_roadManager);
-
-            foreach (var observer in _observers)
-            {
-                Attach(observer);
-            }
-        
-        }
-        #endregion
-    
     
         #region Input Helpers
     

@@ -10,17 +10,16 @@ using UnityEngine;
 namespace Game._00.Script._03.Traffic_System.Building
 {
 
-    public class BuildingManager: SubjectBase, IObserver
+    public class BuildingManager: SubjectBase
     {
         //Directed graph => adjacent list => building type + its output
-        private Dictionary<BuildingType, List<BuildingType>> _outputMap = new Dictionary<BuildingType, List<BuildingType>>();
+        private Dictionary<BuildingType, List<BuildingType>> _inputMap = new Dictionary<BuildingType, List<BuildingType>>();
        
         private Dictionary<BuildingType, List<BuildingBase>> _currentBuildings = new Dictionary<BuildingType, List<BuildingBase>>();
         public Dictionary<BuildingType, List<BuildingBase>> CurrentBuildings
         {
             get => _currentBuildings;
         }
-        private Dictionary<BuildingType, CarSpawnInfo> _carSpawnInfos;
 
         private Dictionary<GameObject, List<Node>> _unconnectedBuildings;
         
@@ -32,7 +31,6 @@ namespace Game._00.Script._03.Traffic_System.Building
         {
             InputOutputMapSetup();
             ObserversSetup();
-            CarSpawnInfoSetup();
             _connectedBuildings = new Dictionary<int, List<BuildingBase>>();
             _unconnectedBuildings = new Dictionary<GameObject, List<Node>>();
         }
@@ -40,20 +38,14 @@ namespace Game._00.Script._03.Traffic_System.Building
         #region Set up
         private void InputOutputMapSetup()
         {
-            _outputMap.Add(BuildingType.Heart, new List<BuildingType>() { });
-            _outputMap.Add(BuildingType.NormalCell, new List<BuildingType>() { BuildingType.Heart });
+            //Business has no output
+            _inputMap.Add(BuildingType.BusinessRed, new List<BuildingType>() { BuildingType.HomeRed });
+            _inputMap.Add(BuildingType.BusinessYellow, new List<BuildingType>() { BuildingType.HomeYellow });
+            _inputMap.Add(BuildingType.BusinessBlue, new List<BuildingType>() { BuildingType.HomeBlue });
+            
         }
         
-        public void CarSpawnInfoSetup()
-        {
-            _carSpawnInfos = new Dictionary<BuildingType, CarSpawnInfo>();
-            _carSpawnInfos.Add(BuildingType.NormalCell, new CarSpawnInfo()
-            {
-                Car = ObjectFlags.RedBlood,
-                Amount = 1,
-                DelayTime = 2f
-            });
-        }
+      
         public override void ObserversSetup()
         {
             // Get the CarSpawnSystem
@@ -79,10 +71,10 @@ namespace Game._00.Script._03.Traffic_System.Building
             _unconnectedBuildings.Add(building.gameObject, building.ParkingNodes);
         }
 
-        public List<BuildingBase> GetOutputBuildings(BuildingType buildingType)
+        public List<BuildingBase> GetInputBuildings(BuildingType buildingType)
         {
             List<BuildingBase> buildings = new List<BuildingBase>();
-            List<BuildingType> buildingTypes = _outputMap[buildingType];
+            List<BuildingType> buildingTypes = _inputMap[buildingType];
             foreach (BuildingType type in buildingTypes)
             {
                 if (_currentBuildings.TryGetValue(type, out var building))
@@ -93,20 +85,27 @@ namespace Game._00.Script._03.Traffic_System.Building
             return buildings;   
         }
 
+        public bool IsOutput(BuildingType business, BuildingType home)
+        {
+            if (_inputMap.TryGetValue(home, out var buildings))
+            {
+                if (buildings.Contains(business))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         /// <summary>
         /// Spawn multiple cars have waiting time between by notifying spawn car system through time
         /// Can not bring this function to the system itself because it makes system ignore other notification when 2, 3 cars spawned
         /// in the same time, job can't work for structural change like instantiate entity
         /// </summary>
         /// <returns></returns>
-        public IEnumerator SpawnCarWaves(Node start, Node end, CarSpawnInfo spawnInfo)
+        public void SpawnCarWaves(Vector3 startNodePosition, Quaternion rotation,string carFlag)
         {
-            for (int i = 0; i < spawnInfo.Amount; i++)
-            {
-                Notify((start, end, spawnInfo.Car), NotificationFlags.SpawnCar);
-                yield return new WaitForSeconds(spawnInfo.DelayTime);
-            }
-            yield return null;
+           Notify((startNodePosition, rotation,carFlag), NotificationFlags.SpawnCar); 
         }
 
         /// <summary>
@@ -116,65 +115,59 @@ namespace Game._00.Script._03.Traffic_System.Building
         /// <param name="flag"></param>
         public void OnNotified(object data, string flag)
         {
-            if (flag == NotificationFlags.CheckingConnection &&
-                data is (Func<List<Node>, Node, Node>))
-            {
-                //Check all in unconnected graph:
-                Func<List<Node>, Node, Node> givenData = (Func<List<Node>, Node, Node>)data;
-                List<GameObject> removedObj = new List<GameObject>();
-            
-                foreach (GameObject buildingObj in _unconnectedBuildings.Keys)
-                {
-                    //Get all output buildings' parking nodes
-                    BuildingBase building = buildingObj.GetComponent<BuildingBase>();
-                    List<Node> roadNodes = new List<Node>();
-                    foreach (BuildingBase b in GetOutputBuildings(building.BuildingType))
-                    {
-                       roadNodes.Add(b.RoadNode);
-                    }
-                    
-                    if (roadNodes.Count == 0)
-                    {
-                        continue;
-                    }
-
-                    Node startNode = building.RoadNode;
-                    Node endNode = givenData(roadNodes, building.RoadNode);
-                    
-                    if (endNode != null)
-                    {
-                        CarSpawnInfo carSpawnInfo = _carSpawnInfos[building.BuildingType];
-                        StartCoroutine(SpawnCarWaves(startNode, endNode, carSpawnInfo));
-                       
-                        //Add to remove list to remove later
-                        if (_unconnectedBuildings.ContainsKey(endNode.BelongedBuilding))
-                        {
-                            removedObj.Add(endNode.BelongedBuilding);
-                        }
-                        removedObj.Add(building.gameObject);
-                        
-                        //Add to connected:
-                        if (!_connectedBuildings.ContainsKey(building.OriginBuildingNode.GraphIndex))
-                        {
-                           _connectedBuildings.Add(building.OriginBuildingNode.GraphIndex, new List<BuildingBase>());
-                        }
-                        _connectedBuildings[building.OriginBuildingNode.GraphIndex].Add(building);
-                        _connectedBuildings[building.OriginBuildingNode.GraphIndex].Add(endNode.BelongedBuilding.GetComponent<BuildingBase>());
-                    }
-                }
-                //Remove unconnected building
-                foreach (GameObject buildingObj in removedObj)
-                {
-                    _unconnectedBuildings.Remove(buildingObj);
-                }
-            }
+        //     if (flag == NotificationFlags.CheckingConnection &&
+        //         data is (Func<List<Node>, Node, Node>))
+        //     {
+        //         //Check all in unconnected graph:
+        //         Func<List<Node>, Node, Node> givenData = (Func<List<Node>, Node, Node>)data;
+        //         List<GameObject> removedObj = new List<GameObject>();
+        //     
+        //         foreach (GameObject buildingObj in _unconnectedBuildings.Keys)
+        //         {
+        //             //Get all output buildings' parking nodes
+        //             BuildingBase building = buildingObj.GetComponent<BuildingBase>();
+        //             List<Node> roadNodes = new List<Node>();
+        //             foreach (BuildingBase b in GetInputBuildings(building.BuildingType))
+        //             {
+        //                roadNodes.Add(b.RoadNode);
+        //             }
+        //             
+        //             if (roadNodes.Count == 0)
+        //             {
+        //                 continue;
+        //             }
+        //
+        //             Node startNode = building.RoadNode;
+        //             Node endNode = givenData(roadNodes, building.RoadNode);
+        //             
+        //             if (endNode != null)
+        //             {
+        //                 CarSpawnInfo carSpawnInfo = _carSpawnInfos[building.BuildingType];
+        //                 StartCoroutine(SpawnCarWaves(startNode, endNode, carSpawnInfo));
+        //                
+        //                 //Add to remove list to remove later
+        //                 if (_unconnectedBuildings.ContainsKey(endNode.BelongedBuilding))
+        //                 {
+        //                     removedObj.Add(endNode.BelongedBuilding);
+        //                 }
+        //                 removedObj.Add(building.gameObject);
+        //                 
+        //                 //Add to connected:
+        //                 if (!_connectedBuildings.ContainsKey(building.OriginBuildingNode.GraphIndex))
+        //                 {
+        //                    _connectedBuildings.Add(building.OriginBuildingNode.GraphIndex, new List<BuildingBase>());
+        //                 }
+        //                 _connectedBuildings[building.OriginBuildingNode.GraphIndex].Add(building);
+        //                 _connectedBuildings[building.OriginBuildingNode.GraphIndex].Add(endNode.BelongedBuilding.GetComponent<BuildingBase>());
+        //             }
+        //         }
+        //         //Remove unconnected building
+        //         foreach (GameObject buildingObj in removedObj)
+        //         {
+        //             _unconnectedBuildings.Remove(buildingObj);
+        //         }
+        //     }
         }
     }
 
-    public struct CarSpawnInfo
-    {
-        public string Car;
-        public float DelayTime; //Wait after previous wave finish
-        public int Amount;
-    }
 }

@@ -123,10 +123,8 @@ namespace Game._00.Script._03.Traffic_System.Building
             //Level 1:
             _waveInfos[0] = new SpawningWaveInfo(0, 3, 5, new List<BuildingInfo>()
             {
-                new BuildingInfo(BuildingType.NormalCell, 1, 0f),
-                new BuildingInfo(BuildingType.Heart, 1, 2f),
-                new BuildingInfo(BuildingType.NormalCell, 1, 4f),
-                new BuildingInfo(BuildingType.Heart, 1, 2f)
+                new BuildingInfo(BuildingType.BusinessRed, 1, 0f),
+                new BuildingInfo(BuildingType.HomeRed, 1, 2f),
             });
         }
 

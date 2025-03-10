@@ -13,10 +13,9 @@ namespace Game._00.Script._00.Manager.Observer
 
     public static class ObjectFlags
     {
-        public const string RedBlood = "Red Blood";
-        public const string BlueBlood = "Blue Blood";
-
-        public const string Car = "Car";
+        public const string RedCar = "Red Car";
+        public const string BlueCar = "Blue Car";
+        public const string YellowCar = "Yellow Car";
     }
 
     public abstract class DirectoryFlags

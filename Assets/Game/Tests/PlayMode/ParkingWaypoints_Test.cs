@@ -38,7 +38,7 @@ namespace Game.Tests.PlayMode
                 float3[] expectedResult = testCase.Output;
                 
                 GameObject go = new GameObject();
-                Heart building = go.AddComponent<Heart>();
+                Business building = go.AddComponent<Business>();
                 
                 float3[] testResult = building.GetParkingWaypoints(inputData.BuildingPos, inputData.Direction,
                     inputData.Size, inputData.ParkingPos, inputData.CenterPoint, inputData.RoadPos);

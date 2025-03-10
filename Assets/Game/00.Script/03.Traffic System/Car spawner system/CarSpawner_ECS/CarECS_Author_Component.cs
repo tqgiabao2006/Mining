@@ -12,7 +12,8 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
     {
         FollowingPath,
         Parking,
-        Mining
+        Mining,
+        Idle
     }
     public class CarECS_Author_Component: MonoBehaviour
     { 
@@ -36,7 +37,10 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                 }
 
                 //Core components
-                AddComponent(entity, new State());
+                AddComponent(entity, new State()
+                {
+                    Value = CarState.Idle
+                });
                 AddComponent(entity, new Self()
                 {
                     Value = entity,

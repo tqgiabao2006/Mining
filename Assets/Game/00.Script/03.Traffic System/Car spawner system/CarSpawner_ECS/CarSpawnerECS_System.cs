@@ -30,7 +30,7 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
      
         public void OnNotified(object data, string flag)
         {
-            if (data is ValueTuple<Node, Node, string> && flag == NotificationFlags.SpawnCar)
+            if (data is ValueTuple<Vector3, Quaternion,string> && flag == NotificationFlags.SpawnCar)
             {
                 if (!_isNotified) //To avoid duplicate OnNotified call
                 {
@@ -39,21 +39,43 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                 else
                 {
                     return;
-                }    
-                
-                ValueTuple< Node, Node, string> startEndBuildings = (ValueTuple< Node, Node, string>)data;
-                Vector3[] waypoints = _pathRequestManager.GetPathWaypoints(startEndBuildings.Item1.WorldPosition, startEndBuildings.Item2.WorldPosition);
-                BlobAssetReference<BlobArray<float3>> waypointsBlob = CreateWaypointsBlob(waypoints);
-                SpawnCarEntity(startEndBuildings.Item3, new SpawnData()
+                }
+                ValueTuple<Vector3,Quaternion, string> tuple = (ValueTuple<Vector3, Quaternion,string>)data;
+               
+                SpawnCarEntity(new SpawnData()
                 {
-                    StartPos = new float3(startEndBuildings.Item1.WorldPosition.x,
-                        startEndBuildings.Item1.WorldPosition.y, 0),
-                    EndPos = new float3(startEndBuildings.Item2.WorldPosition.x,
-                        startEndBuildings.Item2.WorldPosition.y, 0),
-                    Waypoints = waypointsBlob,
+                    ObjectFlag = tuple.Item3,
+                    StartPosition = tuple.Item1,
+                    StartRotation = tuple.Item2,
                 });
+                
+                
                 _isNotified = false;
             }
+            // if (data is ValueTuple<Node, Node, string> && flag == NotificationFlags.SpawnCar)
+            // {
+            //     if (!_isNotified) //To avoid duplicate OnNotified call
+            //     {
+            //         _isNotified = true;
+            //     }
+            //     else
+            //     {
+            //         return;
+            //     }    
+            //     
+            //     ValueTuple< Node, Node, string> startEndBuildings = (ValueTuple< Node, Node, string>)data;
+            //     Vector3[] waypoints = _pathRequestManager.GetPathWaypoints(startEndBuildings.Item1.WorldPosition, startEndBuildings.Item2.WorldPosition);
+            //     BlobAssetReference<BlobArray<float3>> waypointsBlob = CreateWaypointsBlob(waypoints);
+            //     SpawnCarEntity(startEndBuildings.Item3, new SpawnData()
+            //     {
+            //         StartPos = new float3(startEndBuildings.Item1.WorldPosition.x,
+            //             startEndBuildings.Item1.WorldPosition.y, 0),
+            //         EndPos = new float3(startEndBuildings.Item2.WorldPosition.x,
+            //             startEndBuildings.Item2.WorldPosition.y, 0),
+            //         Waypoints = waypointsBlob,
+            //     });
+            //     _isNotified = false;
+            // }
         }
 
         protected override void OnUpdate()
@@ -70,33 +92,27 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
         /// </summary>
         /// <param name="objectFlags"></param>
         /// <param name="spawnData"></param>
-        public void SpawnCarEntity(string objectFlags, SpawnData spawnData)
+        public void SpawnCarEntity(SpawnData spawnData)
         {  
             SpawnGameObjectHolder objectHolder = SystemAPI.GetSingleton<SpawnGameObjectHolder>();
 
             Entity spawnedEntity = Entity.Null;
-            if (objectFlags == ObjectFlags.RedBlood)
+            if (spawnData.ObjectFlag== ObjectFlags.RedCar)
             {
                 spawnedEntity = EntityManager.Instantiate(objectHolder.RedBlood);
-            }else if (objectFlags == ObjectFlags.BlueBlood)
+            }else if (spawnData.ObjectFlag == ObjectFlags.BlueCar)
             {
                 spawnedEntity = EntityManager.Instantiate(objectHolder.BlueBlood);
             }
-            float3 spawnPosition = new float3(spawnData.StartPos.x, spawnData.StartPos.y, 0);
             
             // Set components directly using EntityManager
             EntityManager.SetComponentData(spawnedEntity, new LocalTransform
             {
-                Position = spawnPosition,
-                Rotation = quaternion.identity,
-                Scale = 0.4f
+                Position = spawnData.StartPosition,
+                Rotation = spawnData.StartRotation,
+                Scale = 1
             });
             
-            EntityManager.AddComponentData(spawnedEntity, new FollowPathData()
-            {
-                WaypointsBlob = spawnData.Waypoints 
-            });
-
             EntityManager.SetComponentData(spawnedEntity, new CanRun()
             {
                 Value = true,
@@ -104,7 +120,7 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
             
             EntityManager.SetComponentData(spawnedEntity, new NextDestination()
             {
-               Home = spawnPosition,
+               Home = spawnData.StartPosition, 
                IsGoWork =  true
             });
         }

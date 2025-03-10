@@ -15,9 +15,13 @@ namespace Game._00.Script._03.Traffic_System.Building
 {
     public enum BuildingType
     {
-        Heart,
-        Lung,
-        NormalCell
+        BusinessRed,
+        BusinessBlue,
+        BusinessYellow,
+        HomeRed,
+        HomeYellow,
+        HomeBlue,
+        
     }
 
     /// <summary>
@@ -40,28 +44,21 @@ namespace Game._00.Script._03.Traffic_System.Building
   
     public abstract class BuildingBase : MonoBehaviour
     {
+        [Header("Default building settings")]
         [SerializeField] private BuildingSpriteCollection spriteCollections;
 
         public BuildingSpriteCollection SpriteCollections
         {
             get { return spriteCollections; }
         }
-        private RoadManager _roadManager;
-        private EntityManager _entityManager;
+        protected RoadManager RoadManager;
+        protected BuildingManager BuildingManager;
+        protected EntityManager EntityManager;
 
-        [SerializeField] private int demands;
-        private bool DemandCar
-        {
-            get
-            {
-                return demands > 0; 
-                
-            }
-        }
         
         protected Vector2 _worldPosition;
         
-        private Node _originBuildingNode;
+     
        
         private List<Node> _parkingNodes;
 
@@ -71,21 +68,24 @@ namespace Game._00.Script._03.Traffic_System.Building
             set {_parkingNodes = value;}
         }
 
-        private List<float3> _test_parkingWaypoints;
+        protected List<float3> TestParkingWaypoints;
 
         public List<ParkingLot> ParkingPos; //Parking lots positions
         
-        private float3 _centerPos;
+        protected float3 _centerPos;
 
         public float3 CenterPos
         {
             set { _centerPos = value; }
         }
+        
+        protected Node _originBuildingNode;
         public Node OriginBuildingNode
         {
             get { return _originBuildingNode; }
         }
-        private Node _roadNode;
+        
+        protected Node _roadNode;
         public Node RoadNode
         {
           get { return _roadNode; }
@@ -97,9 +97,8 @@ namespace Game._00.Script._03.Traffic_System.Building
             get { return _worldPosition; }
             set { _worldPosition = value; }
         }
-        
-        private Queue<Entity> _parkingResquest = new Queue<Entity>();
-        
+
+        protected Queue<Entity> ParkingResquest;
         private ParkingMesh _parkingMesh;
     
         public BuildingType BuildingType { get; private set; }  // Make it a property
@@ -107,28 +106,28 @@ namespace Game._00.Script._03.Traffic_System.Building
         [SerializeField] public ParkingLotSize size = ParkingLotSize._1x1;
         public BuildingDirection BuildingDirection { get; private set; }
 
-        public void Initialize(Node node, BuildingType buildingType, BuildingDirection direction,Vector2 worldPosition)
+        public virtual void Initialize(Node node, BuildingType buildingType, BuildingDirection direction,Vector2 worldPosition)
         {
-            _entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+            EntityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
             _parkingMesh = FindObjectOfType<ParkingMesh>();
+            this.RoadManager = FindObjectOfType<RoadManager>();
+            this.BuildingManager = FindObjectOfType<BuildingManager>();
             
             this.BuildingDirection = direction;
-
-            //Random between horizontal and vertical building
-            this._roadManager = FindObjectOfType<RoadManager>();
             this.BuildingType = buildingType;
             this._worldPosition = worldPosition;
+            
             this._originBuildingNode = GridManager.NodeFromWorldPosition(worldPosition);
 
             _parkingNodes = new List<Node>();
             ParkingPos = new List<ParkingLot>();
             
             //After finish initialize parking lots, initlize bool[] to track if the parking lot is available
-            _parkingResquest = new Queue<Entity>();
+            ParkingResquest = new Queue<Entity>();
             
             //Test-only
             #if    UNITY_EDITOR
-            _test_parkingWaypoints = new List<float3>();
+            TestParkingWaypoints = new List<float3>();
             #endif
             
         }
@@ -148,7 +147,7 @@ namespace Game._00.Script._03.Traffic_System.Building
         /// <param name="car"></param>
         public void GetParkingRequest(Entity car)
         {
-            _parkingResquest.Enqueue(car); 
+            ParkingResquest.Enqueue(car); 
             // Check if any slot is available
             float3 parkingPos = float3.zero;
             bool foundSlot = false;
@@ -164,7 +163,7 @@ namespace Game._00.Script._03.Traffic_System.Building
             }
 
             // Ensure the entity has ParkingData before modifying it
-            if (_entityManager.HasComponent<ParkingData>(car) && foundSlot)
+            if (EntityManager.HasComponent<ParkingData>(car) && foundSlot)
             {
                 
                 float3[] waypoints = GetParkingWaypoints(
@@ -176,7 +175,7 @@ namespace Game._00.Script._03.Traffic_System.Building
                     _roadNode.WorldPosition
                 );
                 
-                _test_parkingWaypoints.AddRange(waypoints);
+                TestParkingWaypoints.AddRange(waypoints);
 
                 BlobBuilder blobBuilder = new BlobBuilder(Allocator.Temp);
                 ref BlobArray<float3> parkingWaypointBlob = ref blobBuilder.ConstructRoot<BlobArray<float3>>();
@@ -198,7 +197,7 @@ namespace Game._00.Script._03.Traffic_System.Building
                     HasPath = true     
                 };
 
-                _entityManager.SetComponentData(car, parkingData);
+                EntityManager.SetComponentData(car, parkingData);
                 blobBuilder.Dispose();
             }
             else
@@ -206,7 +205,7 @@ namespace Game._00.Script._03.Traffic_System.Building
                 DebugUtility.LogWarning($"Parking request failed for entity {car}, no available slots or missing ParkingData.", this.name);
             }
 
-            _parkingResquest.Dequeue();
+            ParkingResquest.Dequeue();
         }
         
         
@@ -502,7 +501,7 @@ namespace Game._00.Script._03.Traffic_System.Building
         #endif
         private void OnDrawGizmos()
         {
-            if (ParkingNodes != null && _originBuildingNode != null && _test_parkingWaypoints != null)
+            if (ParkingNodes != null && _originBuildingNode != null && TestParkingWaypoints != null)
             {
                 Gizmos.color = Color.yellow;
                 foreach (var waypoint in ParkingNodes)
@@ -511,7 +510,7 @@ namespace Game._00.Script._03.Traffic_System.Building
                 }
 
                 Gizmos.color = Color.yellow;
-                foreach (var node in _test_parkingWaypoints)
+                foreach (var node in TestParkingWaypoints)
                 {
                     Gizmos.DrawSphere(node, 0.05f);
                 }

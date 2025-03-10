@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Game._00.Script._00.Manager.Observer;
 using Game._00.Script._03.Traffic_System.Building;
 using Game._00.Script._03.Traffic_System.Mesh_Generator;
@@ -9,7 +10,7 @@ using UnityEngine;
 
 namespace Game._00.Script._03.Traffic_System.Road
 {
-    public class RoadManager : SubjectBase, IObserver
+    public class RoadManager : MonoBehaviour
     {
         public static readonly float RoadWidth = 0.4f;
         [SerializeField] private bool isGizmos = false;
@@ -37,7 +38,6 @@ namespace Game._00.Script._03.Traffic_System.Road
             _graphList = new Dictionary<int, List<Node>>();
         
             _graphCount = 0;
-            ObserversSetup();
         }
     
 
@@ -67,45 +67,58 @@ namespace Game._00.Script._03.Traffic_System.Road
         }
 
         /// <summary>
-        /// Check if a building is connected to one of its outputs
-        /// Return: (bool isConnected)
+        /// Give a Road Node of business building, return the connected input house for it to Notify later
         /// </summary>
-        private readonly Func<List<Node>, Node, Node> CheckConnectionDelegate = (outputNode, startNode) =>
+        public List<Home> GetHomes(Business business)
         {
-            float closestDistance = float.MaxValue;
-            Node closestOutputNode = null;
-        
-            List<Node> connectedNodes = new List<Node>();
-            foreach (Node node in outputNode)
-            {
-                if (node.GraphIndex == startNode.GraphIndex && node.WorldPosition != startNode.WorldPosition)
-                {
-                    connectedNodes.Add(node);
-                }
-            }
+            return _buildingManager.GetInputBuildings(business.BuildingType)
+                .Select(b => b.RoadNode) // Get road nodes of output buildings
+                .Where(n => n.GraphIndex == business.RoadNode.GraphIndex &&
+                            n.WorldPosition != business.RoadNode.WorldPosition) // Filter connected nodes
+                .OrderBy(n => Vector3.Distance(n.WorldPosition, business.RoadNode.WorldPosition)) // Sort closest to furthest
+                .Select(n => n.BelongedBuilding?.GetComponent<Home>()) // Convert to BuildingBase
+                .Where(b => b != null) // Remove null buildings
+                .ToList();
+        }
 
-            if (connectedNodes.Count == 1)
-            {
-                return connectedNodes[0];
-            }
-       
-            //Get closest building to main building
-            if (connectedNodes.Count > 1)
-            {
-                foreach (Node building in connectedNodes)
-                {
-                    float distance = Vector3.Distance(startNode.WorldPosition, building.WorldPosition);
-            
-                    // Check if this building is the closest one
-                    if (distance < closestDistance)
-                    {
-                        closestDistance = distance;
-                        closestOutputNode = building;
-                    }
-                }
-            }
-            return closestOutputNode;
-        };
+        
+        
+        // private readonly Func<BuildingBase, Node, List<Node>> GetConnectedBuildings = (outputNode, startNode) =>
+        // {
+            // float closestDistance = float.MaxValue;
+            // Node closestOutputNode = null;
+            //
+            // List<Node> connectedNodes = new List<Node>();
+            // foreach (Node node in outputNode)
+            // {
+            //     if (node.GraphIndex == startNode.GraphIndex && node.WorldPosition != startNode.WorldPosition)
+            //     {
+            //         connectedNodes.Add(node);
+            //     }
+            // }
+            //
+            // if (connectedNodes.Count == 1)
+            // {
+            //     return connectedNodes[0];
+            // }
+            //
+            // //Get closest building to main building
+            // if (connectedNodes.Count > 1)
+            // {
+            //     foreach (Node building in connectedNodes)
+            //     {
+            //         float distance = Vector3.Distance(startNode.WorldPosition, building.WorldPosition);
+            //
+            //         // Check if this building is the closest one
+            //         if (distance < closestDistance)
+            //         {
+            //             closestDistance = distance;
+            //             closestOutputNode = building;
+            //         }
+            //     }
+            // }
+            // return closestOutputNode;
+        // };
     
         #region Graph helper
         /// <summary>
@@ -287,30 +300,5 @@ namespace Game._00.Script._03.Traffic_System.Road
         
         }
     
-        #region Observers
-    
-        /// <summary>
-        /// Check isConnected => bool + closest building
-        /// WHEN: end place OriginBuildingNode check all|| spawn new building => check specific || merge a line => che
-        /// </summary>
-        /// <param name="data"></param>
-        public void OnNotified(object data, string flag)
-        {
-            if (flag != NotificationFlags.CheckingConnection)
-            {
-                return;
-            }
-            if (data is bool && (bool)data)
-            {
-                Notify(CheckConnectionDelegate, NotificationFlags.CheckingConnection);
-            }
-        }
-        #endregion
-
-        public override void ObserversSetup()
-        {
-            _observers.Add(_buildingManager);
-            Attach(_buildingManager);
-        }
     }
 }

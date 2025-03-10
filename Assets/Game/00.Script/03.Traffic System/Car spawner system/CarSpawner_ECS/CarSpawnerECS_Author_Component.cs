@@ -43,8 +43,8 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
 
     public struct SpawnData
     {
-        public float3 StartPos;
-        public float3 EndPos;
-        public BlobAssetReference<BlobArray<float3>> Waypoints;
+        public string ObjectFlag; 
+        public float3 StartPosition;
+        public Quaternion StartRotation;
     }
 }
