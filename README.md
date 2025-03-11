@@ -8,7 +8,7 @@
 ---
 
 ## 🚀 Game Overview  
-*Mining* is a **resource management simulation** where you design a **vascular network** to efficiently distribute mining cars underwater. With **Game AI, multi-threading, and procedural generation**, experience the challenge of optimizing pathways using **A* pathfinding and ECS-based logic**.
+*Mining* is a **resource management simulation** where you design a **traffuc network** to efficiently distribute mining cars underwater. With **Game AI, multi-threading, and procedural generation**, experience the challenge of optimizing pathways using **A* pathfinding and ECS-based logic**.
 
 ### 🎯 Key Features
 - 🏗 **Road System** – Design organic road networks like blood veins.  
