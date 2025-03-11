@@ -2,12 +2,13 @@ using System.Collections.Generic;
 using Game._00.Script._00.Manager;
 using Game._00.Script._00.Manager.Observer;
 using Game._00.Script._02.Grid_setting;
+using Game._00.Script._03.Traffic_System.Building;
 using Game._00.Script._03.Traffic_System.Road;
 using UnityEngine;
 
 namespace Game._00.Script._01.PlacingSystem
 {
-    public class PlacingSystem : MonoBehaviour
+    public class PlacingSystem : SubjectBase
       {
         [Header("Gizmos Setting")] [SerializeField]
         public bool showGizmos = true;
@@ -34,6 +35,7 @@ namespace Game._00.Script._01.PlacingSystem
     
         //Manager:
         private RoadManager _roadManager;
+        private BuildingManager _buildingManager;
         private GameStateManager _gameStateManager;
     
         //Observer:
@@ -51,8 +53,10 @@ namespace Game._00.Script._01.PlacingSystem
             //Manager set up
             _gameStateManager = GameManager.Instance.GameStateManager;
             _roadManager = FindObjectOfType<RoadManager>();
+            _buildingManager = FindObjectOfType<BuildingManager>();
         
-            //Obsever set up
+            //Observer set up
+           ObserversSetup(); 
         
             //Threshold set up:
             _baseThreshold = GridManager.NodeRadius / 1.5f;
@@ -94,11 +98,17 @@ namespace Game._00.Script._01.PlacingSystem
 
                 if (newNode != _curNode) 
                 {
+                    
                     _roadManager.PlaceNode(newNode);
                     _roadManager.SetAdjList(_curNode, newNode);
                     _selectedNodes.Add(newNode);
                     _roadManager.CreateMesh(newNode);
                     _curNode = newNode;
+
+                    //NOTICE: Notify after the road manager update graph because use graph index to determine if 2 road is connected
+                    //CHECK: after place a new road => possibility that there are some homes connecteed
+                    Notify(null, NotificationFlags.CheckingConnection);
+
                 }
             }
 
@@ -187,7 +197,12 @@ namespace Game._00.Script._01.PlacingSystem
         }
 
         #endregion
-    }
+
+        public override void ObserversSetup()
+        {
+           _observers.Add(_buildingManager); 
+        }
+      }
 }
 
 

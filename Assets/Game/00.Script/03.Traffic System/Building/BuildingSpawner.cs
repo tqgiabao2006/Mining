@@ -244,7 +244,6 @@ namespace Game._00.Script._03.Traffic_System.Building
                  
 
                     buildingComp.ParkingPos = GetParkingPos(buildingNode.WorldPosition, buildingDirection, buildingComp.size);
-                    _buildingManager.RegisterBuilding(buildingComp);
                     
                     Vector3 SetTransformOnSize(ParkingLotSize parkingLotSize, BuildingDirection direction, Vector2 spawnPos)
                     {

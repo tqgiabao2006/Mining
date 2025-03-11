@@ -9,6 +9,7 @@ namespace Game._00.Script._00.Manager.Observer
         public const string SpawnCar = "Spawn Car"; //FROM buildingManger TO building FOR start coroutine spawning car
         public const string RegisterBuilding = "Spawn Building";
         public const string UpdateLevel = "Update Level";
+        public const string DemandCar = "Demand Car";
     }
 
     public static class ObjectFlags

@@ -103,7 +103,6 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
 
             foreach ((CarAspect car, Entity entity) in SystemAPI.Query<CarAspect>().WithEntityAccess())
             {
-                Debug.Log(car.State.ValueRO.Value);
                 if (car.State.ValueRO.Value == CarState.FollowingPath
                     && math.distance(car.LocalTransform.ValueRO.Position, car.FollowPathData.ValueRO.WaypointsBlob.Value[car.FollowPathData.ValueRO.WaypointsBlob.Value.Length - 1]) <= 0.05f && car.FollowPathData.ValueRW.CurrentIndex ==
                     car.FollowPathData.ValueRO.WaypointsBlob.Value.Length - 1)

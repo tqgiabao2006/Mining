@@ -19,7 +19,6 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
    [UpdateInGroup (typeof(PresentationSystemGroup))]
     public partial class CarSpawnSystem : SystemBase, IObserver
     {
-        private PathRequestManager _pathRequestManager;
         private bool _isNotified = false;
         //use this for parallel spawn waves in different places to spawn multiple car in the same building
         protected override void OnCreate()
@@ -30,61 +29,27 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
      
         public void OnNotified(object data, string flag)
         {
-            if (data is ValueTuple<Vector3, Quaternion,string> && flag == NotificationFlags.SpawnCar)
+            if (data is not SpawnCarRequest || flag != NotificationFlags.SpawnCar)
+                return;
+            
+            if (!_isNotified) //To avoid duplicate OnNotified call
             {
-                if (!_isNotified) //To avoid duplicate OnNotified call
-                {
-                    _isNotified = true;
-                }
-                else
-                {
-                    return;
-                }
-                ValueTuple<Vector3,Quaternion, string> tuple = (ValueTuple<Vector3, Quaternion,string>)data;
-               
-                SpawnCarEntity(new SpawnData()
-                {
-                    ObjectFlag = tuple.Item3,
-                    StartPosition = tuple.Item1,
-                    StartRotation = tuple.Item2,
-                });
-                
-                
-                _isNotified = false;
+                _isNotified = true;
             }
-            // if (data is ValueTuple<Node, Node, string> && flag == NotificationFlags.SpawnCar)
-            // {
-            //     if (!_isNotified) //To avoid duplicate OnNotified call
-            //     {
-            //         _isNotified = true;
-            //     }
-            //     else
-            //     {
-            //         return;
-            //     }    
-            //     
-            //     ValueTuple< Node, Node, string> startEndBuildings = (ValueTuple< Node, Node, string>)data;
-            //     Vector3[] waypoints = _pathRequestManager.GetPathWaypoints(startEndBuildings.Item1.WorldPosition, startEndBuildings.Item2.WorldPosition);
-            //     BlobAssetReference<BlobArray<float3>> waypointsBlob = CreateWaypointsBlob(waypoints);
-            //     SpawnCarEntity(startEndBuildings.Item3, new SpawnData()
-            //     {
-            //         StartPos = new float3(startEndBuildings.Item1.WorldPosition.x,
-            //             startEndBuildings.Item1.WorldPosition.y, 0),
-            //         EndPos = new float3(startEndBuildings.Item2.WorldPosition.x,
-            //             startEndBuildings.Item2.WorldPosition.y, 0),
-            //         Waypoints = waypointsBlob,
-            //     });
-            //     _isNotified = false;
-            // }
+            else
+            {
+                return;
+            }
+            SpawnCarRequest request = (SpawnCarRequest)data;
+
+            SpawnCarEntity(request);  
+            _isNotified = false;
+       
         }
 
         protected override void OnUpdate()
         {
-            //Delay time to get the _pathRequestManager because OnCreate() is called before Awake() to initialize the class
-            if (_pathRequestManager == null)
-            {
-                _pathRequestManager = PathRequestManager.Instance;
-            }
+           
         }
         
         /// <summary>
@@ -92,7 +57,7 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
         /// </summary>
         /// <param name="objectFlags"></param>
         /// <param name="spawnData"></param>
-        public void SpawnCarEntity(SpawnData spawnData)
+        public void SpawnCarEntity(SpawnCarRequest spawnData)
         {  
             SpawnGameObjectHolder objectHolder = SystemAPI.GetSingleton<SpawnGameObjectHolder>();
 
@@ -105,11 +70,13 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                 spawnedEntity = EntityManager.Instantiate(objectHolder.BlueBlood);
             }
             
+            spawnData.Home.AddCarEntity(spawnedEntity);
+            
             // Set components directly using EntityManager
             EntityManager.SetComponentData(spawnedEntity, new LocalTransform
             {
-                Position = spawnData.StartPosition,
-                Rotation = spawnData.StartRotation,
+                Position = spawnData.StartNodePosition,
+                Rotation = spawnData.Rotation,
                 Scale = 1
             });
             
@@ -120,30 +87,9 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
             
             EntityManager.SetComponentData(spawnedEntity, new NextDestination()
             {
-               Home = spawnData.StartPosition, 
+               Home = spawnData.StartNodePosition, 
                IsGoWork =  true
             });
-        }
-        
-        /// <summary>
-        /// Convert Vector3[] waypoints to BlobAsset more optimized for ECS and Job system
-        /// </summary>
-        /// <param name="waypoints"></param>
-        /// <returns></returns>
-        public BlobAssetReference<BlobArray<float3>> CreateWaypointsBlob(Vector3[] waypoints)
-        {
-            using (var builder = new BlobBuilder(Allocator.Temp))
-            {
-                ref var root = ref builder.ConstructRoot<BlobArray<float3>>();
-                var waypointArray = builder.Allocate(ref root, waypoints.Length);
-
-                for (int i = 0; i < waypoints.Length; i++)
-                {
-                    waypointArray[i] = new float3(waypoints[i].x, waypoints[i].y, waypoints[i].z);
-                }
-
-                return builder.CreateBlobAssetReference<BlobArray<float3>>(Allocator.Persistent);
-            }
         }
     }
     

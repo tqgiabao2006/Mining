@@ -8,8 +8,9 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Physics;
+using UnityEditor;
 using UnityEngine;
-using Random = UnityEngine.Random;
+
 
 namespace Game._00.Script._03.Traffic_System.Building
 {
@@ -44,9 +45,9 @@ namespace Game._00.Script._03.Traffic_System.Building
   
     public abstract class BuildingBase : MonoBehaviour
     {
-        [Header("Default building settings")]
+        [Header("Default building settings")] 
+        [SerializeField] private bool isGizmos;
         [SerializeField] private BuildingSpriteCollection spriteCollections;
-
         public BuildingSpriteCollection SpriteCollections
         {
             get { return spriteCollections; }
@@ -57,9 +58,14 @@ namespace Game._00.Script._03.Traffic_System.Building
 
         
         protected Vector2 _worldPosition;
-        
-     
-       
+
+        private bool _isConnected;
+
+        public bool IsConnected
+        {
+            get{ return _isConnected; }
+            set {_isConnected = value;}
+        }
         private List<Node> _parkingNodes;
 
         public List<Node> ParkingNodes
@@ -501,25 +507,36 @@ namespace Game._00.Script._03.Traffic_System.Building
         #endif
         private void OnDrawGizmos()
         {
-            if (ParkingNodes != null && _originBuildingNode != null && TestParkingWaypoints != null)
+            if (ParkingNodes == null || _originBuildingNode == null || TestParkingWaypoints == null || !isGizmos)
             {
-                Gizmos.color = Color.yellow;
-                foreach (var waypoint in ParkingNodes)
-                {
-                    Gizmos.DrawWireSphere(waypoint.WorldPosition, 0.5f);
-                }
+                return;
+            }
+            Gizmos.color = Color.yellow;
+            foreach (var waypoint in ParkingNodes)
+            {
+                Gizmos.DrawWireSphere(waypoint.WorldPosition, 0.5f);
+            }
 
-                Gizmos.color = Color.yellow;
-                foreach (var node in TestParkingWaypoints)
-                {
-                    Gizmos.DrawSphere(node, 0.05f);
-                }
-                
-                Gizmos.color = Color.green;
-                Gizmos.DrawWireSphere(_roadNode.WorldPosition, 0.5f);
-                
-                Gizmos.color = Color.red;
-                Gizmos.DrawWireSphere(_originBuildingNode.WorldPosition, 0.5f);
+            Gizmos.color = Color.yellow;
+            foreach (var node in TestParkingWaypoints)
+            {
+                Gizmos.DrawSphere(node, 0.05f);
+            }
+            
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(_roadNode.WorldPosition, 0.5f);
+            
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(_originBuildingNode.WorldPosition, 0.5f);
+
+            if (this._isConnected)
+            {
+                Handles.Label(new Vector3(transform.position.x, transform.position.y, transform.position.z), "Connected", new GUIStyle { fontSize = 16, normal = { textColor = Color.green } });
+            }
+            else
+            {
+                Handles.Label(new Vector3(transform.position.x, transform.position.y, transform.position.z), "Unconnected", new GUIStyle { fontSize = 16, normal = { textColor = Color.red } });
+
             }
         }
     }

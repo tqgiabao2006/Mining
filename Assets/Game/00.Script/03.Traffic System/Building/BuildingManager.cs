@@ -1,38 +1,42 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using Game._00.Script._00.Manager.Observer;
-using Game._00.Script._02.Grid_setting;
 using Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS;
+using Game._00.Script._03.Traffic_System.PathFinding;
+using Game._00.Script._03.Traffic_System.Road;
 using Unity.Entities;
 using UnityEngine;
 
 namespace Game._00.Script._03.Traffic_System.Building
 {
 
-    public class BuildingManager: SubjectBase
+    public class BuildingManager: SubjectBase, IObserver
     {
         //Directed graph => adjacent list => building type + its output
         private Dictionary<BuildingType, List<BuildingType>> _inputMap = new Dictionary<BuildingType, List<BuildingType>>();
-       
-        private Dictionary<BuildingType, List<BuildingBase>> _currentBuildings = new Dictionary<BuildingType, List<BuildingBase>>();
-        public Dictionary<BuildingType, List<BuildingBase>> CurrentBuildings
-        {
-            get => _currentBuildings;
-        }
+        private Dictionary<BuildingType, List<Home>> _currentHomes;
+        private Dictionary<BuildingType, List<Business>> _currentBusiness;
 
-        private Dictionary<GameObject, List<Node>> _unconnectedBuildings;
+
+        private List<Business> _unconnectedBusinesses;
+        private List<Home> _unconnectedHomes;
+        private Dictionary<int, List<BuildingBase>> _connectedBuildings;
         
-        //Use dictionary because two roads can be connected but not to others
-        private Dictionary<int, List<BuildingBase>> _connectedBuildings; 
-        
+        private RoadManager _roadManager; 
+        private PathRequestManager _pathRequestManager;
         
         private void Start()
         {
             InputOutputMapSetup();
             ObserversSetup();
-            _connectedBuildings = new Dictionary<int, List<BuildingBase>>();
-            _unconnectedBuildings = new Dictionary<GameObject, List<Node>>();
+
+            _roadManager = FindObjectOfType<RoadManager>();
+            _pathRequestManager = PathRequestManager.Instance;
+            
+            _currentHomes = new Dictionary<BuildingType, List<Home>>();
+            _currentBusiness = new Dictionary<BuildingType, List<Business>>();
+            _unconnectedBusinesses = new List<Business>();
+            _unconnectedHomes = new List<Home>();
+            _connectedBuildings = new Dictionary<int , List<BuildingBase>>();
         }
         
         #region Set up
@@ -54,35 +58,45 @@ namespace Game._00.Script._03.Traffic_System.Building
             {
                 _observers.Add(spawnSystemInstance);
             }
+            IObserver carRequestSystem =World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<CarRequest_System>();
+            _observers.Add(carRequestSystem);
         }
         #endregion
         
         public void RegisterBuilding(BuildingBase building)
         {
-            if (_currentBuildings.ContainsKey(building.BuildingType))
+            if (building is Home)
             {
-                _currentBuildings[building.BuildingType].Add(building);
-            }
-            else
+               _unconnectedHomes.Add((Home)building); 
+                if (_currentHomes.ContainsKey(building.BuildingType))
+                {
+                    _currentHomes[building.BuildingType].Add((Home)building);
+                }
+                else
+                {
+                    _currentHomes.Add(building.BuildingType, new List<Home>() { (Home)building });
+                }
+            }else if (building is Business)
             {
-                _currentBuildings.Add(building.BuildingType, new List<BuildingBase>() { building });
+               _unconnectedBusinesses.Add((Business)building); 
+                if (_currentBusiness.ContainsKey(building.BuildingType))
+                {
+                   _currentBusiness[building.BuildingType].Add((Business)building);
+                }
+                else
+                {
+                    _currentBusiness.Add(building.BuildingType, new List<Business>() { (Business)building });
+                } 
             }
-            
-            _unconnectedBuildings.Add(building.gameObject, building.ParkingNodes);
         }
 
-        public List<BuildingBase> GetInputBuildings(BuildingType buildingType)
+        public List<Home> GetInputBuildings(BuildingType buildingType)
         {
-            List<BuildingBase> buildings = new List<BuildingBase>();
-            List<BuildingType> buildingTypes = _inputMap[buildingType];
-            foreach (BuildingType type in buildingTypes)
+            if (_inputMap.ContainsKey(buildingType))
             {
-                if (_currentBuildings.TryGetValue(type, out var building))
-                {
-                    buildings.AddRange(building);
-                }
+                return _currentHomes[buildingType];
             }
-            return buildings;   
+            return new List<Home>();
         }
 
         public bool IsOutput(BuildingType business, BuildingType home)
@@ -103,9 +117,32 @@ namespace Game._00.Script._03.Traffic_System.Building
         /// in the same time, job can't work for structural change like instantiate entity
         /// </summary>
         /// <returns></returns>
-        public void SpawnCarWaves(Vector3 startNodePosition, Quaternion rotation,string carFlag)
+        public void SpawnCarWaves(Home home, Vector3 startNodePosition, Quaternion rotation, string objectFlag)
         {
-           Notify((startNodePosition, rotation,carFlag), NotificationFlags.SpawnCar); 
+            
+           Notify(new SpawnCarRequest()
+           {
+               Home = home,
+               StartNodePosition = startNodePosition,
+               Rotation = rotation,
+               ObjectFlag = objectFlag
+           }, NotificationFlags.SpawnCar); 
+        }
+
+        
+        /// <summary>
+        /// Create waypoints, notify the car request system to create new blob array waypoints, change car to follow path state
+        /// </summary>
+        /// <param name="home"></param>
+        /// <param name="business"></param>
+        public void DemandCars(Entity carEntity,Home home, Business business)
+        {
+            Vector3[] waypoints = _pathRequestManager.GetPathWaypoints(home.RoadNode.WorldPosition, business.RoadNode.WorldPosition);
+            Notify(new DemandCarRequest()
+            {
+                CarEntity = carEntity,
+                Waypoints = waypoints,
+            }, NotificationFlags.DemandCar);
         }
 
         /// <summary>
@@ -115,59 +152,69 @@ namespace Game._00.Script._03.Traffic_System.Building
         /// <param name="flag"></param>
         public void OnNotified(object data, string flag)
         {
-        //     if (flag == NotificationFlags.CheckingConnection &&
-        //         data is (Func<List<Node>, Node, Node>))
-        //     {
-        //         //Check all in unconnected graph:
-        //         Func<List<Node>, Node, Node> givenData = (Func<List<Node>, Node, Node>)data;
-        //         List<GameObject> removedObj = new List<GameObject>();
-        //     
-        //         foreach (GameObject buildingObj in _unconnectedBuildings.Keys)
-        //         {
-        //             //Get all output buildings' parking nodes
-        //             BuildingBase building = buildingObj.GetComponent<BuildingBase>();
-        //             List<Node> roadNodes = new List<Node>();
-        //             foreach (BuildingBase b in GetInputBuildings(building.BuildingType))
-        //             {
-        //                roadNodes.Add(b.RoadNode);
-        //             }
-        //             
-        //             if (roadNodes.Count == 0)
-        //             {
-        //                 continue;
-        //             }
-        //
-        //             Node startNode = building.RoadNode;
-        //             Node endNode = givenData(roadNodes, building.RoadNode);
-        //             
-        //             if (endNode != null)
-        //             {
-        //                 CarSpawnInfo carSpawnInfo = _carSpawnInfos[building.BuildingType];
-        //                 StartCoroutine(SpawnCarWaves(startNode, endNode, carSpawnInfo));
-        //                
-        //                 //Add to remove list to remove later
-        //                 if (_unconnectedBuildings.ContainsKey(endNode.BelongedBuilding))
-        //                 {
-        //                     removedObj.Add(endNode.BelongedBuilding);
-        //                 }
-        //                 removedObj.Add(building.gameObject);
-        //                 
-        //                 //Add to connected:
-        //                 if (!_connectedBuildings.ContainsKey(building.OriginBuildingNode.GraphIndex))
-        //                 {
-        //                    _connectedBuildings.Add(building.OriginBuildingNode.GraphIndex, new List<BuildingBase>());
-        //                 }
-        //                 _connectedBuildings[building.OriginBuildingNode.GraphIndex].Add(building);
-        //                 _connectedBuildings[building.OriginBuildingNode.GraphIndex].Add(endNode.BelongedBuilding.GetComponent<BuildingBase>());
-        //             }
-        //         }
-        //         //Remove unconnected building
-        //         foreach (GameObject buildingObj in removedObj)
-        //         {
-        //             _unconnectedBuildings.Remove(buildingObj);
-        //         }
-        //     }
+
+            if (flag == NotificationFlags.CheckingConnection)
+            {
+                int i = _unconnectedHomes.Count - 1; 
+                while (i >= 0)
+                {
+                    bool found = false;
+                    int j = _unconnectedBusinesses.Count - 1; 
+                    while (j >= 0)
+                    {
+                        if (_inputMap[_unconnectedBusinesses[j].BuildingType].Contains(_unconnectedHomes[i].BuildingType))
+                        {
+                            if (_unconnectedHomes[i].RoadNode.GraphIndex == _unconnectedBusinesses[j].RoadNode.GraphIndex &&
+                                _unconnectedHomes[i].RoadNode.GraphIndex != -1)
+                            {
+                                found = true;
+                                _unconnectedBusinesses[j].IsConnected = true;
+                                _unconnectedHomes[i].IsConnected = true;
+
+                                if (_connectedBuildings.ContainsKey(_unconnectedBusinesses[j].RoadNode.GraphIndex))
+                                {
+                                    _connectedBuildings[_unconnectedHomes[i].RoadNode.GraphIndex].Add(_unconnectedHomes[i]);
+                                }
+                                else
+                                {
+                                    _connectedBuildings.Add(_unconnectedBusinesses[j].RoadNode.GraphIndex, new List<BuildingBase>());
+                                }
+                                _connectedBuildings[_unconnectedHomes[i].RoadNode.GraphIndex].Add(_unconnectedBusinesses[j]);
+                                
+                                _unconnectedBusinesses[j].AddHome(_unconnectedHomes[i]);
+                                
+                                _unconnectedBusinesses.RemoveAt(j);
+                                _unconnectedHomes.RemoveAt(i);
+                                break; 
+                            }
+                        }
+                        j--; 
+                    }
+
+                    if (!found)
+                    {
+                        i--; 
+                    }
+                }
+
+                Debug.Log("Unconnected: " + _unconnectedBusinesses.Count + " Home " + _unconnectedHomes.Count);
+                Debug.Log("Connected: " + _connectedBuildings.Count);
+            }
         }
     }
 
+}
+
+public struct DemandCarRequest
+{
+    public Entity CarEntity;
+    public Vector3[] Waypoints;
+}
+
+public struct SpawnCarRequest
+{
+    public Home Home;
+    public Vector3 StartNodePosition;
+    public Quaternion Rotation;
+    public string ObjectFlag;
 }

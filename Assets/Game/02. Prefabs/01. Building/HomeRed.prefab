@@ -97,6 +97,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55a8afd299fcb4834b362cc8b78ae81c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isGizmos: 1
   spriteCollections: {fileID: 11400000, guid: d6c2c136ab42c42b59a6a40608dc4482, type: 2}
   lifeTime: 2
   size: 0

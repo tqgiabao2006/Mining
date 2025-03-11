@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Game._00.Script._00.Manager.Observer;
 using Game._00.Script._02.Grid_setting;
 using Game._00.Script._03.Traffic_System.Building;
+using Unity.Entities;
 using UnityEngine;
 
 public class Home: BuildingBase
@@ -10,14 +11,29 @@ public class Home: BuildingBase
     [Header("Home settings")]
     [SerializeField] private int numbCars;
 
+    private Queue<Entity> _cars;
+
+    public Entity GetCar
+    {
+        get { return _cars.Dequeue(); }
+    }
+
     public override void Initialize(Node node, BuildingType buildingType, BuildingDirection direction,
         Vector2 worldPosition)
     {
         base.Initialize(node, buildingType, direction, worldPosition);
+
+        _cars = new Queue<Entity>();
         
         SpawnCars();
+        BuildingManager.RegisterBuilding(this);
+
     }
 
+    public void AddCarEntity(Entity entity)
+    {
+        _cars.Enqueue(entity);
+    }
     private string GetCarFlag()
     {
         switch (this.BuildingType)
@@ -75,18 +91,16 @@ public class Home: BuildingBase
         
         //Spawn first car
         BuildingManager.SpawnCarWaves(
+            this,
             this.WorldPosition + GridManager.NodeRadius*2/3f*direction + difVector * Game._00.Script._03.Traffic_System.Road.RoadManager.RoadWidth/4f,
             GetRotation(),
-                GetCarFlag());
+            GetCarFlag());
         
         BuildingManager.SpawnCarWaves(
+            this,
             this.WorldPosition + GridManager.NodeRadius*2/3f*direction - difVector * Game._00.Script._03.Traffic_System.Road.RoadManager.RoadWidth/4f,
             GetRotation(),
-            GetCarFlag()); 
+            GetCarFlag());
         
-        
-        
-        
- 
     }
 }

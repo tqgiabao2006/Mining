@@ -1,50 +1,53 @@
-using System.Collections;
 using System.Collections.Generic;
-using Game._00.Script._00.Manager.Custom_Editor;
+using Game._00.Script._02.Grid_setting;
 using Game._00.Script._03.Traffic_System.Building;
-using Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS;
-using Mono.Collections.Generic;
-using Unity.Collections;
-using Unity.Entities;
-using Unity.Mathematics;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
-public class Business : BuildingBase 
+public class Business : BuildingBase
 {
     [Header("Business settings")]
     [SerializeField] private int demands;
 
-    private bool DemandCar
+    private bool RequestCar
     {
         get { return demands > 0; }
     }
 
+    private List<Home> _connectedHomes;
+
+    public override void Initialize(Node node, BuildingType buildingType, BuildingDirection direction,
+        Vector2 worldPosition)
+    {
+        base.Initialize(node, buildingType, direction, worldPosition);
+        BuildingManager.RegisterBuilding(this);
+        
+        _connectedHomes = new List<Home>();
+
+    }
+
+    public void AddHome(Home home)
+    {
+        _connectedHomes.Add(home);
+    }
+
+    public void RemoveHome(Home home)
+    {
+        _connectedHomes.Remove(home);
+    }
+
     private void Update()
     {
-        // while (demands > 0)
-        // {
-        // //     List<Home> homes = RoadManager.GetHomes(this);
-        // //     Debug.Log(homes.Count);
-        // //     if (homes.Count == 0)
-        // //     {
-        // //         return;
-        // //     }
-        // //     
-        // //     //Filter to get only same-color buiilding
-        // //     int i = 0;
-        // //     while (homes.Count > 0)
-        // //     {
-        // //         if (!BuildingManager.IsOutput(this.BuildingType, homes[i].BuildingType))
-        // //         {
-        // //             homes.RemoveAt(i);
-        // //         }
-        // //         else
-        // //         {
-        // //             i++;
-        // //         }
-        // //     }
-        // // }
-        // }
+        if (IsConnected)
+        {
+            while (RequestCar)
+            {
+                //RIGHT NOW: Get random connected home
+                Home home = _connectedHomes[Random.Range(0, _connectedHomes.Count)];
+                BuildingManager.DemandCars(home.GetCar, home, this);
+                demands--;
+            }
+        }
     }
 
     /// <summary>
@@ -52,6 +55,6 @@ public class Business : BuildingBase
     /// </summary>
     public void CarLeave()
     {
-        demands--;
+        demands++;
     }
 }
