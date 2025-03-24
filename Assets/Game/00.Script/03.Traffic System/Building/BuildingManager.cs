@@ -196,9 +196,6 @@ namespace Game._00.Script._03.Traffic_System.Building
                         i--; 
                     }
                 }
-
-                Debug.Log("Unconnected: " + _unconnectedBusinesses.Count + " Home " + _unconnectedHomes.Count);
-                Debug.Log("Connected: " + _connectedBuildings.Count);
             }
         }
     }

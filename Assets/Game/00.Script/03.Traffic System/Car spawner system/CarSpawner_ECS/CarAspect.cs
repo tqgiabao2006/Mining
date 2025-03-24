@@ -40,6 +40,9 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
         public readonly RefRW<ParkingLot> ParkingLot;
         public readonly RefRW<IsParking> IsParking;
         public readonly RefRW<ParkingData> ParkingData;
+        
+        //Mining component
+        public readonly RefRW<MiningTime> MiningTime;
 
         public bool CheckCanRun() => CanRun.ValueRO.Value;
     }

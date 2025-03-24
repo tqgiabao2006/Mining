@@ -46,7 +46,7 @@ namespace Game._00.Script._03.Traffic_System.Building
     public abstract class BuildingBase : MonoBehaviour
     {
         [Header("Default building settings")] 
-        [SerializeField] private bool isGizmos;
+        [SerializeField] protected bool isGizmos;
         [SerializeField] private BuildingSpriteCollection spriteCollections;
         public BuildingSpriteCollection SpriteCollections
         {
@@ -505,7 +505,7 @@ namespace Game._00.Script._03.Traffic_System.Building
             }
         }
         #endif
-        private void OnDrawGizmos()
+        protected virtual void OnDrawGizmos()
         {
             if (ParkingNodes == null || _originBuildingNode == null || TestParkingWaypoints == null || !isGizmos)
             {

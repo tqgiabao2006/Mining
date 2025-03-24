@@ -4,6 +4,7 @@ using Game._00.Script._00.Manager.Observer;
 using Game._00.Script._02.Grid_setting;
 using Game._00.Script._03.Traffic_System.Building;
 using Unity.Entities;
+using UnityEditor;
 using UnityEngine;
 
 public class Home: BuildingBase
@@ -12,11 +13,7 @@ public class Home: BuildingBase
     [SerializeField] private int numbCars;
 
     private Queue<Entity> _cars;
-
-    public Entity GetCar
-    {
-        get { return _cars.Dequeue(); }
-    }
+    
 
     public override void Initialize(Node node, BuildingType buildingType, BuildingDirection direction,
         Vector2 worldPosition)
@@ -28,6 +25,20 @@ public class Home: BuildingBase
         SpawnCars();
         BuildingManager.RegisterBuilding(this);
 
+    }
+
+    public Entity GetCar()
+    {
+        if (_cars.Count > 0)
+        {
+            return _cars.Dequeue();
+        }
+        return Entity.Null;
+    }
+
+    public void CarReturn(Entity car)
+    {
+        _cars.Enqueue(car);
     }
 
     public void AddCarEntity(Entity entity)
@@ -101,6 +112,14 @@ public class Home: BuildingBase
             this.WorldPosition + GridManager.NodeRadius*2/3f*direction - difVector * Game._00.Script._03.Traffic_System.Road.RoadManager.RoadWidth/4f,
             GetRotation(),
             GetCarFlag());
+        
+    }
+
+    protected override void OnDrawGizmos()
+    {
+        base.OnDrawGizmos();
+        Handles.Label(new Vector3(transform.position.x, transform.position.y  + 0.5f, transform.position.z), 
+           _cars.Count + " cars", new GUIStyle { fontSize = 24, normal = { textColor = Color.black } });
         
     }
 }

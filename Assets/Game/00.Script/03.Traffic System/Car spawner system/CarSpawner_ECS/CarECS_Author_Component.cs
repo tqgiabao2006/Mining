@@ -75,7 +75,8 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                 AddComponent(entity, new ParkingLot());
                 AddComponent(entity, new MiningTime()
                 {
-                    Value = 2f
+                    Value = 1f,
+                    CounterValue = 1f
                 });
                 
                 AddComponent(entity, new NextDestination());
@@ -121,6 +122,7 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
     public struct MiningTime: IComponentData
     {
         public float Value;
+        public float CounterValue; // Used to count
     }
 
 

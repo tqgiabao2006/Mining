@@ -102,3 +102,4 @@ MonoBehaviour:
   lifeTime: 2
   size: 2
   demands: 1
+  isGizmos: 1

@@ -42,6 +42,7 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
             state.RequireForUpdate<ParkingLot>();
             state.RequireForUpdate<IsParking>();
             state.RequireForUpdate<ParkingData>();
+            state.RequireForUpdate<NextDestination>();
 
             // Physics system components
             state.RequireForUpdate<PhysicsWorldSingleton>();
@@ -59,7 +60,7 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
             {
                 DeltaTime = deltaTime,
                 PhysicsWorld = physicsWorld,
-            }.ScheduleParallel(state.Dependency); // Assign previous dependency
+            }.Schedule(state.Dependency); // Assign previous dependency
             state.Dependency = parkingJobHandle; // Ensure proper job completion before next update
         }
     }
@@ -132,8 +133,9 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                 else if (car.State.ValueRO.Value == CarState.Parking &&
                          car.ParkingData.ValueRO.WaypointsBlob.IsCreated)
                 {
-                    if (car.ParkingData.ValueRO.CurrentIndex ==
-                        car.ParkingData.ValueRO.WaypointsBlob.Value.Length - 1 && math.distance(car.LocalTransform.ValueRO.Position, car.ParkingData.ValueRO.WaypointsBlob.Value[car.ParkingData.ValueRO.CurrentIndex]) <= 0.05f)
+                    if (car.ParkingData.ValueRO.CurrentIndex == car.ParkingData.ValueRO.WaypointsBlob.Value.Length - 1
+                        && math.distance(car.LocalTransform.ValueRO.Position, car.ParkingData.ValueRO.WaypointsBlob.Value[car.ParkingData.ValueRO.CurrentIndex]) <= 0.05f
+                        && !car.NextDestination.ValueRO.IsGoWork)
                     {
                         if (!car.ParkingData.ValueRO.WaypointsBlob.IsCreated)
                         {
@@ -168,7 +170,37 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                         car.FollowPathData.ValueRW.CurrentIndex = 0;
                         car.State.ValueRW.Value = CarState.FollowingPath;
                     }
+                    else if(car.NextDestination.ValueRO.IsGoWork) 
+                    {
+                        car.State.ValueRW.Value = CarState.Idle;
+                         Node roadNode = GridManager.NodeFromWorldPosition(car.NextDestination.ValueRO.Home);
+                         BuildingBase building = roadNode.BelongedBuilding.GetComponent<BuildingBase>();
 
+                         if (building is Home)
+                         {
+                            Home home = (Home)building;
+                            home.CarReturn(entity);
+                         }
+                    }
+                }else if (car.State.ValueRO.Value == CarState.Mining)
+                { 
+                    if (car.MiningTime.ValueRO.CounterValue < 0)
+                    {
+                        //Reset
+                        car.MiningTime.ValueRW.CounterValue = car.MiningTime.ValueRO.Value;
+                        car.State.ValueRW.Value = CarState.Parking;
+                        car.ParkingData.ValueRW.CurrentIndex++;
+
+                        Node roadNode = GridManager.NodeFromWorldPosition(car.NextDestination.ValueRO.Business);
+                         BuildingBase building = roadNode.BelongedBuilding.GetComponent<BuildingBase>();
+
+                         if (building is Business)
+                         {
+                             Business business = (Business)building;
+                             business.CarLeave();
+                         }
+                    }
+                    
                 }
             }
         }
@@ -182,12 +214,12 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
         [ReadOnly] public float DeltaTime;
 
         public void Execute(ref ParkingData parkingData, ref State state, ref Speed speedStats,
-            ref LocalTransform localTransform, in StopDistance stopDistance, in ColliderBound colliderBound)
+            ref LocalTransform localTransform, in StopDistance stopDistance, in ColliderBound colliderBound, in NextDestination nextDestination)
         {
             if (!parkingData.WaypointsBlob.IsCreated || parkingData.WaypointsBlob.Value.Length == 0 ||
                 state.Value != CarState.Parking)
                 return;
-
+            
             ref BlobArray<float3> waypoints = ref parkingData.WaypointsBlob.Value;
             if (parkingData.CurrentIndex >= waypoints.Length)
                 return;
@@ -201,7 +233,14 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
             MoveTowardsWaypoint(ref localTransform, direction, speedStats.CurSpeed, distanceToWaypoint);
 
             if (distanceToWaypoint < 0.02f && parkingData.CurrentIndex < waypoints.Length - 1)
+            {
+                if (math.distance(nextWaypoint, parkingData.ParkingPos) <= 0.05f && !nextDestination.IsGoWork) // If close to parkingPos => turn to Mining state
+                {
+                    state.Value = CarState.Mining;
+                    return;
+                }
                 parkingData.CurrentIndex++;
+            }
         }
 
         private void AdjustRotation(ref LocalTransform localTransform, float3 direction)
@@ -274,7 +313,7 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                 DeltaTime = SystemAPI.Time.DeltaTime,
                 PhysicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>(),
             };
-            followPathJob.ScheduleParallel();
+            followPathJob.Schedule();
         }
     }
 
@@ -351,5 +390,40 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                     localTransform.Position += direction * speed * DeltaTime;
             }
         }
+
+
+    [BurstCompile]
+    public partial struct MiningSystem : ISystem
+    {
+        public void OnCreate(ref SystemState state)
+        {
+            state.RequireForUpdate<FollowPathData>();
+            state.RequireForUpdate<State>();
+            state.RequireForUpdate<LocalTransform>();
+            state.RequireForUpdate<Speed>();
+            state.RequireForUpdate<StopDistance>();
+            state.RequireForUpdate<ColliderBound>();
+        }
     
+        public void OnUpdate(ref SystemState state)
+        {
+            MiningJob mining = new MiningJob()
+            {
+                DeltaTime = SystemAPI.Time.DeltaTime
+            };
+            mining.Schedule();
+        }
+    }
+    
+    public partial struct MiningJob : IJobEntity
+    {
+        [ReadOnly] public float DeltaTime;
+        public void Execute(ref MiningTime time, ref State state, ref ParkingData parkingData)
+        {
+            if (state.Value != CarState.Mining) return;
+            
+          
+            time.CounterValue -= DeltaTime;
+        }
+    }
 }
