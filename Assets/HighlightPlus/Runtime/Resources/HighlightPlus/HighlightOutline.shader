@@ -40,7 +40,7 @@ Properties {
             #include "UnityCG.cginc"
             #include "CustomVertexTransform.cginc"
 
-            struct appdata
+            struct MeshData
             {
                 float4 vertex : POSITION;
                 float3 normal : NORMAL;
@@ -48,7 +48,7 @@ Properties {
 				UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
-            struct v2f
+            struct Interpolator
             {
                 float4 pos : SV_POSITION;
                 float2 uv  : TEXCOORD0;
@@ -73,11 +73,11 @@ Properties {
             UNITY_INSTANCING_BUFFER_END(Props)
             	    
             
-            v2f vert (appdata v)
+            Interpolator vert (MeshData v)
             {
-                v2f o;
+                Interpolator o;
 				UNITY_SETUP_INSTANCE_ID(v);
-				UNITY_INITIALIZE_OUTPUT(v2f, o);
+				UNITY_INITIALIZE_OUTPUT(Interpolator, o);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
                 #if HP_OUTLINE_GRADIENT_WS
@@ -102,7 +102,7 @@ Properties {
                 return o;
             }
             
-            fixed4 frag (v2f i) : SV_Target
+            fixed4 frag (Interpolator i) : SV_Target
             {
             	#if HP_ALPHACLIP
             	    fixed4 col = tex2D(_MainTex, i.uv);
@@ -140,14 +140,14 @@ Properties {
             #include "UnityCG.cginc"
             #include "CustomVertexTransform.cginc"
 
-            struct appdata
+            struct MeshData
             {
                 float4 vertex : POSITION;
                 float3 normal : NORMAL;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
-            struct v2f
+            struct Interpolator
             {
                 float4 pos : SV_POSITION;
 				UNITY_VERTEX_OUTPUT_STEREO
@@ -161,11 +161,11 @@ Properties {
                 UNITY_DEFINE_INSTANCED_PROP(float4, _OutlineDirection)
             UNITY_INSTANCING_BUFFER_END(Props)            
             
-            v2f vert (appdata v)
+            Interpolator vert (MeshData v)
             {
-                v2f o;
+                Interpolator o;
 				UNITY_SETUP_INSTANCE_ID(v);
-				UNITY_INITIALIZE_OUTPUT(v2f, o);
+				UNITY_INITIALIZE_OUTPUT(Interpolator, o);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
                 o.pos = ComputeVertexPosition(v.vertex);
 				float3 norm   = mul ((float3x3)UNITY_MATRIX_IT_MV, v.normal);
@@ -181,7 +181,7 @@ Properties {
                 return o;
             }
             
-            fixed4 frag (v2f i) : SV_Target
+            fixed4 frag (Interpolator i) : SV_Target
             {
                 return 0;
             }

@@ -32,13 +32,13 @@ Properties {
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
 
-            struct appdata
+            struct MeshData
             {
                 float3 positionOS : POSITION;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
-            struct v2f
+            struct Interpolator
             {
                 float4 positionCS : SV_POSITION;
                 float4 screenPos  : TEXCOORD0;
@@ -59,9 +59,9 @@ Properties {
             #define FADE_POWER _TargetFXRenderData.w
 
 
-            v2f vert(appdata input)
+            Interpolator vert(MeshData input)
             {
-                v2f o;
+                Interpolator o;
 		        UNITY_SETUP_INSTANCE_ID(input);
 		        UNITY_TRANSFER_INSTANCE_ID(input, o);
 		        UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
@@ -78,7 +78,7 @@ Properties {
                 return o;
             }
 
-            half4 frag(v2f i) : SV_Target
+            half4 frag(Interpolator i) : SV_Target
             {
         		UNITY_SETUP_INSTANCE_ID(i);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
@@ -129,14 +129,14 @@ Properties {
 
             #include "UnityCG.cginc"
 
-            struct appdata
+            struct MeshData
             {
                 float4 vertex : POSITION;
                 float2 uv     : TEXCOORD0;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
-            struct v2f
+            struct Interpolator
             {
                 float4 pos    : SV_POSITION;
                 float2 uv     : TEXCOORD0;
@@ -146,18 +146,18 @@ Properties {
             sampler2D _MainTex;
       		fixed4 _Color;
 
-            v2f vert (appdata v)
+            Interpolator vert (MeshData v)
             {
-                v2f o;
+                Interpolator o;
 				UNITY_SETUP_INSTANCE_ID(v);
-				UNITY_INITIALIZE_OUTPUT(v2f, o);
+				UNITY_INITIALIZE_OUTPUT(Interpolator, o);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
                 o.pos = UnityObjectToClipPos(v.vertex);
                 o.uv = v.uv;
                 return o;
             }
             
-            fixed4 frag (v2f i) : SV_Target
+            fixed4 frag (Interpolator i) : SV_Target
             {
             	return tex2D(_MainTex, i.uv) * _Color;
             }

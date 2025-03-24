@@ -40,7 +40,7 @@ Properties {
             #include "UnityCG.cginc"
             #include "CustomVertexTransform.cginc"
 
-            struct appdata
+            struct MeshData
             {
                 float4 vertex : POSITION;
                 float3 normal : NORMAL;
@@ -48,7 +48,7 @@ Properties {
 				UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
-            struct v2f
+            struct Interpolator
             {
 				float4 pos   : SV_POSITION;
                 fixed4 color : COLOR;
@@ -74,12 +74,12 @@ Properties {
             UNITY_INSTANCING_BUFFER_END(Props)
 
 
-            v2f vert (appdata v)
+            Interpolator vert (MeshData v)
             {
-                v2f o;
+                Interpolator o;
 				UNITY_SETUP_INSTANCE_ID(v);
                 UNITY_TRANSFER_INSTANCE_ID(v, o);
-				UNITY_INITIALIZE_OUTPUT(v2f, o);
+				UNITY_INITIALIZE_OUTPUT(Interpolator, o);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
                 float4 pos = ComputeVertexPosition(v.vertex);
                 float3 norm   = mul ((float3x3)UNITY_MATRIX_IT_MV, v.normal);
@@ -104,7 +104,7 @@ Properties {
                 return o;
             }
             
-            fixed4 frag (v2f i) : SV_Target
+            fixed4 frag (Interpolator i) : SV_Target
             {
                 UNITY_SETUP_INSTANCE_ID(i);
             	#if HP_ALPHACLIP

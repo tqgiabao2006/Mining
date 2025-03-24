@@ -19,7 +19,7 @@ Properties {
     float     _BlurScale;
     float _BlurScaleFirstHoriz;
 
-    struct appdata {
+    struct MeshData {
         float4 vertex : POSITION;
         float2 texcoord : TEXCOORD0;
         UNITY_VERTEX_INPUT_INSTANCE_ID
@@ -36,7 +36,7 @@ Properties {
         UNITY_VERTEX_OUTPUT_STEREO
     };
 
-    v2fCross vertCross(appdata v) {
+    v2fCross vertCross(MeshData v) {
         v2fCross o;
         UNITY_SETUP_INSTANCE_ID(v);
         UNITY_TRANSFER_INSTANCE_ID(v, o);
@@ -55,7 +55,7 @@ Properties {
     }
 
     
-    v2fCross vertBlur(appdata v, float multiplier) {
+    v2fCross vertBlur(MeshData v, float multiplier) {
         v2fCross o;
         UNITY_SETUP_INSTANCE_ID(v);
         UNITY_TRANSFER_INSTANCE_ID(v, o);
@@ -74,16 +74,16 @@ Properties {
         return o;
     }   
     
-    v2fCross vertBlurH(appdata v) {
+    v2fCross vertBlurH(MeshData v) {
         return vertBlur(v, _BlurScale);
     }   
 
-    v2fCross vertBlurH2(appdata v) {
+    v2fCross vertBlurH2(MeshData v) {
         return vertBlur(v, _BlurScaleFirstHoriz);
     }
 
 
-    v2fCross vertBlurV(appdata v) {
+    v2fCross vertBlurV(MeshData v) {
         v2fCross o;
         UNITY_SETUP_INSTANCE_ID(v);
         UNITY_TRANSFER_INSTANCE_ID(v, o);

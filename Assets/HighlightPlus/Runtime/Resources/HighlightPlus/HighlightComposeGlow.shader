@@ -44,13 +44,13 @@ Properties {
 			float3 _Flip;
 			fixed4 _Debug;
 
-            struct appdata
+            struct MeshData
             {
                 float4 vertex : POSITION;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
-            struct v2f
+            struct Interpolator
             {
 				float4 pos: SV_POSITION;
 				float4 scrPos: TEXCOORD0;
@@ -58,11 +58,11 @@ Properties {
 				UNITY_VERTEX_OUTPUT_STEREO
             };
 
-            v2f vert (appdata v)
+            Interpolator vert (MeshData v)
             {
-				v2f o;
+				Interpolator o;
 				UNITY_SETUP_INSTANCE_ID(v);
-				UNITY_INITIALIZE_OUTPUT(v2f, o);
+				UNITY_INITIALIZE_OUTPUT(Interpolator, o);
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 				o.pos = UnityObjectToClipPos(v.vertex);
@@ -71,7 +71,7 @@ Properties {
 				return o;
             }
             
-            fixed4 frag (v2f i) : SV_Target
+            fixed4 frag (Interpolator i) : SV_Target
             {
 				UNITY_SETUP_INSTANCE_ID(i);
 				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
@@ -124,14 +124,14 @@ Properties {
 					fixed4 _Color;
 					float3 _Flip;
 
-					struct appdata
+					struct MeshData
 					{
 						float4 vertex : POSITION;
 						float2 uv     : TEXCOORD0;
 						UNITY_VERTEX_INPUT_INSTANCE_ID
 					};
 
-					struct v2f
+					struct Interpolator
 					{
 						float4 pos: SV_POSITION;
 						float2 uv     : TEXCOORD0;
@@ -139,11 +139,11 @@ Properties {
 						UNITY_VERTEX_OUTPUT_STEREO
 					};
 
-					v2f vert(appdata v)
+					Interpolator vert(MeshData v)
 					{
-						v2f o;
+						Interpolator o;
 						UNITY_SETUP_INSTANCE_ID(v);
-						UNITY_INITIALIZE_OUTPUT(v2f, o);
+						UNITY_INITIALIZE_OUTPUT(Interpolator, o);
 						UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 						o.pos = UnityObjectToClipPos(v.vertex);
 						o.uv = UnityStereoScreenSpaceUVAdjust(v.uv, _MainTex_ST);
@@ -151,7 +151,7 @@ Properties {
 						return o;
 					}
 
-					fixed4 frag(v2f i) : SV_Target
+					fixed4 frag(Interpolator i) : SV_Target
 					{
 						UNITY_SETUP_INSTANCE_ID(i);
 						UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
