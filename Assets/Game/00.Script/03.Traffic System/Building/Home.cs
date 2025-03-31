@@ -50,15 +50,15 @@ public class Home: BuildingBase
         switch (this.BuildingType)
         {
             case BuildingType.HomeBlue:
-                return ObjectFlags.BlueCar;
+                return ObjectFlags.BLUE_CAR;
             case BuildingType.HomeRed:
-                return ObjectFlags.RedCar;
+                return ObjectFlags.RED_CAR;
             case BuildingType.HomeYellow: 
-                return ObjectFlags.YellowCar;
+                return ObjectFlags.YELLOW_CAR;
         }
 
         //Default car
-        return ObjectFlags.BlueCar;
+        return ObjectFlags.BLUE_CAR;
     }
 
     /// <summary>

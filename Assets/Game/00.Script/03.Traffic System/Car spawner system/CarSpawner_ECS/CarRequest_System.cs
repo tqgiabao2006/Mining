@@ -20,7 +20,7 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
 
         public void OnNotified(object data, string flag)
         {
-            if (data is not DemandCarRequest || flag != NotificationFlags.DemandCar)
+            if (data is not DemandCarRequest || flag != NotificationFlags.DEMAND_CAR)
             {
                 return;
             }

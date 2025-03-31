@@ -126,7 +126,7 @@ namespace Game._00.Script._03.Traffic_System.Building
                StartNodePosition = startNodePosition,
                Rotation = rotation,
                ObjectFlag = objectFlag
-           }, NotificationFlags.SpawnCar); 
+           }, NotificationFlags.SPAWN_CAR); 
         }
 
         
@@ -142,7 +142,7 @@ namespace Game._00.Script._03.Traffic_System.Building
             {
                 CarEntity = carEntity,
                 Waypoints = waypoints,
-            }, NotificationFlags.DemandCar);
+            }, NotificationFlags.DEMAND_CAR);
         }
 
         /// <summary>
@@ -153,7 +153,7 @@ namespace Game._00.Script._03.Traffic_System.Building
         public void OnNotified(object data, string flag)
         {
 
-            if (flag == NotificationFlags.CheckingConnection)
+            if (flag == NotificationFlags.CHECK_CONNECTION)
             {
                 int i = _unconnectedHomes.Count - 1; 
                 while (i >= 0)

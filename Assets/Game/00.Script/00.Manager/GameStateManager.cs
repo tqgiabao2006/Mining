@@ -55,13 +55,13 @@ namespace Game._00.Script._00.Manager
             _currentTime -= Time.deltaTime;
             if (_currentTime <= 0 && !callSpawn)
             {
-                Notify(0, NotificationFlags.UpdateLevel);
+                Notify(0, NotificationFlags.UPDATE_LEVEL);
                 callSpawn = true; 
             }
         }
         private void Test()
         {
-            Notify(0, NotificationFlags.UpdateLevel);
+            Notify(0, NotificationFlags.UPDATE_LEVEL);
         }
 
         /// <summary>

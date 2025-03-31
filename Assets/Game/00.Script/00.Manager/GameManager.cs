@@ -13,7 +13,6 @@ namespace Game._00.Script._00.Manager
                 GameStateManager = GetComponent<GameStateManager>();
                 TestSaver = GetComponent<TestSaver>();
                 ObjectPooling = GetComponentInChildren<ObjectPooling>();
-                GameStateManager.Initialize();
 
             }
     }

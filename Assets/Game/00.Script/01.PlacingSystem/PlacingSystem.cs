@@ -107,7 +107,7 @@ namespace Game._00.Script._01.PlacingSystem
 
                     //NOTICE: Notify after the road manager update graph because use graph index to determine if 2 road is connected
                     //CHECK: after place a new road => possibility that there are some homes connecteed
-                    Notify(null, NotificationFlags.CheckingConnection);
+                    Notify(null, NotificationFlags.CHECK_CONNECTION);
 
                 }
             }

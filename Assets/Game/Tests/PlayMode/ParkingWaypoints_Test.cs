@@ -18,7 +18,7 @@ namespace Game.Tests.PlayMode
         [UnityTest]
         public IEnumerator TestPlayMode_ParkingWaypoints()
         {
-            string path = DirectoryFlags.ParkingWaypoint;
+            string path = DirectoryFlags.PARKING_WAYPOINT;
             if (!Directory.Exists(path))
             {
                 DebugUtility.LogError("Parking Waypoints folder does not exist: ", this.ToString());

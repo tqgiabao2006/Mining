@@ -29,7 +29,7 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
      
         public void OnNotified(object data, string flag)
         {
-            if (data is not SpawnCarRequest || flag != NotificationFlags.SpawnCar)
+            if (data is not SpawnCarRequest || flag != NotificationFlags.SPAWN_CAR)
                 return;
             
             if (!_isNotified) //To avoid duplicate OnNotified call
@@ -62,10 +62,10 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
             SpawnGameObjectHolder objectHolder = SystemAPI.GetSingleton<SpawnGameObjectHolder>();
 
             Entity spawnedEntity = Entity.Null;
-            if (spawnData.ObjectFlag== ObjectFlags.RedCar)
+            if (spawnData.ObjectFlag== ObjectFlags.RED_CAR)
             {
                 spawnedEntity = EntityManager.Instantiate(objectHolder.RedBlood);
-            }else if (spawnData.ObjectFlag == ObjectFlags.BlueCar)
+            }else if (spawnData.ObjectFlag == ObjectFlags.BLUE_CAR)
             {
                 spawnedEntity = EntityManager.Instantiate(objectHolder.BlueBlood);
             }

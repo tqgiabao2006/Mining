@@ -15,6 +15,7 @@ using Random = UnityEngine.Random;
 
 namespace Game._00.Script._03.Traffic_System.Building
 {
+    
     struct SpawningWaveInfo
     {
         public int waveIndex; //Current level (game phase) 
@@ -30,8 +31,9 @@ namespace Game._00.Script._03.Traffic_System.Building
             this.WaveDelay = waveDelay;
             this.ZoneRadius = zoneRadius; 
         }
-
     }
+    
+    
 
     struct BuildingInfo
     {
@@ -62,7 +64,7 @@ namespace Game._00.Script._03.Traffic_System.Building
         //Vector3 zone center, float radius
         private Dictionary<Vector3, float> _zoneDictionary = new Dictionary<Vector3, float>();
         [Header("Gizmos")] [SerializeField] public bool isGizmos = false;
-
+            
         [Header("BuildingBase Prefabs")]
         public List<BuildingPrefabPair> BuildingPrefabs = new List<BuildingPrefabPair>();
 
@@ -90,12 +92,15 @@ namespace Game._00.Script._03.Traffic_System.Building
         private ObjectPooling _objectPooling;
         private Invertory _invertory;
 
+        //Zone
+        private List<Vector2> _zone;
 
 
         private void Start()
         {
             IntialSetUp();
             WaveSetUp();
+            ZoneSetUp();
             ProcessWave(0);
         }
 
@@ -128,6 +133,14 @@ namespace Game._00.Script._03.Traffic_System.Building
             });
         }
 
+        private void ZoneSetUp()
+        {
+            _zone = new List<Vector2>();
+            _zone.Add(new Vector2(14 * GridManager.NodeDiameter, 8 * GridManager.NodeDiameter));
+            _zone.Add( new Vector2(20 *  GridManager.NodeDiameter, 12 * GridManager.NodeDiameter));
+            _zone.Add( new Vector2(24 * GridManager.NodeDiameter, 16 * GridManager.NodeDiameter));
+        }
+
         #endregion
 
         /// <summary>
@@ -138,10 +151,13 @@ namespace Game._00.Script._03.Traffic_System.Building
         /// <param name="flag"> NotificationsFlag: Update Level</param>
         public void OnNotified(object data, string flag)
         {
-            if (flag != NotificationFlags.UpdateLevel || data is not int) return;
-            if (!_isProcessingWave)
+
+            if (flag == NotificationFlags.UPDATE_LEVEL && data is int && !_isProcessingWave)
             {
                 ProcessWave((int)data);
+            }else if (flag == NotificationFlags.DEMAND_BUILDING)
+            {
+                Debug.Log("Demand building");
             }
         }
 
@@ -854,12 +870,17 @@ namespace Game._00.Script._03.Traffic_System.Building
 
         private void OnDrawGizmos()
         {
-            if(!isGizmos || _waveInfos.Length <=0) return;
-            for(int i = 0 ; i < maxWaves; i++)
+            if (!isGizmos || _zone == null)
             {
-                Gizmos.color = Color.gray;
-                Gizmos.DrawWireSphere(Vector2.zero, _waveInfos[i].ZoneRadius);
+                return;
             }
+
+            Gizmos.color = Color.green;
+            for (int i = 0; i < _zone.Count; i++)
+            {
+                Gizmos.DrawWireCube(Vector3.zero, _zone[i]);
+            }
+       
         }
         #endregion
     }

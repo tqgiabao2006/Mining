@@ -43,6 +43,7 @@ public class CameraZoom : MonoBehaviour
     }
 }
 
+
 [Serializable]
 // Max size is 50, min size is 15
 public struct ZoomByLevel

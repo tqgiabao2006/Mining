@@ -4,24 +4,25 @@ namespace Game._00.Script._00.Manager.Observer
 {
     public static class NotificationFlags
     {
-        public const string PlacingState = "Placing"; //FROM placingSystem TO GameStateManager FOR set game state to placing, trigger some shader for visualization
-        public const string CheckingConnection = "Checking Connection"; //FROM placingSystem TO roadManager FOR Checking if building is connected to its output buildings
-        public const string SpawnCar = "Spawn Car"; //FROM buildingManger TO building FOR start coroutine spawning car
-        public const string RegisterBuilding = "Spawn Building";
-        public const string UpdateLevel = "Update Level";
-        public const string DemandCar = "Demand Car";
+        public const string PLACING_STATE = "Placing"; //FROM placingSystem TO GameStateManager FOR set game state to placing, trigger some shader for visualization
+        public const string CHECK_CONNECTION = "Checking Connection"; //FROM placingSystem TO roadManager FOR Checking if building is connected to its output buildings
+        public const string SPAWN_CAR = "Spawn Car"; //FROM buildingManger TO building FOR start coroutine spawning car
+        public const string REGISTER_BUILDING = "Spawn Building";
+        public const string UPDATE_LEVEL = "Update Level";
+        public const string DEMAND_CAR = "Demand Car";
+        public const string DEMAND_BUILDING = "Demand Building";
     }
 
     public static class ObjectFlags
     {
-        public const string RedCar = "Red Car";
-        public const string BlueCar = "Blue Car";
-        public const string YellowCar = "Yellow Car";
+        public const string RED_CAR = "Red Car";
+        public const string BLUE_CAR = "Blue Car";
+        public const string YELLOW_CAR = "Yellow Car";
     }
 
     public abstract class DirectoryFlags
     {
-        public static string ParkingWaypoint = Application.dataPath + System.IO.Path.AltDirectorySeparatorChar + "Game" + System.IO.Path.AltDirectorySeparatorChar + 
+        public static string PARKING_WAYPOINT = Application.dataPath + System.IO.Path.AltDirectorySeparatorChar + "Game" + System.IO.Path.AltDirectorySeparatorChar + 
                                                "Tests" + System.IO.Path.AltDirectorySeparatorChar + "Json Data" + System.IO.Path.AltDirectorySeparatorChar + 
                                                "Parking Waypoints";
     }
