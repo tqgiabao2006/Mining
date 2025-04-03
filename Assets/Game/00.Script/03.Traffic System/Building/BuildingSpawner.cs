@@ -137,7 +137,6 @@ namespace Game._00.Script._03.Traffic_System.Building
 
         private void Update()
         {
-            GenerateWaves();
             ProcessWave();
         }
         /// <summary>
@@ -159,7 +158,7 @@ namespace Game._00.Script._03.Traffic_System.Building
             
             if(flag == NotificationFlags.DEMAND_BUILDING)
             {
-                
+              GenerateWaves();   
             }
         }
 
@@ -334,8 +333,7 @@ namespace Game._00.Script._03.Traffic_System.Building
                     if (_buildingManager.GetCarNumb(color) != 0 && _buildingManager.GetDemand(color) != 0)
                     {
                         if (_buildingManager.GetCarNumb(color) > _buildingManager.GetDemand(color) * carDemandRatio)
-                        {
-                            
+                        {   
                             _spawnQueue.Enqueue(new SpawnInfo()
                             {
 
