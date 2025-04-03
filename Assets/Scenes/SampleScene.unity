@@ -2860,8 +2860,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e397442418eaa6b43a117594cf398f85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  stopTest: 1
   isGizmos: 1
-  secPerDay: 6
+  secPerDay: 0.5
   timeScale: 1
 --- !u!1 &1680073344
 GameObject:

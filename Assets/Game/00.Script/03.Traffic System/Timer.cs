@@ -20,11 +20,21 @@ namespace Game._00.Script._04.Timer
             Sunday
         }
 
+        [Tooltip("Stop after 1 week to determine the week.")]
+        [SerializeField] private bool stopTest = false;
+
+        private bool _stopTest;
+        
         [SerializeField] private bool isGizmos;
+        
         [SerializeField] private float secPerDay;
+        
         [ReadOnly] private WeekDay _day;
+       
         [SerializeField] private float timeScale;
+        
         private float _timeCounter;
+        
         private BuildingSpawner _buildingSpawner;
 
         private int _week;
@@ -66,6 +76,10 @@ namespace Game._00.Script._04.Timer
 
         private void Update()
         {
+            if (_stopTest)
+            {
+                return;
+            }
             Tick();
         }
 
@@ -74,6 +88,7 @@ namespace Game._00.Script._04.Timer
             ObserversSetup();
             _randomDay = PickRandomDay();
             _hasSpawned = false;
+            _stopTest = false;
             _week = 1;
         }
         
@@ -92,6 +107,12 @@ namespace Game._00.Script._04.Timer
                     if (_day == _randomDay && !_hasSpawned)
                     {
                         Notify(null, NotificationFlags.DEMAND_BUILDING);
+                        Debug.Log("Notify");
+                        if (stopTest)
+                        { 
+                            _stopTest = true;
+                        }
+                       
                         _hasSpawned = true;
                     }
                 }
