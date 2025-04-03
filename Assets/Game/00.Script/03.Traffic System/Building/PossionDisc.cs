@@ -69,6 +69,8 @@ namespace Game._00.Script._03.Traffic_System.Building
 
         public List<Vector2> Spawn(Vector2 zoneSize, Vector2 worldPivot,float scaledRadius, int maxAttempt)
         {
+            Debug.Log("Spawn");
+            
             float cellSize = scaledRadius / Mathf.Sqrt(2); 
 
             int gridWidth = Mathf.CeilToInt(zoneSize.x / cellSize);

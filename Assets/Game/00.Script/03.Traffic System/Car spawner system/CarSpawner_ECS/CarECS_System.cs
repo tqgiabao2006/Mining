@@ -52,7 +52,7 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
         public void OnUpdate(ref SystemState state)
         {
             _entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-            var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>();
+            var physicsWorld =SystemAPI.GetSingleton<PhysicsWorldSingleton>();
             float deltaTime = SystemAPI.Time.DeltaTime;
 
 

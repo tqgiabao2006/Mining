@@ -2,15 +2,15 @@ using Game._00.Script._03.Traffic_System.PathFinding;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
 {
   public class CarSpawnerECS_Author_Component: MonoBehaviour
     {
         private PathRequestManager _pathRequestManager;
-        //Testing only
-        public GameObject redBlood;
-        public GameObject blueBlood;
+         public GameObject redCar;
+         public GameObject blueCar;
         
         private void Start()
         {
@@ -23,22 +23,22 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
             {
                 Entity entity = GetEntity(TransformUsageFlags.None);
                 DependsOn(author.transform);
-                if (author.redBlood == null || author.blueBlood == null)
+                if (author.redCar == null || author.blueCar == null)
                 {
                     return;
                 }
                 AddComponent(entity, new SpawnGameObjectHolder()
                 {
-                    RedBlood = GetEntity(author.redBlood, TransformUsageFlags.Dynamic),
-                    BlueBlood = GetEntity(author.blueBlood, TransformUsageFlags.Dynamic)
+                    RedCar = GetEntity(author.redCar, TransformUsageFlags.Dynamic),
+                    BlueCar = GetEntity(author.blueCar, TransformUsageFlags.Dynamic)
                 });
             }
         }
     }
     public struct SpawnGameObjectHolder : IComponentData
     {
-        public Entity RedBlood;
-        public Entity BlueBlood;
+        public Entity RedCar;
+        public Entity BlueCar;
     }
 
 }

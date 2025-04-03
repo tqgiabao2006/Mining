@@ -23,6 +23,7 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
         //use this for parallel spawn waves in different places to spawn multiple car in the same building
         protected override void OnCreate()
         {
+            Debug.Log("CarSpawnSystem.OnCreate");
             RequireForUpdate<SpawnGameObjectHolder>();
         }
 
@@ -64,10 +65,10 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
             Entity spawnedEntity = Entity.Null;
             if (spawnData.ObjectFlag== ObjectFlags.RED_CAR)
             {
-                spawnedEntity = EntityManager.Instantiate(objectHolder.RedBlood);
+                spawnedEntity = EntityManager.Instantiate(objectHolder.RedCar);
             }else if (spawnData.ObjectFlag == ObjectFlags.BLUE_CAR)
             {
-                spawnedEntity = EntityManager.Instantiate(objectHolder.BlueBlood);
+                spawnedEntity = EntityManager.Instantiate(objectHolder.BlueCar);
             }
             
             spawnData.Home.AddCarEntity(spawnedEntity);

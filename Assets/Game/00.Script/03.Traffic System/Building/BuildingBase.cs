@@ -564,7 +564,7 @@ namespace Game._00.Script._03.Traffic_System.Building
             }
             
             Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(_roadNode.WorldPosition, 0.5f);
+            Gizmos.DrawWireSphere(_roadNode .WorldPosition, 0.5f);
             
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(_originBuildingNode.WorldPosition, 0.5f);

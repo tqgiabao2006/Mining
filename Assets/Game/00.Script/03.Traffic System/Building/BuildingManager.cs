@@ -129,7 +129,6 @@ namespace Game._00.Script._03.Traffic_System.Building
         /// <returns></returns>
         public void SpawnCarWaves(Home home, Vector3 startNodePosition, Quaternion rotation, string objectFlag)
         {
-            
            Notify(new SpawnCarRequest()
            {
                Home = home,
@@ -157,6 +156,7 @@ namespace Game._00.Script._03.Traffic_System.Building
         public void DemandCars(Entity carEntity,Home home, Business business)
         {
             Vector3[] waypoints = _pathRequestManager.GetPathWaypoints(home.RoadNode.WorldPosition, business.RoadNode.WorldPosition);
+            Debug.Log("OnNotified");
             Notify(new DemandCarRequest()
             {
                 CarEntity = carEntity,
@@ -171,7 +171,6 @@ namespace Game._00.Script._03.Traffic_System.Building
         /// <param name="flag"></param>
         public void OnNotified(object data, string flag)
         {
-
             if (flag == NotificationFlags.CHECK_CONNECTION)
             {
                 int i = _unconnectedHomes.Count - 1; 

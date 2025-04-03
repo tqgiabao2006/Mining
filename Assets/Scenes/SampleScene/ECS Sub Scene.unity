@@ -152,8 +152,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd1c89a9f3b5404bb6704425aeea99fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  redBlood: {fileID: 3126903342774034802, guid: 6e18dad0a3594404489ef8df2a7aeff2, type: 3}
-  blueBlood: {fileID: 2107921664834423791, guid: 825a14743b4464f0c8ed28f310018844, type: 3}
+  redCar: {fileID: 3126903342774034802, guid: 6e18dad0a3594404489ef8df2a7aeff2, type: 3}
+  blueCar: {fileID: 2107921664834423791, guid: 825a14743b4464f0c8ed28f310018844, type: 3}
 --- !u!4 &1266524556
 Transform:
   m_ObjectHideFlags: 0

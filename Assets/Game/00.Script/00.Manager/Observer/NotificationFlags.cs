@@ -27,4 +27,11 @@ namespace Game._00.Script._00.Manager.Observer
                                                "Tests" + System.IO.Path.AltDirectorySeparatorChar + "Json Data" + System.IO.Path.AltDirectorySeparatorChar + 
                                                "Parking Waypoints";
     }
+
+    public static class LayerFlags
+    {
+        public const string SUPPLY = "Supply";
+        public const string DEMAND = "Demand";
+        public const string UNSPAWNABLE = "Unspawnable";
+    }
 }

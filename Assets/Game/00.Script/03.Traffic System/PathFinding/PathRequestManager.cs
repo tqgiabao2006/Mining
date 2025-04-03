@@ -26,13 +26,13 @@ namespace Game._00.Script._03.Traffic_System.PathFinding
         private PathRequest _currentRequest;
 
         //Debug-only
-        
         #if UNITY_EDITOR
         [SerializeField] private bool isGizmos;
         [SerializeField] private bool displayWaypoints;
         [SerializeField] private bool originalLines;
         private List<PathDebugData> _debugData;
         #endif
+        
         private void Start()
         {
             Initialize();
