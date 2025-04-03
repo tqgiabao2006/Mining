@@ -12,18 +12,25 @@ public class Business : BuildingBase
     [Header("Business settings")]
     [SerializeField] private int demands;
 
+    private List<Home> _connectedHomes;
+
+    public int Demands
+    {
+        get
+        {
+            return demands;
+        }
+    }
+
     private bool RequestCar
     {
         get { return demands > 0; }
     }
     
-        
-    private List<Home> _connectedHomes;
-
-    public override void Initialize(Node node, BuildingType buildingType, BuildingDirection direction,
+    public override void Initialize(BuildingManager buildingManager,Node node, BuildingType buildingType, BuildingDirection direction,
         Vector2 worldPosition)
     {
-        base.Initialize(node, buildingType, direction, worldPosition);
+        base.Initialize(buildingManager ,node, buildingType, direction, worldPosition);
         BuildingManager.RegisterBuilding(this);
         
         _connectedHomes = new List<Home>();

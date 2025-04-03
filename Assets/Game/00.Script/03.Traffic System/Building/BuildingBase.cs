@@ -16,13 +16,14 @@ namespace Game._00.Script._03.Traffic_System.Building
 {
     public enum BuildingType
     {
-        BusinessRed,
-        BusinessBlue,
-        BusinessYellow,
-        HomeRed,
-        HomeYellow,
-        HomeBlue,
-        
+        Home,
+        Business
+    }
+
+    public enum BuildingColor
+    {
+        Red,
+        Blue
     }
 
     /// <summary>
@@ -47,32 +48,25 @@ namespace Game._00.Script._03.Traffic_System.Building
     {
         [Header("Default building settings")] 
         [SerializeField] protected bool isGizmos;
+        
         [SerializeField] private BuildingSpriteCollection spriteCollections;
-        public BuildingSpriteCollection SpriteCollections
-        {
-            get { return spriteCollections; }
-        }
-        protected RoadManager RoadManager;
+
+        [SerializeField] private ParkingLotSize size;
+
+        [SerializeField] private BuildingType buildingType;
+        
+        [SerializeField] private BuildingColor buildingColor;
+        //Manager
         protected BuildingManager BuildingManager;
+        
         protected EntityManager EntityManager;
 
-        
+        //Default
         protected Vector2 _worldPosition;
 
         private bool _isConnected;
 
-        public bool IsConnected
-        {
-            get{ return _isConnected; }
-            set {_isConnected = value;}
-        }
         private List<Node> _parkingNodes;
-
-        public List<Node> ParkingNodes
-        {
-            get {return _parkingNodes;}  
-            set {_parkingNodes = value;}
-        }
 
         protected List<float3> TestParkingWaypoints;
 
@@ -80,52 +74,99 @@ namespace Game._00.Script._03.Traffic_System.Building
         
         protected float3 _centerPos;
 
-        public float3 CenterPos
-        {
-            set { _centerPos = value; }
-        }
-        
         protected Node _originBuildingNode;
-        public Node OriginBuildingNode
-        {
-            get { return _originBuildingNode; }
-        }
         
         protected Node _roadNode;
-        public Node RoadNode
+        
+        protected Queue<Entity> ParkingResquest;
+        
+        
+        public BuildingDirection BuildingDirection { get; private set; }
+
+        public BuildingType BuildingType
         {
-          get { return _roadNode; }
-          set { _roadNode = value; }
+            get
+            {
+                return buildingType;
+            }
         }
 
+        public BuildingColor BuildingColor
+        {
+            get
+            {
+                return buildingColor;
+            }
+        }
+
+        public ParkingLotSize Size
+        {
+            get
+            {
+                return size;
+            }
+            set
+            {
+                size = value;
+            }
+        }
+       
+        public BuildingSpriteCollection SpriteCollections
+        {
+            get { return spriteCollections; }
+        }
         public Vector2 WorldPosition
         {
             get { return _worldPosition; }
             set { _worldPosition = value; }
         }
+        
+        public Node RoadNode
+        {
+          get { return _roadNode; }
+          set
+          {
+              _roadNode = value;
+          }
+        }
 
-        protected Queue<Entity> ParkingResquest;
-        private ParkingMesh _parkingMesh;
-    
-        public BuildingType BuildingType { get; private set; }  // Make it a property
-        [SerializeField] protected float lifeTime = 2f;
-        [SerializeField] public ParkingLotSize size = ParkingLotSize._1x1;
-        public BuildingDirection BuildingDirection { get; private set; }
-
-        public virtual void Initialize(Node node, BuildingType buildingType, BuildingDirection direction,Vector2 worldPosition)
+        public Node OriginBuildingNode
+        {
+            get { return _originBuildingNode; }
+        }
+        public bool IsConnected
+        {
+            get{ return _isConnected; }
+            set {_isConnected = value;}
+        }
+        
+        public float3 CenterPos
+        {
+            set { _centerPos = value; }
+        }
+        
+        
+        public List<Node> ParkingNodes
+        {
+            get {return _parkingNodes;}  
+            set {_parkingNodes = value;}
+        }
+        public virtual void Initialize(BuildingManager buildingManager, Node node, BuildingType buildingType, BuildingDirection direction,Vector2 worldPosition)
         {
             EntityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-            _parkingMesh = FindObjectOfType<ParkingMesh>();
-            this.RoadManager = FindObjectOfType<RoadManager>();
-            this.BuildingManager = FindObjectOfType<BuildingManager>();
+           
+            this.BuildingManager = buildingManager; 
             
             this.BuildingDirection = direction;
-            this.BuildingType = buildingType;
+            
+            this.buildingType = buildingType;
+
             this._worldPosition = worldPosition;
             
             this._originBuildingNode = GridManager.NodeFromWorldPosition(worldPosition);
 
             _parkingNodes = new List<Node>();
+            
             ParkingPos = new List<ParkingLot>();
             
             //After finish initialize parking lots, initlize bool[] to track if the parking lot is available
@@ -135,7 +176,6 @@ namespace Game._00.Script._03.Traffic_System.Building
             #if    UNITY_EDITOR
             TestParkingWaypoints = new List<float3>();
             #endif
-            
         }
 
         private void DeactivateBuilding()

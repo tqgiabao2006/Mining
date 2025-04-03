@@ -41,3 +41,9 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Car
+    uniqueID: 272612669
+    locked: 0
+  - name: Building
+    uniqueID: 3582805661
+    locked: 0

@@ -7,42 +7,53 @@ namespace Game._00.Script._02.Grid_setting
 {
     public class GridManager: MonoBehaviour
     {
-        [SerializeField] bool displayOnGizmos;
+        [Header("Debug Mode")]
+        
+        [SerializeField] private bool debugMode = false;
+        
         [SerializeField] private bool walkableDisplay;
+        
         [SerializeField] private bool drawableDisplay;
+
+        [SerializeField] private bool drawEmpty;
+
+        [SerializeField] private bool drawBuildingZone;
+
+        [SerializeField] private bool drawRoad;
 
         #region Variables
         //1. GridManager:
-        public static Node[,] Grid { get; private set; }
+        public static Node[,] Grid
+        {
+            get; 
+            private set; 
+            
+        }
    
         private readonly Vector2 _gridCenter = Vector2.zero;
-        public static float NodeDiameter {
-            get
-            {
-                return NodeRadius * 2;
-            }
-        }
+       
         public static int GridSizeX {get; private set;}
+       
         public static int GridSizeY{get; private set;}
 
-
         [CustomReadOnly] public static readonly Vector2 GridWorldSize = new Vector2(40,40); 
+        
         [CustomReadOnly] public static readonly float NodeRadius = 0.5f;
 
-        public int NodeCount
-        {
-            get { return (int)(GridSizeX * GridSizeY / NodeDiameter); }
-        }
-
-
+        
         //Weight:
         public LayerMask UnwalkableMask;
+        
         public TerrainType[] WalkableRegions;
+        
         LayerMask walkableMask;
+       
         Dictionary<int, int> walkableRegionsDictionary = new Dictionary<int, int>();
    
         //Blur;
+      
         int penaltyMin = int.MaxValue;
+       
         int penaltyMax = int.MinValue;
    
         public int MaxSize
@@ -50,6 +61,18 @@ namespace Game._00.Script._02.Grid_setting
             get
             {
                 return GridSizeX * GridSizeY;
+            }
+        }
+
+        public int NodeCount
+        {
+            get { return (int)(GridSizeX * GridSizeY / NodeDiameter); }
+        }
+        
+        public static float NodeDiameter {
+            get
+            {
+                return NodeRadius * 2;
             }
         }
 
@@ -237,22 +260,43 @@ namespace Game._00.Script._02.Grid_setting
         void OnDrawGizmos() 
         {
             Gizmos.DrawWireCube(_gridCenter, new UnityEngine.Vector2(GridWorldSize.x, GridWorldSize.y));
-    
-            if (Grid != null && displayOnGizmos) 
+
+            if (Grid == null || !debugMode)
             {
-                foreach (Node n in Grid) {
+                return;
+            }
+            foreach (Node n in Grid) {
+
+                if (walkableDisplay)
+                {
                     // Compute the color based on the movement penalty
                     float normalizedPenalty = Mathf.InverseLerp(penaltyMin, penaltyMax, n.MovementPenalty);
                     Color penaltyColor = Color.Lerp(Color.white, Color.black, normalizedPenalty);
-                    // Set the gizmo color based on walk ability
-                    if (walkableDisplay)
-                    {
-                        Gizmos.color = n.Walkable ? penaltyColor : Color.red;
-
-                    }
-                    // Draw the gizmo cube at the node's position
-                    Gizmos.DrawWireCube(n.WorldPosition, Vector2.one * (NodeDiameter -0.05f));
+                    Gizmos.color = n.Walkable ? penaltyColor : Color.red;
+                        
                 }
+
+                if (drawableDisplay)
+                {
+                    Gizmos.color = n.CanDraw ? Color.white : Color.black;
+                }
+
+                if (drawEmpty)
+                {
+                    Gizmos.color = n.IsEmpty ? Color.white : Color.red;
+                }
+
+                if (drawBuildingZone)
+                {
+                    Gizmos.color = n.IsBuilding ? Color.blue : Color.white;
+                }
+
+                if (drawRoad)
+                {
+                    Gizmos.color = n.IsRoad ? Color.yellow : Color.white;
+                }
+                // Draw the gizmo cube at the node's position
+                Gizmos.DrawCube(n.WorldPosition, Vector2.one * (NodeDiameter -0.05f));
             }
         }
         #endregion

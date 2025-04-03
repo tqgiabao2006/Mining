@@ -12,44 +12,59 @@ namespace Game._00.Script._03.Traffic_System.Building
     public class BuildingManager: SubjectBase, IObserver
     {
         //Directed graph => adjacent list => building type + its output
-        private Dictionary<BuildingType, List<BuildingType>> _inputMap = new Dictionary<BuildingType, List<BuildingType>>();
-        private Dictionary<BuildingType, List<Home>> _currentHomes;
-        private Dictionary<BuildingType, List<Business>> _currentBusiness;
+        
+        private Dictionary<BuildingColor, List<Home>> _currentHomes;
+        
+        private Dictionary<BuildingColor, List<Business>> _currentBusiness;
 
+        private Dictionary<BuildingColor, int> _currentCars;
 
+        private Dictionary<BuildingColor, int> _currentDemands;
+        
         private List<Business> _unconnectedBusinesses;
+        
         private List<Home> _unconnectedHomes;
+        
         private Dictionary<int, List<BuildingBase>> _connectedBuildings;
-        
-        private RoadManager _roadManager; 
+
         private PathRequestManager _pathRequestManager;
-        
+
+        public int HomeCount
+        {
+            get { return _currentHomes.Count; }
+        }
+
+        public int BusinessCount
+        {
+            get { return _currentBusiness.Count; }
+        }
+
+        public int TotalCount
+        {
+            get { return _currentHomes.Count + _currentBusiness.Count; }
+        }
         private void Start()
         {
-            InputOutputMapSetup();
             ObserversSetup();
 
-            _roadManager = FindObjectOfType<RoadManager>();
             _pathRequestManager = PathRequestManager.Instance;
+
+            _currentHomes = new Dictionary<BuildingColor, List<Home>>();
             
-            _currentHomes = new Dictionary<BuildingType, List<Home>>();
-            _currentBusiness = new Dictionary<BuildingType, List<Business>>();
+            _currentBusiness = new Dictionary<BuildingColor, List<Business>>();
+            
+            _currentCars = new Dictionary<BuildingColor, int>();
+            
+            _currentDemands = new Dictionary<BuildingColor, int>();
+            
             _unconnectedBusinesses = new List<Business>();
+            
             _unconnectedHomes = new List<Home>();
+            
             _connectedBuildings = new Dictionary<int , List<BuildingBase>>();
         }
-        
         #region Set up
-        private void InputOutputMapSetup()
-        {
-            //Business has no output
-            _inputMap.Add(BuildingType.BusinessRed, new List<BuildingType>() { BuildingType.HomeRed });
-            _inputMap.Add(BuildingType.BusinessYellow, new List<BuildingType>() { BuildingType.HomeYellow });
-            _inputMap.Add(BuildingType.BusinessBlue, new List<BuildingType>() { BuildingType.HomeBlue });
-            
-        }
         
-      
         public override void ObserversSetup()
         {
             // Get the CarSpawnSystem
@@ -65,51 +80,46 @@ namespace Game._00.Script._03.Traffic_System.Building
         
         public void RegisterBuilding(BuildingBase building)
         {
-            if (building is Home)
+            if (building is Home) 
             {
-               _unconnectedHomes.Add((Home)building); 
-                if (_currentHomes.ContainsKey(building.BuildingType))
+                Home home = (Home)building;
+               _unconnectedHomes.Add(home); 
+                if (_currentHomes.ContainsKey(building.BuildingColor))
                 {
-                    _currentHomes[building.BuildingType].Add((Home)building);
+                    _currentHomes[building.BuildingColor].Add(home);
+                    _currentCars[building.BuildingColor] += home.NumbCars;
                 }
                 else
                 {
-                    _currentHomes.Add(building.BuildingType, new List<Home>() { (Home)building });
+                    _currentHomes.Add(building.BuildingColor, new List<Home>() { home });
+                    _currentCars.Add(building.BuildingColor, home.NumbCars);
                 }
             }else if (building is Business)
             {
-               _unconnectedBusinesses.Add((Business)building); 
-                if (_currentBusiness.ContainsKey(building.BuildingType))
+                Business business = (Business)building;
+               _unconnectedBusinesses.Add(business); 
+                if (_currentBusiness.ContainsKey(building.BuildingColor))
                 {
-                   _currentBusiness[building.BuildingType].Add((Business)building);
+                   _currentBusiness[building.BuildingColor].Add(business);
+                   _currentDemands[building.BuildingColor] += business.Demands;
                 }
                 else
                 {
-                    _currentBusiness.Add(building.BuildingType, new List<Business>() { (Business)building });
+                    _currentBusiness.Add(building.BuildingColor, new List<Business>() {business});
+                    _currentDemands.Add(building.BuildingColor, business.Demands);
                 } 
             }
         }
 
-        public List<Home> GetInputBuildings(BuildingType buildingType)
+        public List<Home> GetInputBuildings(BuildingColor color)
         {
-            if (_inputMap.ContainsKey(buildingType))
+            if (_currentHomes.ContainsKey(color))
             {
-                return _currentHomes[buildingType];
+                return _currentHomes[color];
             }
             return new List<Home>();
         }
 
-        public bool IsOutput(BuildingType business, BuildingType home)
-        {
-            if (_inputMap.TryGetValue(home, out var buildings))
-            {
-                if (buildings.Contains(business))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
 
         /// <summary>
         /// Spawn multiple cars have waiting time between by notifying spawn car system through time
@@ -129,6 +139,15 @@ namespace Game._00.Script._03.Traffic_System.Building
            }, NotificationFlags.SPAWN_CAR); 
         }
 
+        public int GetCarNumb(BuildingColor color)
+        {
+            return _currentCars.ContainsKey(color) ? _currentCars[color] : 0;
+        }
+
+        public int GetDemand(BuildingColor color)
+        {
+            return _currentDemands.ContainsKey(color) ? _currentDemands[color] : 0;
+        }
         
         /// <summary>
         /// Create waypoints, notify the car request system to create new blob array waypoints, change car to follow path state
@@ -162,7 +181,7 @@ namespace Game._00.Script._03.Traffic_System.Building
                     int j = _unconnectedBusinesses.Count - 1; 
                     while (j >= 0)
                     {
-                        if (_inputMap[_unconnectedBusinesses[j].BuildingType].Contains(_unconnectedHomes[i].BuildingType))
+                        if (_currentHomes[_unconnectedBusinesses[j].BuildingColor].Count > 0)
                         {
                             if (_unconnectedHomes[i].RoadNode.GraphIndex == _unconnectedBusinesses[j].RoadNode.GraphIndex &&
                                 _unconnectedHomes[i].RoadNode.GraphIndex != -1)

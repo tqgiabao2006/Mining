@@ -59,10 +59,10 @@ namespace Game._00.Script._00.Manager
                 callSpawn = true; 
             }
         }
-        private void Test()
-        {
-            Notify(0, NotificationFlags.UPDATE_LEVEL);
-        }
+        // private void Test()
+        // {
+        //     Notify(0, NotificationFlags.UPDATE_LEVEL);
+        // }
 
         /// <summary>
         /// Is placing => triggered => _gridManager effect

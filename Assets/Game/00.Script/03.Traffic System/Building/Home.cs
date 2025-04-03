@@ -13,16 +13,24 @@ public class Home: BuildingBase
     [SerializeField] private int numbCars;
 
     private Queue<Entity> _cars;
-    
 
-    public override void Initialize(Node node, BuildingType buildingType, BuildingDirection direction,
+    public int NumbCars
+    {
+        get
+        {
+            return numbCars;
+        }
+    }
+    
+    public override void Initialize(BuildingManager buildingManager,Node node, BuildingType buildingType, BuildingDirection direction,
         Vector2 worldPosition)
     {
-        base.Initialize(node, buildingType, direction, worldPosition);
+        base.Initialize(buildingManager,node, buildingType, direction, worldPosition);
 
         _cars = new Queue<Entity>();
         
         SpawnCars();
+       
         BuildingManager.RegisterBuilding(this);
 
     }
@@ -47,14 +55,14 @@ public class Home: BuildingBase
     }
     private string GetCarFlag()
     {
-        switch (this.BuildingType)
+        switch (this.BuildingColor)
         {
-            case BuildingType.HomeBlue:
+            case BuildingColor.Blue:
                 return ObjectFlags.BLUE_CAR;
-            case BuildingType.HomeRed:
+            case BuildingColor.Red:
                 return ObjectFlags.RED_CAR;
-            case BuildingType.HomeYellow: 
-                return ObjectFlags.YELLOW_CAR;
+            // case BuildingColor.Yellow: 
+            //     return ObjectFlags.YELLOW_CAR;
         }
 
         //Default car

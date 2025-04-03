@@ -72,7 +72,7 @@ namespace Game._00.Script._01.PlacingSystem
         {
             _mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
-            if (Input.GetMouseButtonDown(0) && isInGrid() && IsInWalkableNode())
+            if (Input.GetMouseButtonDown(0) && isInGrid() && IsInWalkableNode() && IsInDrawableNode())
             {
                 _isPlacing = true;
                 _selectedNodes.Clear();
@@ -178,8 +178,12 @@ namespace Game._00.Script._01.PlacingSystem
 
         private bool IsInWalkableNode()
         {
-            Node node = GridManager.NodeFromWorldPosition(_mousePos);
-            return node.Walkable;
+           return GridManager.NodeFromWorldPosition(_mousePos).Walkable;
+        }
+
+        private bool IsInDrawableNode()
+        {
+            return GridManager.NodeFromWorldPosition(_mousePos).CanDraw;
         }
 
         private bool isInGrid()

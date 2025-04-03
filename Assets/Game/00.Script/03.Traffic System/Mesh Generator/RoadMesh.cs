@@ -207,7 +207,7 @@ namespace Game._00.Script._03.Traffic_System.Mesh_Generator
             List<Vector2> neighbours = new List<Vector2>();
             foreach (Node node in neighbourNodes)
             {
-                if (node.CanDraw)
+                if (node.IsRoad)
                 { 
                     neighbours.Add(node.WorldPosition);  
                 }

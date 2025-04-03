@@ -71,8 +71,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -712161635
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_Sprite: {fileID: -1608763465, guid: a2b21e582ed8b4c52b4a877e5f508e8d, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -99,7 +99,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isGizmos: 1
   spriteCollections: {fileID: 11400000, guid: fc4cef545c8b1402aa2366a21b774e62, type: 2}
-  lifeTime: 2
   size: 2
+  buildingType: 0
+  buildingColor: 0
   demands: 1
-  isGizmos: 1

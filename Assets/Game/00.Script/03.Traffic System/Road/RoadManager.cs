@@ -43,7 +43,7 @@ namespace Game._00.Script._03.Traffic_System.Road
 
 
         /// <summary>
-        /// Check the placed node repersent building node => to check if building is connected by road later
+        /// Check the placed node represent building node => to check if building is connected by road later
         /// </summary>
         /// <param name="node"></param>
         /// <param name="buildingType"></param>
@@ -71,7 +71,7 @@ namespace Game._00.Script._03.Traffic_System.Road
         /// </summary>
         public List<Home> GetHomes(Business business)
         {
-            return _buildingManager.GetInputBuildings(business.BuildingType)
+            return _buildingManager.GetInputBuildings(business.BuildingColor)
                 .Select(b => b.RoadNode) // Get road nodes of output buildings
                 .Where(n => n.GraphIndex == business.RoadNode.GraphIndex &&
                             n.WorldPosition != business.RoadNode.WorldPosition) // Filter connected nodes

@@ -71,8 +71,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -712161635
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_Sprite: {fileID: 1811276431, guid: 231aad76f2c32406fbe73b641e64a134, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -99,6 +99,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isGizmos: 1
   spriteCollections: {fileID: 11400000, guid: d6c2c136ab42c42b59a6a40608dc4482, type: 2}
-  lifeTime: 2
   size: 0
+  buildingType: 0
+  buildingColor: 0
   numbCars: 2

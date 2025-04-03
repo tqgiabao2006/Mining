@@ -27,6 +27,8 @@ namespace Game._00.Script._04.Timer
         private float _timeCounter;
         private BuildingSpawner _buildingSpawner;
 
+        private int _week;
+
         private WeekDay _randomDay;
 
         private bool _hasSpawned; //Check has spawned this week
@@ -36,6 +38,14 @@ namespace Game._00.Script._04.Timer
             get
             {
                 return _day;
+            }
+        }
+
+        public int Week
+        {
+            get
+            {
+                return _week;
             }
         }
 
@@ -64,6 +74,7 @@ namespace Game._00.Script._04.Timer
             ObserversSetup();
             _randomDay = PickRandomDay();
             _hasSpawned = false;
+            _week = 1;
         }
         
         private void Tick()
@@ -88,6 +99,7 @@ namespace Game._00.Script._04.Timer
                 {
                     _randomDay = PickRandomDay();
                     _day = WeekDay.Monday;
+                    _week++;
                     _hasSpawned = false;
                 }
                 
@@ -111,7 +123,19 @@ namespace Game._00.Script._04.Timer
                     {
                         textColor = Color.green
                     }
-                        
+                }
+                );
+            
+            Handles.Label(
+                new Vector3(0,40,0),
+                "Week " + _week.ToString(),
+                new GUIStyle()
+                {
+                    fontSize = 20,
+                    normal = new GUIStyleState()
+                    {
+                        textColor = Color.green
+                    }
                 }
                 );
         }
