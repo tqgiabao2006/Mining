@@ -1,55 +1,76 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
+using Game._00.Script._00.Manager;
+using Game._00.Script._02.Grid_setting;
 using UnityEngine;
-using UnityEngine.Serialization;
 
-[RequireComponent(typeof(Camera))]
-public class CameraZoom : MonoBehaviour
+namespace Game._00.Script.Camera
 {
-    private Camera _camera;
-    [SerializeField] private List<ZoomByLevel> zoomData;
-
-    void Start()
+    [RequireComponent(typeof(UnityEngine.Camera))]
+    public class CameraZoom : Singleton<CameraZoom>
     {
-        _camera = GetComponent<Camera>();
-        // StartCoroutine(ZoomOut(0));
-    }
+        [SerializeField] private bool drawInteractableZone;
 
-    /// <summary>
-    /// Called only once when the game level changes.
-    /// Level is 0-indexed.
-    /// </summary>
-    public IEnumerator ZoomOut(int level)
-    {
-        if (level >= zoomData.Count)
+        [SerializeField] private int maxSize = 14;
+        
+        [SerializeField] private float zoomSpeed; // 0.05 for 30 min levels
+        
+        [Tooltip("The ratio: interactable/whole screne")]
+        [Range(0,1)]
+        [SerializeField]  
+        private float zoneRatio;
+        
+        private UnityEngine.Camera _camera;
+        
+        public Vector2 Bound
         {
-            Debug.LogError($"This camera doesn't contain zoom data for level {level}", this);
-            yield break;
+            get;
+            private set;
+        }
+        
+        private void Start()
+        {
+            _camera = GetComponent<UnityEngine.Camera>();
         }
 
-        float targetSize = zoomData[level].endSize;
-        float duration = zoomData[level].time;
-        float elapsedTime = 0f;
-
-        while (elapsedTime < duration)
+        private void Update()
         {
-            _camera.orthographicSize = Mathf.SmoothStep(zoomData[level].startSize, targetSize, elapsedTime / duration);
-            elapsedTime += Time.deltaTime;
-            yield return null;
+            Zoom();
+            UpdateBound();
         }
 
-        _camera.orthographicSize = targetSize; // Ensure it reaches exact target size at the end
+        private void Zoom()
+        {
+            this._camera.orthographicSize = Mathf.Min( _camera.orthographicSize + zoomSpeed * Time.deltaTime, maxSize );
+        }
+        private void UpdateBound()
+        {
+            float halfHeight = _camera.orthographicSize;
+            float halfWidth = halfHeight * _camera.aspect;
+
+            float sizeX = zoneRatio * halfWidth * 2;
+            float sizeY = zoneRatio * halfHeight * 2;
+
+            // Round to the nearest multiple of NodeDiameter
+            sizeX = Mathf.RoundToInt(sizeX / GridManager.NodeDiameter) * GridManager.NodeDiameter;
+            sizeY = Mathf.RoundToInt(sizeY / GridManager.NodeDiameter) * GridManager.NodeDiameter;
+            
+            //Round to even number
+            sizeX += sizeX % 2;
+            sizeY += sizeY % 2;
+            
+            Bound = new Vector2(sizeX, sizeY);
+        }
+
+
+        private void OnDrawGizmos()
+        {
+            if (!drawInteractableZone)
+            {
+                return;
+            }
+            Gizmos.color = Color.blue;
+            Gizmos.DrawWireSphere(this.transform.position, 0.5f);
+            Gizmos.DrawWireCube(this.transform.position, this.Bound);
+        }
     }
-}
 
-
-[Serializable]
-// Max size is 50, min size is 15
-public struct ZoomByLevel
-{
-    public float time;
-
-    [Range(15, 50)] public float startSize;
-    [Range(15, 50)] public float endSize;
 }

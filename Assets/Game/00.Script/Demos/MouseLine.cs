@@ -1,5 +1,5 @@
 using UnityEngine;
-
+using Camera = UnityEngine.Camera;
 namespace Game._00.Script.Demos
 {
     public class MouseLine : MonoBehaviour
@@ -20,7 +20,7 @@ namespace Game._00.Script.Demos
         {
             if(!Input.GetMouseButton(0)) return;
             if(Input.GetMouseButtonUp(0)) _lineRenderer.positionCount = 0;
-            _startPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            _startPosition = UnityEngine.Camera.main.ScreenToWorldPoint(Input.mousePosition);
             this.gameObject.transform.position = _startPosition;
 
             if (Vector2.Distance(_startPosition, _lastMousePosition) > 0.5f)

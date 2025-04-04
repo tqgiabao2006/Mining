@@ -75,6 +75,10 @@ public class Business : BuildingBase
     protected override void OnDrawGizmos()
     {
         base.OnDrawGizmos();
+        if (!isGizmos)
+        {
+            return;
+        }
         Handles.Label(new Vector3(transform.position.x, transform.position.y  + 0.5f, transform.position.z), 
             demands.ToString(), new GUIStyle { fontSize = 24, normal = { textColor = Color.yellow } });
     }

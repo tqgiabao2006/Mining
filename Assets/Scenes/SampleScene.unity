@@ -1777,104 +1777,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 0.2}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!1 &370540317
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 370540319}
-  - component: {fileID: 370540320}
-  - component: {fileID: 370540322}
-  - component: {fileID: 370540321}
-  m_Layer: 0
-  m_Name: Circle
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &370540319
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 370540317}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.5, y: 0.5, z: -0.1}
-  m_LocalScale: {x: 0.3392, y: 0.3392, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 533174917}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &370540320
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 370540317}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 02098f67c3e4e45fe9e58e1604e80146, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  a: 0.3
-  b: 0.5
---- !u!23 &370540321
-MeshRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 370540317}
-  m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 2
-  m_RayTraceProcedural: 0
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 3
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_AdditionalVertexStreams: {fileID: 0}
---- !u!33 &370540322
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 370540317}
-  m_Mesh: {fileID: 0}
 --- !u!1 &471847379
 GameObject:
   m_ObjectHideFlags: 0
@@ -1957,7 +1859,6 @@ Transform:
   m_Children:
   - {fileID: 1532690540}
   - {fileID: 356251480}
-  - {fileID: 370540319}
   - {fileID: 1409132383}
   - {fileID: 2105575399}
   - {fileID: 875087521}
@@ -2883,7 +2784,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!156049354 &905257499
 Grid:
   m_ObjectHideFlags: 0
@@ -4058,7 +3959,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07e435fa82f3a4fa6858a0d58e34c39e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isGizmos: 1
+  isGizmos: 0
   roadMaterial: {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
   curveSmoothness: 40
 --- !u!23 &1658386547
@@ -6752,10 +6653,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f87356bc12f17446d9e0328e3635a1f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  zoomData:
-  - time: 0
-    startSize: 0
-    endSize: 39.04
+  drawInterableZone: 0
+  maxSize: 14
+  zoomSpeed: 0.5
+  zoneRatio: 0.7
 --- !u!114 &1992761414
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6843,7 +6744,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 6
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
@@ -6904,9 +6805,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isGizmos: 0
-  show1x1: 1
-  show2x2: 1
-  show2x3: 1
+  show1x1: 0
+  show2x2: 0
+  show2x3: 0
   buildingPrefabs:
   - Prefab: {fileID: 3689738951310742799, guid: 3981291a478a34a83a6052f1b5e891bd, type: 3}
     Color: 0

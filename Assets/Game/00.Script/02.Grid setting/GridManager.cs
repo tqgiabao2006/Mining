@@ -22,7 +22,6 @@ namespace Game._00.Script._02.Grid_setting
         [SerializeField] private bool drawRoad;
 
         #region Variables
-        //1. GridManager:
         public static Node[,] Grid
         {
             get; 
@@ -36,7 +35,7 @@ namespace Game._00.Script._02.Grid_setting
        
         public static int GridSizeY{get; private set;}
 
-        [CustomReadOnly] public static readonly Vector2 GridWorldSize = new Vector2(40,40); 
+        [CustomReadOnly] public static readonly Vector2 GridWorldSize = new Vector2(40,22); 
         
         [CustomReadOnly] public static readonly float NodeRadius = 0.5f;
 
@@ -296,7 +295,7 @@ namespace Game._00.Script._02.Grid_setting
                     Gizmos.color = n.IsRoad ? Color.yellow : Color.white;
                 }
                 // Draw the gizmo cube at the node's position
-                Gizmos.DrawCube(n.WorldPosition, Vector2.one * (NodeDiameter -0.05f));
+                Gizmos.DrawWireCube(n.WorldPosition, Vector2.one * (NodeDiameter -0.05f));
             }
         }
         #endregion
