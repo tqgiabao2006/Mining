@@ -6,10 +6,15 @@ using Game._00.Script._02.Grid_setting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.UIElements;
 
 namespace Game._00.Script._03.Traffic_System.MapData
 {
-
+    public struct AlphaNode
+    {
+        public Vector2 Position;
+        public float Alpha;
+    }
     public class MapSupplyDemand : MonoBehaviour
     {
         [Header("Debug Property")] [SerializeField]
@@ -21,7 +26,7 @@ namespace Game._00.Script._03.Traffic_System.MapData
 
         [SerializeField] private bool drawUnspawnable;
 
-        private Dictionary<string, List<Node>> _layerAlpha;
+        private Dictionary<string, List<AlphaNode>> _layerAlpha;
 
         private Vector2 _size = Vector2.zero;
         
@@ -33,26 +38,36 @@ namespace Game._00.Script._03.Traffic_System.MapData
             }
         }
 
-        public Node this[string layerTag, int index]
+        public AlphaNode this[string layerTag, Vector2 gridPos]
         {
             get
             {
                 if (IsValidTag(layerTag))
                 {
-                    if (index >= 0 && index < _layerAlpha[layerTag].Count)
+                    List<AlphaNode> nodes = _layerAlpha[layerTag];
+                    for (int i = 0; i < nodes.Count; i++)
                     {
-                        return _layerAlpha[layerTag][index];
+                        if ((gridPos - nodes[i].Position).sqrMagnitude < 0.05)
+                        {
+                            return nodes[i];
+                        }
                     }
                 }
                 
                 DebugUtility.LogError($"Invalid layer tag: {layerTag} or index", this.gameObject.name);
-                return null;
+                return new AlphaNode()
+                {
+                    Position = Vector2.zero,
+                    Alpha = 0
+                };
             }
         }
-        
-        private void Start()
+        /// <summary>
+        /// Called before give to posion disc
+        /// </summary>
+        public void SetUp()
         {
-            _layerAlpha = new Dictionary<string, List<Node>>();
+            _layerAlpha = new Dictionary<string, List<AlphaNode>>();
             LoadTileLayers();
         }
         
@@ -95,14 +110,14 @@ namespace Game._00.Script._03.Traffic_System.MapData
         /// <param name="renderer"></param>
         /// <param name="validTag">tag of layer</param>
         /// <returns>AlphaNode[,]</returns>
-        private List<Node> LoadAlphaNodeMap(Tilemap tilemap,string validTag)
+        private List<AlphaNode> LoadAlphaNodeMap(Tilemap tilemap,string validTag)
         {
             int yMin = tilemap.cellBounds.yMin;
             int yMax = tilemap.cellBounds.yMax;
             int xMin = tilemap.cellBounds.xMin;
             int xMax = tilemap.cellBounds.xMax;
             
-            List<Node> nodes = new List<Node>();
+            List<AlphaNode> nodes = new List<AlphaNode>();
             
             for (int y = yMin; y < yMax; y++)
             {
@@ -112,14 +127,14 @@ namespace Game._00.Script._03.Traffic_System.MapData
                     if (tilemap.HasTile(gridPos))
                     {
                         Vector3 worldPos = tilemap.layoutGrid.CellToWorld(gridPos);
+                        Vector2 nodePos = GridManager.NodeFromWorldPosition(worldPos).WorldPosition;
                         float alphaVal = GetSpriteAlpha(tilemap, gridPos);
-                        Node node = GridManager.NodeFromWorldPosition(worldPos);
-                        node.AlphaNode = new AlphaNode()
+                        
+                        nodes.Add(new AlphaNode()
                         {
-                            Value = alphaVal,
-                            LayerTag = validTag
-                        };
-                        nodes.Add(node);
+                            Position = nodePos,
+                            Alpha = alphaVal
+                        });
                     }
                 }
             }
@@ -181,11 +196,29 @@ namespace Game._00.Script._03.Traffic_System.MapData
 
             if (_layerAlpha.ContainsKey(LayerTag.DEMAND) && drawDemand) 
             {
-                List<Node> alphaNodes = _layerAlpha[LayerTag.DEMAND];
+                List<AlphaNode> alphaNodes = _layerAlpha[LayerTag.DEMAND];
                 for (int j = 0; j < alphaNodes.Count; j++)
                 {
-                    Handles.Label(alphaNodes[j].WorldPosition, 
-                        String.Format("{0:F1}", alphaNodes[j].AlphaNode.Value),
+                    Handles.Label(alphaNodes[j].Position, 
+                        String.Format("{0:F1}", alphaNodes[j].Alpha),
+                        new GUIStyle()
+                        {
+                            fontSize = 20,
+                            normal = new GUIStyleState()
+                            {
+                                textColor = Color.yellow,
+                            }
+                        });
+                }
+            }
+            
+            if(_layerAlpha.ContainsKey(LayerTag.SUPPLY) &&  drawSupply)
+            {
+                List<AlphaNode> alphaNodes = _layerAlpha[LayerTag.SUPPLY];
+                for (int j = 0; j < alphaNodes.Count; j++)
+                {
+                    Handles.Label(alphaNodes[j].Position, 
+                        String.Format("{0:F1}", alphaNodes[j].Alpha),
                         new GUIStyle()
                         {
                             fontSize = 20,
@@ -196,38 +229,20 @@ namespace Game._00.Script._03.Traffic_System.MapData
                         });
                 }
             }
-            
-            if(_layerAlpha.ContainsKey(LayerTag.SUPPLY) &&  drawSupply)
-            {
-                List<Node> alphaNodes = _layerAlpha[LayerTag.SUPPLY];
-                for (int j = 0; j < alphaNodes.Count; j++)
-                {
-                    Handles.Label(alphaNodes[j].WorldPosition, 
-                        String.Format("{0:F1}", alphaNodes[j].AlphaNode.Value),
-                        new GUIStyle()
-                        {
-                            fontSize = 20,
-                            normal = new GUIStyleState()
-                            {
-                                textColor = Color.yellow
-                            }
-                        });
-                }
-            }
 
             if (_layerAlpha.ContainsKey(LayerTag.UNSPAWNABLE) &&  drawUnspawnable)
             {
-                List<Node> alphaNodes = _layerAlpha[LayerTag.UNSPAWNABLE];
+                List<AlphaNode> alphaNodes = _layerAlpha[LayerTag.UNSPAWNABLE];
                 for (int j = 0; j < alphaNodes.Count; j++)
                 {
-                    Handles.Label(alphaNodes[j].WorldPosition, 
-                        String.Format("{0:F1}", alphaNodes[j].AlphaNode.Value),
+                    Handles.Label(alphaNodes[j].Position, 
+                        String.Format("{0:F1}", alphaNodes[j].Alpha),
                         new GUIStyle()
                         {
                             fontSize = 20,
                             normal = new GUIStyleState()
                             {
-                                textColor = Color.blue
+                                textColor = Color.black
                             }
                         });
                 }

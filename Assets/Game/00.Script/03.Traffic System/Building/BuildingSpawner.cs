@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Game._00.Script._00.Manager;
 using Game._00.Script._00.Manager.Observer;
 using Game._00.Script._02.Grid_setting;
+using Game._00.Script._03.Traffic_System.MapData;
 using Game._00.Script._03.Traffic_System.Mesh_Generator;
 using Game._00.Script._03.Traffic_System.Road;
 using Unity.Mathematics;
@@ -79,6 +80,8 @@ namespace Game._00.Script._03.Traffic_System.Building
         private ObjectPooling _objectPooling;
         
         private PossionDisc _possionDisc;
+
+        private MapSupplyDemand _mapSupplyDemand;
         
         //Zone
         private Zone _currentZone;
@@ -108,6 +111,10 @@ namespace Game._00.Script._03.Traffic_System.Building
             
             _parkingMesh = FindObjectOfType<ParkingMesh>();
 
+            _mapSupplyDemand = FindObjectOfType<MapSupplyDemand>();
+            
+            _mapSupplyDemand.SetUp();
+            
             _buildingPrefabsDict = new Dictionary<(BuildingType, BuildingColor), BuildingPrefab>();
             
             _spawnQueue = new Queue<SpawnInfo>();
@@ -128,8 +135,8 @@ namespace Game._00.Script._03.Traffic_System.Building
                 Pivot = new Vector2(-7, -4),
                 Size = new Vector2(14 * GridManager.NodeDiameter, 8 * GridManager.NodeDiameter),
             };
-                
-            _possionDisc = new PossionDisc(_currentZone.Pivot, _currentZone.Size);
+            
+            _possionDisc = new PossionDisc(_currentZone.Pivot, _currentZone.Size, _mapSupplyDemand);
             
             _spawnTimeCounter = spawnDelayTime;
         }

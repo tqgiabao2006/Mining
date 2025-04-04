@@ -3,11 +3,6 @@ using UnityEngine;
 
 namespace Game._00.Script._02.Grid_setting
 {
-	public struct AlphaNode
-	{
-		public float Value;
-		public string LayerTag;
-	}
 	public class Node : IHeapItem<Node>
 	{
 		private GameObject _belongedBuilding;
@@ -41,12 +36,6 @@ namespace Game._00.Script._02.Grid_setting
 		public GridManager GridManager;
 		
 		int heapIndex;
-		
-		public AlphaNode AlphaNode
-		{
-			get;
-			set;
-		}
 		
 		public bool Walkable
 		{
