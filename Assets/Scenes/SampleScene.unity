@@ -1984,7 +1984,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49fe3c293a25c4a709ec8b2499fe01b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debugMode: 0
+  debugMode: 1
   walkableDisplay: 0
   drawableDisplay: 0
   drawEmpty: 0
@@ -6653,7 +6653,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f87356bc12f17446d9e0328e3635a1f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  drawInterableZone: 0
+  drawInteractableZone: 1
   maxSize: 14
   zoomSpeed: 0.5
   zoneRatio: 0.7
