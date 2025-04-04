@@ -28,7 +28,7 @@ namespace Game._00.Script._00.Manager.Observer
                                                "Parking Waypoints";
     }
 
-    public static class LayerFlags
+    public static class LayerTag
     {
         public const string SUPPLY = "Supply";
         public const string DEMAND = "Demand";

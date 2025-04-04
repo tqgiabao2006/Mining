@@ -196,20 +196,16 @@ namespace Game._00.Script._02.Grid_setting
                     penaltiesVerticalPass [x, 0] += penaltiesHorizontalPass [x, sampleY];
                 }
 
-
                 int blurredPenalty = Mathf.RoundToInt((float)penaltiesVerticalPass [x, 0] / (kernelSize * kernelSize));
                 Grid [x, 0].MovementPenalty = blurredPenalty;
-
 
                 for (int y = 1; y < GridSizeY; y++) {
                     int removeIndex = Mathf.Clamp(y - kernelExtents - 1, 0, GridSizeY);
                     int addIndex = Mathf.Clamp(y + kernelExtents, 0, GridSizeY-1);
 
-
                     penaltiesVerticalPass [x, y] = penaltiesVerticalPass [x, y-1] - penaltiesHorizontalPass [x,removeIndex] + penaltiesHorizontalPass [x, addIndex];
                     blurredPenalty = Mathf.RoundToInt((float)penaltiesVerticalPass [x, y] / (kernelSize * kernelSize));
                     Grid [x, y].MovementPenalty = blurredPenalty;
-              
               
                     //GetMaxMin ----> Gizmos
                     if (blurredPenalty > penaltyMax) {

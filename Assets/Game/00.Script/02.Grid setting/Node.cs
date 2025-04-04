@@ -3,61 +3,82 @@ using UnityEngine;
 
 namespace Game._00.Script._02.Grid_setting
 {
+	public struct AlphaNode
+	{
+		public float Value;
+		public string LayerTag;
+	}
 	public class Node : IHeapItem<Node>
 	{
 		private GameObject _belongedBuilding;
-		public GameObject BelongedBuilding { get { return _belongedBuilding; } }
 	
 		private bool _walkable;
 
-		public bool Walkable
-		{
-			get { return _walkable; }
-		}
-
+		private bool _isBuilding;
+		
+		private bool _isRoad;
+		
 		private bool _canDraw; //Used to tag a node can be drawn a road on, there is 1 case: parking lot that the road connect but not a road
 
-		public bool CanDraw
-		{
-			get { return _canDraw; }
-		}
-
 		public Vector3 WorldPosition {private set; get;}
+		
 		public int GridX { get;}
+		
 		public int GridY { get;}
 
 		public int MovementPenalty;
 
 		public int gCost;
+		
 		public int hCost;
+		
 		public Node Parent;
-	
+		
+		public int NodeIndex = -1; //its index of ALL MAP
+    	
+		private int _graphIndex; //Use for check connection
+    
+		public GridManager GridManager;
+		
 		int heapIndex;
-
+		
+		public AlphaNode AlphaNode
+		{
+			get;
+			set;
+		}
+		
+		public bool Walkable
+		{
+			get { return _walkable; }
+		}
+		
 		public bool IsEmpty
 		{
 			get { return !_isBuilding && !_isRoad; }
 		}
-	
-		private bool _isRoad;
 
 		public bool IsRoad
 		{
 			get { return _isRoad; }
 		}
 
-
-		private bool _isBuilding;
-
+		public bool CanDraw
+		{
+			get { return _canDraw; }
+		}
+		
 		public bool IsBuilding
 		{
 			get { return _isBuilding; }
 		}
-	
-		public int NodeIndex = -1; //its index of ALL MAP
-	
-		private int _graphIndex; //Use for check connection
 
+
+		public GameObject BelongedBuilding
+		{
+			get { return _belongedBuilding; }
+		}
+		
 		public int GraphIndex
 		{
 			get{return _graphIndex;}
@@ -66,7 +87,6 @@ namespace Game._00.Script._02.Grid_setting
 				_graphIndex = value;
 			} 
 		}
-		public GridManager GridManager;
 		public Node(bool walkable, Vector3 worldPos, int gridX, int gridY, int penalty, GridManager gridManager) 
 		{
 			this._walkable = walkable;
