@@ -21,11 +21,7 @@ namespace Game._00.Script._03.Traffic_System.Building
         public BuildingColor Color;
         public BuildingType Type;
     }
-    public struct Zone
-    {
-        public Vector2 Pivot;
-        public Vector2 Size;
-    }
+    
     
     public struct SpawnInfo
     {
@@ -37,16 +33,6 @@ namespace Game._00.Script._03.Traffic_System.Building
 
     public class BuildingSpawner : MonoBehaviour, IObserver
     {
-        [Header("Gizmos")] 
-        
-        [SerializeField] private bool isGizmos = false;
-
-        [SerializeField] private bool show1x1 = true;
-        
-        [SerializeField] private bool show2x2 = true;
-        
-        [SerializeField] private bool show2x3 = true;
-        
         [Header("BuildingBase Prefabs")]
         
         [SerializeField] private List<BuildingPrefab> buildingPrefabs; 
@@ -79,12 +65,7 @@ namespace Game._00.Script._03.Traffic_System.Building
 
         private ObjectPooling _objectPooling;
         
-        private PossionDisc _possionDisc;
-
         private MapSupplyDemand _mapSupplyDemand;
-        
-        //Zone
-        private Zone _currentZone;
         
         private int _currentWeek;
 
@@ -129,14 +110,6 @@ namespace Game._00.Script._03.Traffic_System.Building
             _buildingDirections = Enum.GetValues(typeof(BuildingDirection)) as BuildingDirection[];
             
             _currentWeek = 1;
-
-            _currentZone = new Zone()
-            {
-                Pivot = new Vector2(-7, -4),
-                Size = new Vector2(14 * GridManager.NodeDiameter, 8 * GridManager.NodeDiameter),
-            };
-            
-            _possionDisc = new PossionDisc(_currentZone.Pivot, _currentZone.Size, _mapSupplyDemand);
             
             _spawnTimeCounter = spawnDelayTime;
         }
@@ -185,8 +158,9 @@ namespace Game._00.Script._03.Traffic_System.Building
             if (_spawnTimeCounter <= 0 && _spawnQueue.Count > 0)
             {
                 SpawnInfo spawnInfo = _spawnQueue.Peek();
-                
-                List<Vector2> points = _possionDisc[spawnInfo.Size];
+
+                float weight = GetRandomWeight(new float[] {0.2f, 0.4f, 0.6f, 0.8f, 1});
+                List<Vector2> points = _mapSupplyDemand[spawnInfo.Size, weight];
                 
                 bool spawnSuccess = false;
                 int currentAttempt = 0;
@@ -281,17 +255,10 @@ namespace Game._00.Script._03.Traffic_System.Building
                             return spawnPos + offset * GridManager.NodeRadius;
                         }
 
-                        spawnSuccess = true;
                         _spawnQueue.Dequeue();
                         break;
                     }
                 }
-
-                if (!spawnSuccess)
-                {
-                    IncreaseZone();
-                }
-
                 _spawnTimeCounter = spawnDelayTime;
             }
         }
@@ -366,12 +333,6 @@ namespace Game._00.Script._03.Traffic_System.Building
             }
         }
 
-        private void IncreaseZone()
-        {
-            _currentZone.Size +=  Vector2.one * 2;
-            _currentZone.Pivot -=Vector2.one;
-        }
-        
         #region Building Direction Spawn
 
 
@@ -931,83 +892,36 @@ namespace Game._00.Script._03.Traffic_System.Building
 
             return new List<BuildingSpawnInfo>();
         }
-        #endregion
-        
-        #region Gizmos
 
-        private void OnDrawGizmos()
+        /// <summary>
+        /// Get random choice base on the demand, which larger number get to pick mor frequently
+        /// </summary>
+        /// <param name="weights">The number of float with weight</param>
+        /// <returns></returns>
+        private float GetRandomWeight(float[] weights)
         {
-            if (!isGizmos)
+            float sum = 0;
+            float max = float.MinValue;
+            foreach (float weight in weights)
             {
-                return;
+                sum += weight;
             }
             
-            Gizmos.color = Color.green;
-            if (_possionDisc != null)
-            {
-                   Color[] colors = new Color[]
-                   {
-                       Color.yellow,
-                       Color.magenta,
-                   };
-                   
-                   if (show1x1)
-                   {
-                       Gizmos.color = Color.yellow;
-                       ParkingLotSize size = ParkingLotSize._1x1;
-                       for (int i = 0; i < _possionDisc[size].Count; i++)
-                       {
-                           Gizmos.DrawSphere(_possionDisc[size][i], 0.05f);
-                       }
-                   }
+            float random =  Random.value;
 
-                   if (show2x2)
-                   {
-                       Gizmos.color = Color.cyan;
-                       ParkingLotSize size = ParkingLotSize._2x2;
-                       for (int i = 0; i < _possionDisc[size].Count; i++)
-                       {
-                           Gizmos.DrawSphere(_possionDisc[size][i], 0.1f);
-                       }
-                   }
-
-                   if (show2x3)
-                   {
-                       Gizmos.color = Color.magenta;
-                       ParkingLotSize size = ParkingLotSize._2x3;
-                       for (int i = 0; i < _possionDisc[size].Count; i++)
-                       {
-                           Gizmos.DrawSphere(_possionDisc[size][i], 0.2f);
-                       }
-                   }
-            }
+            float prev = 0;
             
-            //Expand from pivot, not expand from the middle
-            Handles.Label(_currentZone.Pivot, "Pivot",
-                new GUIStyle()
+            //Pick in range like 15% and prev = 40% so it has to be from 0.15 to 0.55
+            for (int i = 0; i < weights.Length; i++)
+            {
+                if (random >= prev && random <= prev + weights[i])
                 {
-                    fontSize = 20,
-                    normal = new GUIStyleState()
-                    {
-                        textColor = Color.red
-                    }
-                });
-            //Bot edge
-            Gizmos.DrawLine(_currentZone.Pivot,  
-                new Vector2(_currentZone.Pivot.x + _currentZone.Size.x, _currentZone.Pivot.y));
-                
-            //Top edge
-            Gizmos.DrawLine(new Vector2(_currentZone.Pivot.x, _currentZone.Pivot.y + _currentZone.Size.y),  
-                new Vector2(_currentZone.Pivot.x + _currentZone.Size.x, _currentZone.Pivot.y + _currentZone.Size.y));
-                
-            //Left edge
-            Gizmos.DrawLine(_currentZone.Pivot,
-                new Vector2(_currentZone.Pivot.x, _currentZone.Pivot.y + _currentZone.Size.y));
-                
-            //Right edge
-            Gizmos.DrawLine(new Vector2(_currentZone.Pivot.x + _currentZone.Size.x, _currentZone.Pivot.y), 
-                new Vector2(_currentZone.Pivot.x + _currentZone.Size.x, _currentZone.Pivot.y + _currentZone.Size.y));
-       
+                    return  weights[i];
+                }
+                prev = weights[i];
+            }
+
+            return 0;
         }
         #endregion
     }

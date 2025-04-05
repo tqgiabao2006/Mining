@@ -191,8 +191,8 @@ namespace Game._00.Script._01.PlacingSystem
                    //Inside the grid && Inside the bound of the map
             return _mousePos.x >= -GridManager.GridSizeX / 2 && _mousePos.x <= GridManager.GridSizeX / 2 &&
                    _mousePos.y >= -GridManager.GridSizeY / 2 && _mousePos.y <= GridManager.GridSizeY / 2 &&
-                   _mousePos.x >= -_cameraZoom.Bound.x/2  && _mousePos.x <= _cameraZoom.Bound.x/2 &&
-                   _mousePos.y >= -_cameraZoom.Bound.y/2 && _mousePos.y <= _cameraZoom.Bound.y/2;
+                   _mousePos.x >= -_cameraZoom.Zone.Size.x/2  && _mousePos.x <= _cameraZoom.Zone.Size.x/2 &&
+                   _mousePos.y >= -_cameraZoom.Zone.Size.y/2 && _mousePos.y <= _cameraZoom.Zone.Size.y/2;
         }
         
         #endregion

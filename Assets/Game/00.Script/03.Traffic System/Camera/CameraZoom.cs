@@ -1,12 +1,20 @@
 using Game._00.Script._00.Manager;
 using Game._00.Script._02.Grid_setting;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Game._00.Script.Camera
 {
+    public struct Zone
+    {
+        public Vector2 BotLeftPivot; //Use for disc posion mainly
+        public Vector2 Size;
+    }
     [RequireComponent(typeof(UnityEngine.Camera))]
     public class CameraZoom : Singleton<CameraZoom>
-    {
+    { 
+        [SerializeField] private bool enabledZoom;
+        
         [SerializeField] private bool drawInteractableZone;
 
         [SerializeField] private int maxSize = 14;
@@ -19,13 +27,12 @@ namespace Game._00.Script.Camera
         private float zoneRatio;
         
         private UnityEngine.Camera _camera;
-        
-        public Vector2 Bound
+
+        public Zone Zone
         {
             get;
             private set;
         }
-        
         private void Start()
         {
             _camera = GetComponent<UnityEngine.Camera>();
@@ -33,6 +40,10 @@ namespace Game._00.Script.Camera
 
         private void Update()
         {
+            if (!enabledZoom)
+            {
+                return;
+            }
             Zoom();
             UpdateBound();
         }
@@ -56,8 +67,12 @@ namespace Game._00.Script.Camera
             //Round to even number
             sizeX += sizeX % 2;
             sizeY += sizeY % 2;
-            
-            Bound = new Vector2(sizeX, sizeY);
+
+            Zone = new Zone()
+            {
+                BotLeftPivot = new Vector2(-sizeX/2, sizeY/2),
+                Size = new Vector2(sizeX, sizeY),
+            };
         }
 
 
@@ -68,8 +83,8 @@ namespace Game._00.Script.Camera
                 return;
             }
             Gizmos.color = Color.blue;
-            Gizmos.DrawWireSphere(this.transform.position, 0.5f);
-            Gizmos.DrawWireCube(this.transform.position, this.Bound);
+            Gizmos.DrawWireSphere(Zone.BotLeftPivot, 0.5f);
+            Gizmos.DrawWireCube(this.transform.position, this.Zone.Size);
         }
     }
 

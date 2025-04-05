@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Game._00.Script._00.Manager.Custom_Editor;
-using Game._00.Script._00.Manager.Observer;
 using Game._00.Script._02.Grid_setting;
 using Game._00.Script._03.Traffic_System.MapData;
+using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
 using URandom = UnityEngine.Random;
@@ -23,8 +24,7 @@ namespace Game._00.Script._03.Traffic_System.Building
         private Vector2 _worldPivot;
 
         private Dictionary<ParkingLotSize, List<Vector2>> _sizeMap; //Map by size
-        
-        private Dictionary<string, List<AlphaNode>> _heatMap; // Apply heat map
+
         public List<Vector2> this[ParkingLotSize size]
         {
             get
@@ -33,34 +33,17 @@ namespace Game._00.Script._03.Traffic_System.Building
                 {
                     return _sizeMap[size];
                 }
-                DebugUtility.LogError("Key not found in Size Map", "PosionDisc");
+                
+                DebugUtility.LogError("Key not found in Heat Map", "PosionDisc");
                 return new List<Vector2>();
             }
         }
 
-        public List<AlphaNode> this[string layerTag]
-        {
-            get
-            {
-                if (_heatMap.ContainsKey(layerTag) && _heatMap != null)
-                {
-                    return _heatMap[layerTag];
-                }
-                
-                DebugUtility.LogError("Key not found in Heat Map", "PosionDisc");
-                return new List<AlphaNode>();
-            }
-        }
-
-        public PossionDisc(Vector2 worldPivot, Vector2 zoneSize, MapSupplyDemand mapSupplyDemand)   
+        public PossionDisc(Vector2 worldPivot, Vector2 zoneSize)   
         {
             _attempts = 30;
             
-            _mapSupplyDemand = mapSupplyDemand;
-            
             _sizeMap = new Dictionary<ParkingLotSize, List<Vector2>>();
-            
-            _heatMap = new Dictionary<string, List<AlphaNode>>();
             
             _worldPivot = worldPivot;
             
@@ -70,22 +53,18 @@ namespace Game._00.Script._03.Traffic_System.Building
             
             ParkingLotSize[] size = (ParkingLotSize[])Enum.GetValues(typeof(ParkingLotSize));
             
-            //Pre-calculate all position in range
             for (int i = 0; i < size.Length; i++)
             {
                 float scaledRadius = GetScaleRadius(size[i]);
-                string layerTag = GetLayerTag(size[i]);
                 List<Vector2> points = Spawn(_zoneSize, _worldPivot, scaledRadius, _attempts);
                 
                 if (_sizeMap.ContainsKey(size[i]))
                 {
                     _sizeMap[size[i]].AddRange(points);
-                    _heatMap[layerTag].AddRange(HeatMapConvert(points, layerTag));
                 }
                 else
                 {
                     _sizeMap.Add(size[i], points);
-                    _heatMap.Add(layerTag, HeatMapConvert(points, layerTag));
                 }
             } 
         }
@@ -96,38 +75,7 @@ namespace Game._00.Script._03.Traffic_System.Building
             ParkingLotSize._2x3 => _radius * 5,
             _ => _radius // Default fallback
         };
-
-        private string GetLayerTag(ParkingLotSize size) => size switch
-        {
-            ParkingLotSize._1x1 => LayerTag.SUPPLY,
-            ParkingLotSize._2x2 => LayerTag.DEMAND,
-            ParkingLotSize._2x3 => LayerTag.DEMAND,
-            _ => LayerTag.UNSPAWNABLE
-        };
-
-        private List<AlphaNode> HeatMapConvert(List<Vector2> points, string layerTag)
-        {
-            if (points == null || points.Count == 0 || _mapSupplyDemand == null)
-            {
-                DebugUtility.LogError("Missing heat map reference! ", "Posion Disc");
-                return new List<AlphaNode>();
-            }
-            
-            List<AlphaNode> result = new List<AlphaNode>();
-            
-            for (int i = 0; i < points.Count; i++)
-            {
-                AlphaNode alphaNode = _mapSupplyDemand[layerTag, points[i]];
-
-                if (alphaNode.Position != Vector2.zero && alphaNode.Alpha != 0)
-                {
-                    result.Add(alphaNode);
-                }
-            }
-
-            return result;
-        }
-
+        
         private List<Vector2> Spawn(Vector2 zoneSize, Vector2 worldPivot,float scaledRadius, int maxAttempt)
         {
             float cellSize = scaledRadius / Mathf.Sqrt(2); 
