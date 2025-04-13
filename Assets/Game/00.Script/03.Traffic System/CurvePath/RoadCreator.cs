@@ -1,4 +1,4 @@
-﻿using DG.Tweening.Plugins.Core.PathCore;
+﻿ using DG.Tweening.Plugins.Core.PathCore;
 using UnityEngine;
 
 namespace Game._00.Script._03.Traffic_System.CurvePath
