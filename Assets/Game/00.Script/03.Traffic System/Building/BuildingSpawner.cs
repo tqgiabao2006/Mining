@@ -259,6 +259,7 @@ namespace Game._00.Script._03.Traffic_System.Building
                         break;
                     }
                 }
+                
                 _spawnTimeCounter = spawnDelayTime;
             }
         }
@@ -285,22 +286,22 @@ namespace Game._00.Script._03.Traffic_System.Building
                         Direction = _buildingDirections[Random.Range(0, _buildingDirections.Length)]
                     });
                     
-                    _spawnQueue.Enqueue(new SpawnInfo()
-                    {
-                        Type = BuildingType.Home,
-                        Color = color,
-                        Size = ParkingLotSize._1x1,
-                        Direction = _buildingDirections[Random.Range(0, _buildingDirections.Length)]
-                    });
-
-                    _spawnQueue.Enqueue(new SpawnInfo()
-                    {
-
-                        Type = BuildingType.Business,
-                        Color = color,
-                        Size = ParkingLotSize._2x2,
-                        Direction = _buildingDirections[Random.Range(0, _buildingDirections.Length)]
-                    });
+                    // _spawnQueue.Enqueue(new SpawnInfo()
+                    // {
+                    //     Type = BuildingType.Home,
+                    //     Color = color,
+                    //     Size = ParkingLotSize._1x1,
+                    //     Direction = _buildingDirections[Random.Range(0, _buildingDirections.Length)]
+                    // });
+                    //
+                    // _spawnQueue.Enqueue(new SpawnInfo()
+                    // {
+                    //
+                    //     Type = BuildingType.Business,
+                    //     Color = color,
+                    //     Size = ParkingLotSize._2x2,
+                    //     Direction = _buildingDirections[Random.Range(0, _buildingDirections.Length)]
+                    // });
                 }
                 else
                 {
@@ -900,29 +901,26 @@ namespace Game._00.Script._03.Traffic_System.Building
         /// <returns></returns>
         private float GetRandomWeight(float[] weights)
         {
-            float sum = 0;
-            float max = float.MinValue;
+            float sum = 0f;
             foreach (float weight in weights)
             {
                 sum += weight;
             }
-            
-            float random =  Random.value;
 
-            float prev = 0;
-            
-            //Pick in range like 15% and prev = 40% so it has to be from 0.15 to 0.55
+            float random = Random.value * sum;
+
+            float cumulative = 0f;
             for (int i = 0; i < weights.Length; i++)
             {
-                if (random >= prev && random <= prev + weights[i])
+                cumulative += weights[i];
+                if (random <= cumulative)
                 {
-                    return  weights[i];
+                    return weights[i];
                 }
-                prev = weights[i];
             }
-
-            return 0;
+            return weights[weights.Length - 1];
         }
+
         #endregion
     }
 

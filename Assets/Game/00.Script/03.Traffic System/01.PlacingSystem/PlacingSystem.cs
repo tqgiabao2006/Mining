@@ -22,8 +22,6 @@ namespace Game._00.Script._01.PlacingSystem
         
         private Vector2 _lastMousePos;
         
-        private List<Node> _selectedNodes;
-        
         private float _baseThreshold;
         
         private float _diagonalThreshold = 0.05f;
@@ -36,7 +34,10 @@ namespace Game._00.Script._01.PlacingSystem
         private BuildingManager _buildingManager;
         
         private CameraZoom _cameraZoom; 
+        
+        private UI_Grid _uiGrid;
 
+        
         //Observer:
         /// <summary>
         /// Include: GameStateManager => catch isPlacing system
@@ -55,11 +56,15 @@ namespace Game._00.Script._01.PlacingSystem
             _buildingManager = FindObjectOfType<BuildingManager>();
             
             _cameraZoom = CameraZoom.Instance;
+            
+            _uiGrid = FindObjectOfType<UI_Grid>();
+            
             //Observer set up
            ObserversSetup(); 
         
             //Threshold set up:
             _baseThreshold = GridManager.NodeRadius / 1.5f;
+            
         }
     
         private void Update()
@@ -75,15 +80,16 @@ namespace Game._00.Script._01.PlacingSystem
             if (Input.GetMouseButtonDown(0) && IsInGrid() && IsInWalkableNode() && IsInDrawableNode())
             {
                 _isPlacing = true;
-                _selectedNodes.Clear();
             
                 // Start with the initial node
                 _curNode = GridManager.NodeFromWorldPosition(_mousePos);
-                _selectedNodes.Add(_curNode);
             }
 
             if (_isPlacing)
             {
+                Notify(null, NotificationFlags.PLACING);
+                _cameraZoom.EnabledZoom = false;
+                
                 float distance = Vector2.Distance(_mousePos, _lastMousePos);
                 float mouseSpeed = distance / Time.deltaTime;
 
@@ -101,15 +107,18 @@ namespace Game._00.Script._01.PlacingSystem
                     
                     _roadManager.PlaceNode(newNode);
                     _roadManager.SetAdjList(_curNode, newNode);
-                    _selectedNodes.Add(newNode);
                     _roadManager.CreateMesh(newNode);
                     _curNode = newNode;
 
                     //NOTICE: Notify after the road manager update graph because use graph index to determine if 2 road is connected
                     //CHECK: after place a new road => possibility that there are some homes connecteed
                     Notify(null, NotificationFlags.CHECK_CONNECTION);
-
                 }
+            }
+            else
+            {
+                Notify(null, NotificationFlags.NOT_PLACING);
+                _cameraZoom.EnabledZoom = true;
             }
 
             if (Input.GetMouseButtonUp(0))
@@ -199,6 +208,7 @@ namespace Game._00.Script._01.PlacingSystem
         public override void ObserversSetup()
         {
            _observers.Add(_buildingManager); 
+           _observers.Add(_uiGrid);
         }
       }
 }

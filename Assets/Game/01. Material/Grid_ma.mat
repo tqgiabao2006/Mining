@@ -90,8 +90,10 @@ Material:
     - _ClearCoatSmoothness: 0
     - _Cull: 2
     - _Cutoff: 0.5
+    - _Cutout: 0
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
+    - _Distance: 0.309
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _EnvironmentReflections: 1
@@ -99,7 +101,9 @@ Material:
     - _Glossiness: 0
     - _GlossyReflections: 0
     - _GridSize: 10
+    - _Line: 40
     - _Metallic: 0
+    - _NodeRadius: 0.5
     - _OcclusionStrength: 1
     - _Parallax: 0.005
     - _QueueOffset: 0
@@ -111,15 +115,23 @@ Material:
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
     - _Surface: 0
-    - _Thickness: 0.023
+    - _Thickness: 0.04
+    - _Width: 0.35
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
+    - _BGColor: {r: 0, g: 0, b: 0, a: 1}
     - _BackgroundColor: {r: 0, g: 0, b: 0, a: 1}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0.32636172, g: 0.35745096, b: 0.3584906, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _InnerBond: {r: 0, g: 0, b: 0, a: 0}
     - _LineColor: {r: 0.8773585, g: 0.7793161, b: 0.34349412, a: 1}
+    - _OuterBound: {r: 0, g: 0, b: 0, a: 1}
+    - _Pivot: {r: 0, g: 0, b: 0, a: 0}
+    - _PivotProp: {r: -10, g: -5.56, b: 0, a: 0}
+    - _Size: {r: 0, g: 0, b: 0, a: 0}
+    - _SizeProp: {r: 20, g: 11, b: 0, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []
 --- !u!114 &2624550442585295957

@@ -23,7 +23,6 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
         //use this for parallel spawn waves in different places to spawn multiple car in the same building
         protected override void OnCreate()
         {
-            Debug.Log("CarSpawnSystem.OnCreate");
             RequireForUpdate<SpawnGameObjectHolder>();
         }
 

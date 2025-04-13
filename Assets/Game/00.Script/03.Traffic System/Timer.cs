@@ -107,7 +107,7 @@ namespace Game._00.Script._04.Timer
                     if (_day == _randomDay && !_hasSpawned)
                     {
                         Notify(null, NotificationFlags.DEMAND_BUILDING);
-                        Debug.Log("Notify");
+                        Debug.Log("Demand Building");
                         if (stopTest)
                         { 
                             _stopTest = true;

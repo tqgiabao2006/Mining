@@ -394,7 +394,7 @@ namespace Game._00.Script._03.Traffic_System.Mesh_Generator
             {
                 AddRectangleMesh(vertices, triangles, DirectionType.Left, nodePos, _roadWidth, 1,0, 1,1);
             }
-        
+            
             if ((bakedBitwiseDirection & BitwiseDirection.BottomRight) == BitwiseDirection.BottomRight)
             {
                 int startIndex = vertices.Count;

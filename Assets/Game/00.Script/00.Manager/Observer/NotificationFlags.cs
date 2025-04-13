@@ -12,6 +12,8 @@ namespace Game._00.Script._00.Manager.Observer
         public const string DEMAND_CAR = "Demand Car";
         public const string DEMAND_BUILDING = "Demand Building";
         public const string WEEK_PASS = "Week pass";
+        public const string PLACING = "Placing";
+        public const string NOT_PLACING = "Not Placing"; 
     }
 
     public static class ObjectFlags

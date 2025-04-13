@@ -28,6 +28,13 @@ namespace Game._00.Script.Camera
         
         private UnityEngine.Camera _camera;
 
+        public bool EnabledZoom
+        {
+            set
+            {
+                enabledZoom = value;
+            }
+        }
         public Zone Zone
         {
             get;
@@ -36,15 +43,16 @@ namespace Game._00.Script.Camera
         private void Start()
         {
             _camera = GetComponent<UnityEngine.Camera>();
+            //Set Initial first
+            UpdateBound();
         }
 
         private void Update()
         {
-            if (!enabledZoom)
+            if (enabledZoom)
             {
-                return;
+                Zoom();
             }
-            Zoom();
             UpdateBound();
         }
 
@@ -70,7 +78,7 @@ namespace Game._00.Script.Camera
 
             Zone = new Zone()
             {
-                BotLeftPivot = new Vector2(-sizeX/2, sizeY/2),
+                BotLeftPivot = new Vector2(-sizeX/2, -sizeY/2),
                 Size = new Vector2(sizeX, sizeY),
             };
         }
