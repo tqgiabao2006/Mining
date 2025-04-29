@@ -213,15 +213,15 @@ namespace Game._00.Script._03.Traffic_System.Road
             SetGraphIndex(ref curNode);
             SetGraphIndex(ref nextNode);
 
-            if (curNode.CanDraw)
-            {
-                UpdateMeshForConnection(curNode);
-            }
-
-            if (nextNode.CanDraw)
-            {
-                UpdateMeshForConnection(nextNode);
-            }
+            // if (curNode.CanDraw)
+            // {
+            //     UpdateMeshForConnection(curNode);
+            // }
+            //
+            // if (nextNode.CanDraw)
+            // {
+            //     UpdateMeshForConnection(nextNode);
+            // }
         }
 
         public List<Node> GetNodeInAdjList(Node node)

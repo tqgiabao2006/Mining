@@ -17,7 +17,7 @@ namespace Game._00.Script._03.Traffic_System.CurvePath
         {
             if (_roadCreator.autoUpdate && Event.current.type == EventType.Repaint)
             {
-                _roadCreator.UpdateRoad();
+                _roadCreator.UpdateDebugRoad();
             }
         }
         

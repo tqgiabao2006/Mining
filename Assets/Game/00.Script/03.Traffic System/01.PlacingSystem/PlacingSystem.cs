@@ -3,16 +3,49 @@ using Game._00.Script._00.Manager;
 using Game._00.Script._00.Manager.Observer;
 using Game._00.Script._02.Grid_setting;
 using Game._00.Script._03.Traffic_System.Building;
+using Game._00.Script._03.Traffic_System.CurvePath;
 using Game._00.Script._03.Traffic_System.MapData;
 using Game._00.Script._03.Traffic_System.Road;
 using Game._00.Script.Camera;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Camera = UnityEngine.Camera;
 
 namespace Game._00.Script._01.PlacingSystem
 {
+    [RequireComponent(typeof(MeshFilter))]
+    [RequireComponent(typeof(MeshRenderer))]
+    
     public class PlacingSystem : SubjectBase
-      {
+    {
+        [SerializeField] private bool isDebug;
+        
+        //==================BEZIER CURVE============================
+        // [Tooltip("The smaller, the smooth of the curve is")]
+        // [SerializeField] [Range(0.05f, 1.5f)] private float spacing;
+        //
+        // [Tooltip("The smaller, the lest impact of the control point to the curve, usually smaller than curve length")]
+        // [SerializeField] [Range(0, 0.5f)] private float straightControlLength;
+        //
+        //
+        // [Tooltip("Usually larger than straight Control Length")]
+        // [SerializeField] [Range(0.05f, 0.5f)] private float curveControlLength;
+        //
+        // private CurveRoadMesh _roadMesh;
+        //
+        // private CurvePath _path;
+        
+        
+        //====================CATMULL-ROM CURVE============================
+        [Tooltip("The smaller, the smooth of the curve is")]
+        [SerializeField] [Range(0.05f, 1.5f)] private float spacing;
+        
+        private CatmullRomSpline _spline;
+        
+        private MeshFilter _meshFilter;
+       
+        private CurveRoadMesh _roadMesh;
+        
         //Input handle:
         private Vector2 _mousePos;
  
@@ -36,6 +69,8 @@ namespace Game._00.Script._01.PlacingSystem
         private CameraZoom _cameraZoom; 
         
         private UI_Grid _uiGrid;
+        
+        private GridManager _gridManager;
 
         
         //Observer:
@@ -55,10 +90,15 @@ namespace Game._00.Script._01.PlacingSystem
             
             _buildingManager = FindObjectOfType<BuildingManager>();
             
+            _gridManager = FindObjectOfType<GridManager>();
+            
             _cameraZoom = CameraZoom.Instance;
             
             _uiGrid = FindObjectOfType<UI_Grid>();
             
+            _meshFilter = GetComponent<MeshFilter>();
+            
+            _spline =GetComponent<CatmullRomSpline>();
             //Observer set up
            ObserversSetup(); 
         
@@ -104,10 +144,26 @@ namespace Game._00.Script._01.PlacingSystem
 
                 if (newNode != _curNode) 
                 {
-                    
                     _roadManager.PlaceNode(newNode);
                     _roadManager.SetAdjList(_curNode, newNode);
-                    _roadManager.CreateMesh(newNode);
+
+                    if (_roadMesh == null)
+                    {
+                        _roadMesh = new CurveRoadMesh(_meshFilter, spacing, RoadManager.RoadWidth, true);
+
+                    }
+                    else
+                    {
+                        _spline.AddPoint(newNode.WorldPosition);
+                    }
+
+                  
+                    _roadMesh.UpdateRoadMesh(_spline);
+                    
+                    
+                    _gridManager.UpdateWalkable(newNode.WorldPosition);
+                    // _roadManager.CreateMesh(newNode);
+                    
                     _curNode = newNode;
 
                     //NOTICE: Notify after the road manager update graph because use graph index to determine if 2 road is connected
@@ -209,6 +265,11 @@ namespace Game._00.Script._01.PlacingSystem
         {
            _observers.Add(_buildingManager); 
            _observers.Add(_uiGrid);
+        }
+
+
+        private void OnDrawGizmos()
+        {
         }
       }
 }

@@ -12,6 +12,10 @@ namespace Game._00.Script._03.Traffic_System.CurvePath
        [SerializeField, HideInInspector] private List<Vector2> _points;
        [SerializeField, HideInInspector] private bool _isClosed;
        [SerializeField, HideInInspector] private bool _autoSet;
+
+       //Use this different control length for the straight, curve path. straight, set to low to avoid curvy road 
+       private readonly float _straightControlLength;
+       private readonly float _curveLControlLength;
         public int NumbSegs
         {
             get
@@ -87,21 +91,24 @@ namespace Game._00.Script._03.Traffic_System.CurvePath
             }
         }
     
-        public CurvePath(Vector2 center)
+        public CurvePath(Vector2 start, Vector2 inPos ,Vector2 outPos, Vector2 end, float straightControlLength, float curveLControlLength, bool autoSet)
         {
             _points = new List<Vector2>()
             {
-                center + Vector2.left,
-                center + Vector2.left / 2f + Vector2.up,
-                center + Vector2.right / 2f + Vector2.down,
-                center + Vector2.right,
+                start,
+                inPos,
+                outPos,
+                end
             };
+            
+            _autoSet = autoSet;
+            _straightControlLength = MathF.Max(0, straightControlLength);
+            _curveLControlLength = MathF.Max(0.05f, curveLControlLength);
         }
-    
         public void AddSegment(Vector2 anchorPoint)
         {
             _points.Add(_points[_points.Count - 1] * 2 - _points[_points.Count - 2]);
-            _points.Add((anchorPoint +  _points[_points.Count - 1])  * 0.5f);
+            _points.Add(anchorPoint + (_points[_points.Count - 1] - anchorPoint)  * 0.5f);
             _points.Add(anchorPoint);
 
             if (_autoSet)
@@ -112,7 +119,6 @@ namespace Game._00.Script._03.Traffic_System.CurvePath
 
         public void SplitSegment(Vector2 anchorPos, int segmentIndex)
         {
-            Debug.Log(segmentIndex);
             _points.InsertRange(segmentIndex * 3 + 2, new [] {Vector2.zero, anchorPos,  Vector2.zero});
             if (_autoSet)
             {
@@ -264,8 +270,20 @@ namespace Game._00.Script._03.Traffic_System.CurvePath
                 float dst1 = v1.magnitude;
                 float dst2 = v2.magnitude;
 
-                _points[WrapIndex(anchorIndex + 1)] = anchorPos +  (v1 - v2) * (dst1 * 0.5f);
-                _points[WrapIndex(anchorIndex - 1)] = anchorPos +  (v2 - v1) * (dst2 * 0.5f);
+                float controlLength = 0; 
+                
+                if (IsOnStraightLine(_points[WrapIndex(anchorIndex + 3)], _points[WrapIndex(anchorIndex - 3)],
+                        _points[WrapIndex(anchorIndex)]))
+                {
+                    controlLength = _straightControlLength;
+                }
+                else
+                {
+                    controlLength = _curveLControlLength;
+                }
+                
+                _points[WrapIndex(anchorIndex + 1)] = anchorPos +  (v1 - v2) * (dst1 * controlLength);
+                _points[WrapIndex(anchorIndex - 1)] = anchorPos +  (v2 - v1) * (dst2 * controlLength);
             }
         }
 
@@ -280,7 +298,6 @@ namespace Game._00.Script._03.Traffic_System.CurvePath
                 _points[1] = (_points[0] + _points[2]) * 0.5f;
                 _points[_points.Count - 2] = (_points[_points.Count - 1] + _points[_points.Count - 3]) * 0.5f;
             }
-            
         }
 
         public void DeletePoint(int anchorIndex)
@@ -305,6 +322,19 @@ namespace Game._00.Script._03.Traffic_System.CurvePath
                     _points.RemoveRange(anchorIndex-1, 3);
                 }     
             }
+        }
+
+        /// <summary>
+        /// Determine if 3 point on straight line to determine which control length to use
+        /// Use cross product of 2D coordinate = area of parrellipe, if area almost equal zero => on 1 line
+        /// </summary>
+        /// <returns></returns>
+        private bool IsOnStraightLine(Vector2 a, Vector2 b, Vector2 c)
+        {
+            Vector2 ab = b - a;
+            Vector2 ac = c - a;
+            float cross = ab.x * ac.y - ab.y * ac.x; 
+            return Mathf.Approximately(cross, 0f);
         }
     }
 }

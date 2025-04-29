@@ -18,7 +18,8 @@ namespace Game._00.Script._03.Traffic_System.CurvePath
         
         public void CreatePath()
         {
-            Path = new CurvePath(this.transform.position);
+            Path = new CurvePath((Vector2)this.transform.position + Vector2.left, (Vector2)this.transform.position + Vector2.left/2f + Vector2.up,
+                (Vector2)this.transform.position + Vector2.right/2f + Vector2.down, (Vector2)this.transform.position + Vector2.right, 0.5f,0.5f, false);
         }
 
         private void Reset()

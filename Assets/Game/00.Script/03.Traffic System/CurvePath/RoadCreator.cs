@@ -12,8 +12,7 @@ namespace Game._00.Script._03.Traffic_System.CurvePath
         public float spacing = 1;
         public float roadWidth = 0.4f;
         public bool autoUpdate = true;
-
-        public void UpdateRoad()
+        public void UpdateDebugRoad()
         {
             CurvePath path = this.GetComponent<PathCreator>().Path;
             Vector2[] points = path.GetEvenlyPoint(spacing);

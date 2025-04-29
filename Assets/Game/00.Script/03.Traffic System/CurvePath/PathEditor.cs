@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using Game._00.Script._02.Grid_setting;
+using UnityEditor;
 using UnityEngine;
 
 namespace Game._00.Script._03.Traffic_System.CurvePath
@@ -18,6 +19,7 @@ namespace Game._00.Script._03.Traffic_System.CurvePath
 
         // private const float _selectThreshold = .1f;
         private int _selectedSegmentIndex = -1;
+        private float _selectThreshold = 0.1f;
 
         private void OnEnable()
         {
@@ -29,31 +31,34 @@ namespace Game._00.Script._03.Traffic_System.CurvePath
             }
         }
 
-        // public override void OnInspectorGUI()
-        // {
-        //     base.OnInspectorGUI();
-        //     
-        //   
-        //
-        //     bool isClosed = GUILayout.Toggle(Path.IsClosed, "Closed");
-        //     if (isClosed != Path.IsClosed)
-        //     {
-        //         Undo.RecordObject(_creator, "Close Path");
-        //         Path.IsClosed = isClosed;
-        //     }
-        //     
-        //     bool autoset = GUILayout.Toggle(Path.AutoSet, "Auto Set");
-        //     if (autoset != Path.AutoSet)
-        //     {
-        //         Undo.RecordObject(_creator, "Auto Set");
-        //         Path.AutoSet = autoset;
-        //     }
-        //
-        //     if (EditorGUI.EndChangeCheck())
-        //     { 
-        //         SceneView.RepaintAll();
-        //     }
-        // }
+        public override void OnInspectorGUI()
+        {
+            base.OnInspectorGUI();
+            
+            bool isClosed = GUILayout.Toggle(Path.IsClosed, "Closed");
+            if (isClosed != Path.IsClosed)
+            {
+                Undo.RecordObject(_creator, "Close Path");
+                Path.IsClosed = isClosed;
+            }
+            
+            bool autoset = GUILayout.Toggle(Path.AutoSet, "Auto Set");
+            if (autoset != Path.AutoSet)
+            {
+                Undo.RecordObject(_creator, "Auto Set");
+                Path.AutoSet = autoset;
+            }
+            
+            if(GUILayout.Button("New Path"))
+            {
+                _creator.CreatePath();
+            }
+        
+            if (EditorGUI.EndChangeCheck())
+            { 
+                SceneView.RepaintAll();
+            }
+        }
 
         private void OnSceneGUI()
         {
@@ -62,7 +67,7 @@ namespace Game._00.Script._03.Traffic_System.CurvePath
                 return;
             }
             Draw();
-            // Input();
+            Input();
         }
 
         private void Draw()
@@ -108,67 +113,66 @@ namespace Game._00.Script._03.Traffic_System.CurvePath
             }
         }
 
-        // private void Input()
-        // {
-        //     Event guiEvent = Event.current;
-        //     Vector2 mousePos = HandleUtility.GUIPointToWorldRay(guiEvent.mousePosition).origin;
-        //
-        //     if (guiEvent.type == EventType.MouseDown && guiEvent.button == 0 && guiEvent.shift)
-        //     {
-        //         if (_selectedSegmentIndex != -1)
-        //         {
-        //             Undo.RecordObject(_creator, "Split segment");
-        //             Path.SplitSegment(mousePos,_selectedSegmentIndex);
-        //         }
-        //         else if(!Path.IsClosed)
-        //         {
-        //             Undo.RecordObject(_creator, "Add Segment");
-        //             Path.AddSegment(mousePos);
-        //         }
-        //     }
-        //
-        //     if (guiEvent.type == EventType.MouseDown && guiEvent.button == 1)
-        //     {
-        //         float minDst = float.MaxValue;
-        //         int closestAnchorIndex = -1;
-        //         
-        //         for (int i = 0; i < Path.NumbPoints; i+=3)
-        //         {
-        //             float dst = Vector2.Distance(Path[i], mousePos);
-        //             if (dst < minDst)
-        //             {
-        //                 minDst = dst;
-        //                 closestAnchorIndex = i;
-        //             }
-        //         }
-        //
-        //         if (closestAnchorIndex != -1)
-        //         {
-        //             Undo.RecordObject(_creator, "Delete Segment");
-        //             Path.DeletePoint(closestAnchorIndex);
-        //         }
-        //     }
-        //     
-        //     float minThrehold = _selectThreshold;
-        //     int newSegmentIndex = -1;
-        //     for (int i = 0; i < Path.NumbSegs; i++)
-        //     {
-        //          Vector2[]  points = Path.GetPointOnSegment(i);
-        //          float distance = HandleUtility.DistancePointBezier(mousePos, points[0], points[3], points[1], points[2]);
-        //          if (distance < minThrehold)
-        //          {
-        //              newSegmentIndex = i;
-        //              minThrehold = distance;
-        //          }
-        //     }
-        //
-        //     if (newSegmentIndex != _selectedSegmentIndex)
-        //     {
-        //         _selectedSegmentIndex = newSegmentIndex;
-        //         HandleUtility.Repaint();
-        //     }
-        //     
-        //     HandleUtility.AddDefaultControl(0);
-        // }
+        private void Input()
+        {
+            Event guiEvent = Event.current;
+            Vector2 mousePos = HandleUtility.GUIPointToWorldRay(guiEvent.mousePosition).origin;
+        
+            if (guiEvent.type == EventType.MouseDown && guiEvent.button == 0 && guiEvent.shift)
+            {
+                if (_selectedSegmentIndex != -1)
+                {
+                    Undo.RecordObject(_creator, "Split segment");
+                    Path.SplitSegment(mousePos,_selectedSegmentIndex);
+                }
+                else if(!Path.IsClosed)
+                {
+                    Undo.RecordObject(_creator, "Add Segment");
+                }
+            }
+        
+            if (guiEvent.type == EventType.MouseDown && guiEvent.button == 1)
+            {
+                float minDst = float.MaxValue;
+                int closestAnchorIndex = -1;
+                
+                for (int i = 0; i < Path.NumbPoints; i+=3)
+                {
+                    float dst = Vector2.Distance(Path[i], mousePos);
+                    if (dst < minDst)
+                    {
+                        minDst = dst;
+                        closestAnchorIndex = i;
+                    }
+                }
+        
+                if (closestAnchorIndex != -1)
+                {
+                    Undo.RecordObject(_creator, "Delete Segment");
+                    Path.DeletePoint(closestAnchorIndex);
+                }
+            }
+            
+            float minThrehold = _selectThreshold;
+            int newSegmentIndex = -1;
+            for (int i = 0; i < Path.NumbSegs; i++)
+            {
+                 Vector2[]  points = Path.GetPointOnSegment(i);
+                 float distance = HandleUtility.DistancePointBezier(mousePos, points[0], points[3], points[1], points[2]);
+                 if (distance < minThrehold)
+                 {
+                     newSegmentIndex = i;
+                     minThrehold = distance;
+                 }
+            }
+        
+            if (newSegmentIndex != _selectedSegmentIndex)
+            {
+                _selectedSegmentIndex = newSegmentIndex;
+                HandleUtility.Repaint();
+            }
+            
+            HandleUtility.AddDefaultControl(0);
+        }
     }
 }
