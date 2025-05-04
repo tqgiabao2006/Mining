@@ -3276,7 +3276,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isGizmos: 1
   alpha: 0.3
-  spacing: 0.1
+  spacing: 0.05
   curveSmooth: 10
 --- !u!23 &1397883274
 MeshRenderer:

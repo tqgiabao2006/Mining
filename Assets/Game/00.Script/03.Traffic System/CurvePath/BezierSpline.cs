@@ -106,6 +106,7 @@ namespace Game._00.Script._04.Timer.CurvePath
                     Debug.Log("Straight");
                     Vector2 p2 = point - dir * _nodeDiamater;
 
+                    //Perserve a previous curve
                     if (!_segments[_segments.Count - 1].IsCurve)
                     {
                         _segments[_segments.Count - 1] = new BezierCurve(_segments[_segments.Count - 1].P0, _segments[_segments.Count - 1].P1, 
@@ -128,12 +129,24 @@ namespace Game._00.Script._04.Timer.CurvePath
                     
                     //Update to previous
                     //Set back the last node to make room for a curve
-                    _segments[_segments.Count - 1] = new BezierCurve(_segments[_segments.Count - 1].P0, _segments[_segments.Count - 1].P1, 
-                        _points[_points.Count -1] - prevDir * _nodeDiamater, _points[_points.Count - 1] - prevDir * _nodeDiamater, false);
+                    if (!_segments[_segments.Count - 1].IsCurve)
+                    {
+                        _segments[_segments.Count - 1] = new BezierCurve(_segments[_segments.Count - 1].P0, _segments[_segments.Count - 1].P1, 
+                            _points[_points.Count -1] - prevDir * _nodeDiamater, _points[_points.Count - 1] - prevDir * _nodeDiamater, false);
+                        
+                        //Create curve bezier
+                        _segments.Add(new BezierCurve(_points[_points.Count -1] - prevDir * _nodeDiamater, connected, connected, point, true));
+                    }
+                    else
+                    {
+                        //Set the end point of the curve backward
+                        _segments[_segments.Count - 1] = new BezierCurve(_segments[_segments.Count - 1].P0, _segments[_segments.Count - 1].P1, 
+                            _segments[_segments.Count - 1].P2, _segments[_segments.Count-1].P3 + (_segments[_segments.Count - 1].P2 -_segments[_segments.Count-1].P3).normalized * 0.5f , true);
+                        
+                        //Set the first point of curve to blend between curve
+                        _segments.Add(new BezierCurve(_points[_points.Count -1] - prevDir * _nodeDiamater * 0.5f, connected, connected, point, true));
+                    }
                     
-                    //Create curve bezier
-                    //Set back the last node to create smoother curve
-                    _segments.Add(new BezierCurve(_points[_points.Count -1] - prevDir * _nodeDiamater, connected, connected, point, true));
 
                     _points.Add(connected);
                     _points.Add(connected);
