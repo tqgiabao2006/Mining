@@ -146,7 +146,7 @@ namespace Game._00.Script._01.PlacingSystem
                         _curSpline.AddPoint(newNode.WorldPosition);
                         
                         _roadMesh.UpdateRoadMesh(_curSpline);
-                    
+                        
                         _gridManager.UpdateWalkable(newNode.WorldPosition);
                         // _roadManager.CreateMesh(newNode);
 
