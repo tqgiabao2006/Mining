@@ -273,7 +273,7 @@ namespace Game._00.Script._02.Grid_setting
 
                 if (drawableDisplay)
                 {
-                    Gizmos.color = n.CanDraw ? Color.white : Color.black;
+                    Gizmos.color = n.CanDraw ? Color.yellow : Color.white;
                 }
 
                 if (drawEmpty)

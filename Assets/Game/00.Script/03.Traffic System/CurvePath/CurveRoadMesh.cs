@@ -1,50 +1,78 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Game._00.Script._03.Traffic_System.CurvePath;
+using Game._00.Script._03.Traffic_System.Road;
+using Game._00.Script._04.Timer.CurvePath;
+using Unity.Entities.UniversalDelegates;
+using UnityEditor;
 using UnityEngine;
 using Vector2 = UnityEngine.Vector2;
 
-public class CurveRoadMesh
+[RequireComponent(typeof(MeshFilter))]
+[RequireComponent(typeof(MeshRenderer))]
+public class CurveRoadMesh:MonoBehaviour
 {
+    [SerializeField] private bool isGizmos;
+    
+    [Tooltip("The larger, the closer to straight line")]
+    [SerializeField] [Range(0, 1)] private float alpha;
 
-    [Range(0.05f, 1.5f)] private float _spacing = 1;
+    [Tooltip("The smaller, the smoother the curve")]
+    [SerializeField] [Range(0.05f, 0.2f)] private float spacing = 1;
+    
+    [Tooltip("The larger, the smoother the curve")]
+    [SerializeField] [Range(1, 20)] private int curveSmooth = 10;
+    
     private float _roadWidth = 0.5f;
-    private bool _autoUpdate = true;
-
+    
     private MeshFilter _meshFilter;
 
-    private CurvePath _bezierPath;
-
-    public CurveRoadMesh(MeshFilter meshFilter, float spacing, float roadWidth, bool autoUpdate)
-    {
-        _spacing = spacing;
-        _roadWidth = roadWidth;
-        _autoUpdate = autoUpdate;
-
-        _meshFilter = meshFilter;
-
-    }
+    private Dictionary<BezierSpline, CombineInstance> _splines;
     
-    public void UpdateRoadMesh(CurvePath bezierPath)
+    private List<Vector2> _points;
+    
+    private void Start()
     {
-        Vector2[] points = _bezierPath.GetEvenlyPoint(_spacing);
-        _meshFilter.mesh = CreateRoadMesh(points, false);
+        _meshFilter = this.GetComponent<MeshFilter>();
+
+        _splines = new Dictionary<BezierSpline, CombineInstance>();
+        
+        _roadWidth = RoadManager.RoadWidth;
+        
+        _points = new List<Vector2>();
     }
 
-    public void UpdateRoadMesh(CatmullRomSpline spline)
+    public BezierSpline CreateSpline()
     {
-        List<Vector2> points = new List<Vector2>();
-
-        for (int i = 0; i < spline.NumbSeg; i++)
-        {
-            points.AddRange(spline[i].GetEvenlySpacingPoints(_spacing));
-        }
-        _meshFilter.mesh = CreateRoadMesh(points.ToArray(), false);
+        BezierSpline spline = new BezierSpline(alpha, CreateRoadMesh, spacing, curveSmooth);
+        _splines.Add(spline, new CombineInstance());   
+        return spline;
     }
-    public Mesh CreateRoadMesh(Vector2[] points, bool isClosed)
+    public void UpdateRoadMesh(BezierSpline spline)
+    {
+        if (!_splines.ContainsKey(spline)) return;
+
+        // Recreate this spline's mesh
+        CombineInstance updated = new CombineInstance();
+        updated.mesh = spline.Mesh;
+        updated.transform = Matrix4x4.identity;
+        
+        _splines[spline] = updated;
+
+        Mesh mesh = new Mesh();
+        mesh.CombineMeshes(_splines.Values.ToArray(), true, true);
+        mesh.RecalculateBounds();
+        mesh.RecalculateNormals();
+
+        _meshFilter.mesh = mesh;
+    }
+
+    
+    private Mesh CreateRoadMesh(Vector2[] points)
     {
         Vector3[] verts = new Vector3[points.Length * 2];
-        int numbTris = 2 * (points.Length - 1) + (isClosed ? 2 : 0);
+        int numbTris = 2 * (points.Length - 1);
         int[] tris = new int[numbTris * 3];
         Vector2[] uvs = new Vector2[verts.Length];
 
@@ -55,13 +83,12 @@ public class CurveRoadMesh
         {
             Vector2 forward = Vector2.zero;
 
-            //Blend betweeen two
-            if (i < points.Length - 1 || isClosed)
+            if (i < points.Length - 1)
             {
                 forward += points[(i + 1) % points.Length] - points[i];
             }
 
-            if (i > 0 || isClosed)
+            if (i > 0)
             {
                 forward += points[i] - points[(i - 1 + points.Length) % points.Length];
             }
@@ -78,7 +105,7 @@ public class CurveRoadMesh
             uvs[vertIndex] = new Vector2(0, completePer);
             uvs[vertIndex + 1] = new Vector2(1, completePer);
 
-            if (i < points.Length - 1 || isClosed)
+            if (i < points.Length - 1)
             {
                 tris[triIndex] = vertIndex;
                 tris[triIndex + 1] = (vertIndex + 2) % verts.Length;
@@ -98,5 +125,48 @@ public class CurveRoadMesh
         mesh.triangles = tris;
         mesh.uv = uvs;
         return mesh;
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (!isGizmos || _splines == null || _points == null)
+        {
+            return;
+        }
+
+        foreach (Vector2 point in _points)
+        {
+            Gizmos.DrawSphere(point, 0.02f);
+        }
+
+        foreach (BezierSpline spline in _splines.Keys)
+        {
+            List<Vector2> points = spline.GetPoints();
+        
+            for (int i = 0; i < points.Count; i++)
+            {
+                Handles.Label(points[i], i.ToString());
+                if (i % 3 == 0)
+                {
+                    Gizmos.color = Color.yellow;
+        
+                    if (i + 3 < points.Count)
+                    {
+                        Gizmos.color = Color.yellow;
+                        Gizmos.DrawLine(points[i], points[i+1]);
+                        Gizmos.DrawLine(points[i+1], points[i+2]);
+                        Gizmos.DrawLine(points[i+2],points[i+3]);
+                    }
+                    Gizmos.color = Color.red;
+                    Gizmos.DrawSphere(points[i], 0.1f);
+                }
+                else
+                {
+                    Gizmos.color = Color.green;
+                    Gizmos.DrawSphere(points[i], 0.05f);
+                }
+            }
+        }
+
     }
 }

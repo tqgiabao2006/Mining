@@ -129,7 +129,7 @@ namespace Game._00.Script._03.Traffic_System.Mesh_Generator
         
         private void StoreMeshData(Node node, Mesh generatedMesh)
         {
-            node.SetRoad(true);
+            // node.SetRoad(true);
 
             // Destroy old mesh if it exists to prevent memory leaks
             if (nodeCombineInstances.TryGetValue(node, out CombineInstance oldInstance))

@@ -2,15 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CatmullRomSpline : MonoBehaviour
+public class CatmullRomSpline 
 {
-    [Tooltip("The larger, the closer to straight line")]
-    [SerializeField] [Range(0, 1)] private float alpha;
     
     private List<CatmullRomCurve> _segments;
 
     private List<Vector2> _controlPoints;
 
+    private float _alpha;
     public int NumbSeg
     {
         get
@@ -27,7 +26,7 @@ public class CatmullRomSpline : MonoBehaviour
         }
     }
     
-    private void Start()
+    public CatmullRomSpline(float alpha)
     {
         _segments = new List<CatmullRomCurve>();
         
@@ -46,16 +45,15 @@ public class CatmullRomSpline : MonoBehaviour
         
         if (cnt == 2) //Single segment
         {
-            _segments.Add(new CatmullRomCurve(_controlPoints[0], _controlPoints[0], _controlPoints[1], _controlPoints[1], alpha));
+            _segments.Add(new CatmullRomCurve(_controlPoints[0], _controlPoints[0], _controlPoints[1], _controlPoints[1], _alpha));
         }
         else
         {
             //Set last segment p4 to new one
-            _segments[NumbSeg - 1] = new CatmullRomCurve(_segments[NumbSeg-1].p0, _segments[NumbSeg-1].p1, _segments[NumbSeg-1].p2, _controlPoints[cnt-1], alpha);
+            _segments[NumbSeg - 1] = new CatmullRomCurve(_segments[NumbSeg-1].p0, _segments[NumbSeg-1].p1, _segments[NumbSeg-1].p2, _controlPoints[cnt-1], _alpha);
             
             //Add new
-            _segments.Add(new CatmullRomCurve(_controlPoints[Mathf.Max(0,cnt - 3)], _controlPoints[cnt - 2], _controlPoints[cnt - 1], _controlPoints[cnt - 1], alpha));
-            
+            _segments.Add(new CatmullRomCurve(_controlPoints[Mathf.Max(0,cnt - 3)], _controlPoints[cnt - 2], _controlPoints[cnt - 1], _controlPoints[cnt - 1], _alpha));
         }
     }
 
@@ -67,6 +65,12 @@ public class CatmullRomSpline : MonoBehaviour
         }
         
         return _segments[segmentIndex];
+    }
+
+    public void Pop()
+    {
+        _segments.RemoveAt(_segments.Count - 1);
+        _controlPoints.RemoveAt(_controlPoints.Count - 1);
     }
 }
 

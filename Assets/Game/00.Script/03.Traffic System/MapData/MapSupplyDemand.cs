@@ -54,7 +54,6 @@ namespace Game._00.Script._03.Traffic_System.MapData
 
                     //Filter out by weight
                     List<Vector2> matches = randomPos.Where(pos => weights.Any(w => IsVectorEqual(w, pos))).ToList();
-                    Debug.Log(matches.Count);
                     return matches;
                 }
                 return new List<Vector2>();

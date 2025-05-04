@@ -53,6 +53,7 @@ namespace Game._00.Script._03.Traffic_System.Road
             {
                 SetNodeIndex(node);
                 _nodeList.Add(node);
+                node.SetRoad(true);
             }
         }
     

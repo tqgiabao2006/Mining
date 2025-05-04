@@ -1,25 +1,15 @@
 using System.Collections.Generic;
-using Game._00.Script._00.Manager;
 using Game._00.Script._00.Manager.Observer;
 using Game._00.Script._02.Grid_setting;
 using Game._00.Script._03.Traffic_System.Building;
-using Game._00.Script._03.Traffic_System.CurvePath;
-using Game._00.Script._03.Traffic_System.MapData;
 using Game._00.Script._03.Traffic_System.Road;
+using Game._00.Script._04.Timer.CurvePath;
 using Game._00.Script.Camera;
 using UnityEngine;
-using UnityEngine.Serialization;
-using Camera = UnityEngine.Camera;
-
 namespace Game._00.Script._01.PlacingSystem
 {
-    [RequireComponent(typeof(MeshFilter))]
-    [RequireComponent(typeof(MeshRenderer))]
-    
     public class PlacingSystem : SubjectBase
-    {
-        [SerializeField] private bool isDebug;
-        
+    { 
         //==================BEZIER CURVE============================
         // [Tooltip("The smaller, the smooth of the curve is")]
         // [SerializeField] [Range(0.05f, 1.5f)] private float spacing;
@@ -37,15 +27,12 @@ namespace Game._00.Script._01.PlacingSystem
         
         
         //====================CATMULL-ROM CURVE============================
-        [Tooltip("The smaller, the smooth of the curve is")]
-        [SerializeField] [Range(0.05f, 1.5f)] private float spacing;
+        private BezierSpline _curSpline;
         
-        private CatmullRomSpline _spline;
-        
-        private MeshFilter _meshFilter;
-       
         private CurveRoadMesh _roadMesh;
-        
+
+        private Stack<Vector2> _prevStack; //Used to track the prev node, when move into, then trigger undo the road
+
         //Input handle:
         private Vector2 _mousePos;
  
@@ -96,9 +83,10 @@ namespace Game._00.Script._01.PlacingSystem
             
             _uiGrid = FindObjectOfType<UI_Grid>();
             
-            _meshFilter = GetComponent<MeshFilter>();
+            _roadMesh = FindObjectOfType<CurveRoadMesh>();
+
+            _prevStack = new Stack<Vector2>();
             
-            _spline =GetComponent<CatmullRomSpline>();
             //Observer set up
            ObserversSetup(); 
         
@@ -134,41 +122,48 @@ namespace Game._00.Script._01.PlacingSystem
                 float mouseSpeed = distance / Time.deltaTime;
 
                 float threshold = _baseThreshold;
-            
+                
                 //If mouse moving fast => no threshold
                 if(mouseSpeed >= 40)
                 {
                     threshold = _fastThreshold;
                 }
                 Node newNode = NodeFromWorldPositionWithSnapping(_mousePos, _curNode, _diagonalThreshold, threshold);
-
+                
                 if (newNode != _curNode) 
                 {
-                    _roadManager.PlaceNode(newNode);
-                    _roadManager.SetAdjList(_curNode, newNode);
-
-                    if (_roadMesh == null)
+                    if (_prevStack.Count == 0 || Vector2.Distance(_prevStack.Peek(),newNode.WorldPosition) > 0.1f)
                     {
-                        _roadMesh = new CurveRoadMesh(_meshFilter, spacing, RoadManager.RoadWidth, true);
+                        _roadManager.PlaceNode(newNode);
+                        _roadManager.SetAdjList(_curNode, newNode);
 
+                        if (_curSpline == null)
+                        {
+                            _curSpline = _roadMesh.CreateSpline();
+                            _curSpline.AddPoint(_curNode.WorldPosition);
+                        }
+                        
+                        _curSpline.AddPoint(newNode.WorldPosition);
+                        
+                        _roadMesh.UpdateRoadMesh(_curSpline);
+                    
+                        _gridManager.UpdateWalkable(newNode.WorldPosition);
+                        // _roadManager.CreateMesh(newNode);
+
+                        _prevStack.Push(_curNode.WorldPosition);
+
+                        //NOTICE: Notify after the road manager update graph because use graph index to determine if 2 road is connected
+                        //CHECK: after place a new road => possibility that there are some homes connecteed
+                        Notify(null, NotificationFlags.CHECK_CONNECTION);
                     }
                     else
                     {
-                        _spline.AddPoint(newNode.WorldPosition);
+                        _prevStack.Pop();
+                        _curSpline.Pop();
+                        _roadMesh.UpdateRoadMesh(_curSpline);
                     }
-
-                  
-                    _roadMesh.UpdateRoadMesh(_spline);
-                    
-                    
-                    _gridManager.UpdateWalkable(newNode.WorldPosition);
-                    // _roadManager.CreateMesh(newNode);
                     
                     _curNode = newNode;
-
-                    //NOTICE: Notify after the road manager update graph because use graph index to determine if 2 road is connected
-                    //CHECK: after place a new road => possibility that there are some homes connecteed
-                    Notify(null, NotificationFlags.CHECK_CONNECTION);
                 }
             }
             else
@@ -179,7 +174,9 @@ namespace Game._00.Script._01.PlacingSystem
 
             if (Input.GetMouseButtonUp(0))
             {
+                _curSpline = null;
                 _isPlacing = false;
+                _prevStack.Clear();
             }
             _lastMousePos = _mousePos;
         }
@@ -265,11 +262,6 @@ namespace Game._00.Script._01.PlacingSystem
         {
            _observers.Add(_buildingManager); 
            _observers.Add(_uiGrid);
-        }
-
-
-        private void OnDrawGizmos()
-        {
         }
       }
 }

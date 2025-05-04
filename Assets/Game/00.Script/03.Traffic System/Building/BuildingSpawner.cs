@@ -286,6 +286,15 @@ namespace Game._00.Script._03.Traffic_System.Building
                         Direction = _buildingDirections[Random.Range(0, _buildingDirections.Length)]
                     });
                     
+                    _spawnQueue.Enqueue(new SpawnInfo()
+                    {
+                        Type = BuildingType.Home,
+                        Color = color,
+                        Size = ParkingLotSize._1x1,
+                        Direction = _buildingDirections[Random.Range(0, _buildingDirections.Length)]
+                    });
+                    
+                    
                     // _spawnQueue.Enqueue(new SpawnInfo()
                     // {
                     //     Type = BuildingType.Home,
