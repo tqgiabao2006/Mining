@@ -148,7 +148,7 @@ namespace Game._00.Script._03.Traffic_System.Building
         /// </summary>
         private void ProcessWave()
         {
-            if (_spawnQueue.Count <= 0)
+             if (_spawnQueue.Count <= 0)
             {
                 return;
             }

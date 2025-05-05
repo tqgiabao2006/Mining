@@ -3275,6 +3275,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isGizmos: 1
+  showCurve: 0
+  showPoint: 1
   alpha: 0.3
   spacing: 0.05
   curveSmooth: 10

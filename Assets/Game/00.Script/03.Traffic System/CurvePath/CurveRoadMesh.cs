@@ -13,8 +13,14 @@ using Vector2 = UnityEngine.Vector2;
 [RequireComponent(typeof(MeshRenderer))]
 public class CurveRoadMesh:MonoBehaviour
 {
+    [Header("Debug settings")]
     [SerializeField] private bool isGizmos;
     
+    [SerializeField] private bool showCurve;
+    
+    [SerializeField] private bool showPoint;
+    
+    [Header("Mesh settings")]
     [Tooltip("The larger, the closer to straight line")]
     [SerializeField] [Range(0, 1)] private float alpha;
 
@@ -141,29 +147,39 @@ public class CurveRoadMesh:MonoBehaviour
 
         foreach (BezierSpline spline in _splines.Keys)
         {
-            List<Vector2> points = spline.GetPoints();
-        
-            for (int i = 0; i < points.Count; i++)
+            if (showCurve)
             {
-                Handles.Label(points[i], i.ToString());
-                if (i % 3 == 0)
+                for (int i = 0; i < spline.NumbSeg; i++)
                 {
-                    Gizmos.color = Color.yellow;
-        
-                    if (i + 3 < points.Count)
+                    Gizmos.color = spline[i].IsCurve ?  Color.blue : Color.green;
+                    Gizmos.DrawLine(spline[i].P0, spline[i].P3);
+                }
+            }
+
+            if (showPoint)
+            {
+                for (int i = 0; i < spline.PointCount; i++)
+                { 
+                    
+                    if (i % 3 == 0)
                     {
                         Gizmos.color = Color.yellow;
-                        Gizmos.DrawLine(points[i], points[i+1]);
-                        Gizmos.DrawLine(points[i+1], points[i+2]);
-                        Gizmos.DrawLine(points[i+2],points[i+3]);
+                
+                        if (i + 3 < spline.PointCount)
+                        {
+                            Gizmos.color = Color.yellow;
+                            Gizmos.DrawLine(spline[i,true], spline[i+1,true]);
+                            Gizmos.DrawLine(spline[i+1, true], spline[i+2,true]);
+                            Gizmos.DrawLine(spline[i+2, true], spline[i+3,true]);
+                        }
+                        Gizmos.color = Color.red;
+                        Gizmos.DrawSphere(spline[i,true], 0.1f);
                     }
-                    Gizmos.color = Color.red;
-                    Gizmos.DrawSphere(points[i], 0.1f);
-                }
-                else
-                {
-                    Gizmos.color = Color.green;
-                    Gizmos.DrawSphere(points[i], 0.05f);
+                    else
+                    {
+                        Gizmos.color = Color.green;
+                        Gizmos.DrawSphere(spline[i,true], 0.05f);
+                    }
                 }
             }
         }

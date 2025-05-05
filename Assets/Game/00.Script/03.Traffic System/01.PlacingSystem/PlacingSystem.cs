@@ -137,7 +137,7 @@ namespace Game._00.Script._01.PlacingSystem
                         _roadManager.PlaceNode(newNode);
                         _roadManager.SetAdjList(_curNode, newNode);
 
-                        if (_curSpline == null)
+                        if (_curSpline == null || _curSpline.NumbSeg == 0)
                         {
                             _curSpline = _roadMesh.CreateSpline();
                             _curSpline.AddPoint(_curNode.WorldPosition);
