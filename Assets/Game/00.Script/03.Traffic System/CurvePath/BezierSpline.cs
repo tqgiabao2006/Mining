@@ -18,45 +18,28 @@ namespace Game._00.Script._04.Timer.CurvePath
 
         private int _curveSmoothness;
         
-        private List<BezierCurve> _segments;
-
         private List<Vector2> _points;
 
-        private float _alpha;
-
-        private float _nodeDiamater;
-
-        public int PointCount
+        public List<Vector2> Points
         {
             get
             {
-                return _points.Count; 
+                return _points; 
             }
         }
-        
+
+        private float _alpha;
+
+        private float _radius;
+
         public int NumbSeg
         {
             get
             {
-                return _segments.Count;
+                return _points.Count/3;
             }
         }
-
-        public BezierCurve this[int index]
-        {
-            get
-            {
-                return _segments[index];
-            }
-        }
-
-        public Vector2 this[int index, bool getPoint]
-        {
-            get
-            {
-                return _points[index];
-            }
-        }
+        
         public Mesh Mesh
         {
             get
@@ -64,7 +47,7 @@ namespace Game._00.Script._04.Timer.CurvePath
                 return _mesh;
             }
         }
-    
+        
         public BezierSpline(float alpha, Func<Vector2[], Mesh> meshCreator, float spacing, int curveSmoothness)
         {
             _meshCreator = meshCreator; 
@@ -73,103 +56,97 @@ namespace Game._00.Script._04.Timer.CurvePath
             
             _curveSmoothness = curveSmoothness;
             
-            _segments = new List<BezierCurve>();
-        
             _points = new List<Vector2>();
             
-            _nodeDiamater = GridManager.NodeDiameter;
+            _radius = GridManager.NodeRadius; 
         }
 
         public void AddPoint(Vector2 point)
         {
             //Not enough point to form a segment
-            if (_points.Count < 2)
+            if (_points.Count < 1)
             {
                 _points.Add(point);
-            }
-            
-            if (_points.Count == 2) //Single segment
+            }//Single segment case
+            else if (_points.Count == 1)
             {
-                Vector2 dir =  (point - _points[0]).normalized;
-                Vector2 p1 = _points[0] + dir * _nodeDiamater;
-                Vector2 p2 = point - dir * _nodeDiamater;
-                _segments.Add(new BezierCurve(_points[0],p1,p2,point, false));
-                
-                _points.RemoveAt(_points.Count - 1);
-                _points.Add(p1);
-                _points.Add(p2);
+                Vector2 forDir =  (point - _points[0]).normalized;
+                _points.Add(_points[0] + forDir * _radius);
+                _points.Add(point - forDir * _radius);
                 _points.Add(point);
             }
-            else if(_points.Count > 2)
+            else
             {
-                Vector2 dir =  (point - _points[_points.Count-1]).normalized;
-                Vector2 prevDir = (_points[_points.Count - 1] - _points[Mathf.Max(0, _points.Count - 3)]).normalized;
+                Vector2 forDir = (point - _points[_points.Count - 1]).normalized;
+                Vector2 prevDir = (_points[Mathf.Max(_points.Count - 4, 0)] - _points[_points.Count - 1]).normalized; 
                 
-                float cross = Cross(dir,prevDir);
-                
-                //If point same direction, not add, just move the last anchor point
-                if (Mathf.Approximately(cross, 0f) || Mathf.Approximately(cross, 180f))
+                //If straight, do not add, just move last two point foward
+                if (!IsCurve(_points[_points.Count - 1], _points[_points.Count - 2], point, point))
                 {
-                    Vector2 p2 = point - dir * _nodeDiamater;
-
-                    //Perserve a previous curve
-                    if (!_segments[_segments.Count - 1].IsCurve)
+                    
+                    //It last segment is curve, add new instead of expanding the curve
+                    if (IsCurve(_points[_points.Count - 1], _points[_points.Count - 2], _points[_points.Count - 3], _points[_points.Count - 4])
+                        && !IsCurve(_points[_points.Count-1], _points[_points.Count -2], point))
                     {
-                        _segments[_segments.Count - 1] = new BezierCurve(_segments[_segments.Count - 1].P0, _segments[_segments.Count - 1].P1, 
-                            p2, point, false);
+                        Debug.Log("New straight point");
+                        _points.Add(_points[_points.Count-1] + forDir * _radius);
+                        _points.Add(point - forDir * _radius);
+                        _points.Add(point);
                     }
                     else
                     {
-                        _segments.Add(new BezierCurve(_points[_points.Count - 1], _points[_points.Count - 1], point, point, false));
+                        _points[_points.Count - 2] = point - forDir * _radius;
+                        _points[_points.Count - 1] = point;
                     }
-                    
-                    _points[_points.Count-2] = p2;
-                    _points[_points.Count-1] =  point;
                 }
-                else //If curved, delete the middle point, avoid sharp shape, create new bezier curve for the curve
+                else 
                 {
-                    //Delete middle point between 2 curve
-                    Vector2 connected = _points[_points.Count - 1];
-                    
-                    //Update to previous
-                    //Set back the last node to make room for a curve
-                    if (!_segments[_segments.Count - 1].IsCurve)
+                    if (IsCurve(_points[Mathf.Max(_points.Count - 4, 0)], _points[_points.Count - 1], _points[Mathf.Max(_points.Count - 5,1)])   
+                        && NumbSeg >= 3)
+                        // -5 is the index of first control point of 2rd, because when straight to curve,
+                        // the 3rd anchor point is set back so can not use it to change if curve
                     {
-                        Vector2 segmentPrevDir = (_segments[_segments.Count - 1].P0 - _segments[_segments.Count - 1].P3).normalized;
-                        _segments[_segments.Count - 1] = new BezierCurve(_segments[_segments.Count - 1].P0, _segments[_segments.Count - 1].P1, 
-                            _points[_points.Count -1] - segmentPrevDir * _nodeDiamater, _points[_points.Count - 1] + segmentPrevDir * _nodeDiamater, false);
-                        
-                        //Create curve bezier
-                        _segments.Add(new BezierCurve(_points[_points.Count -1] - prevDir * _nodeDiamater, connected, connected, point, true));
+                        Debug.Log("Curve=>Curve");
+                        //Vector tangent blend between prev and new point, between calculate vector orthogonal
+                        //Change tangent in, and out for last anchor point
+                        //Lower the range of radius
+
+                        float halfRadius = _radius * 0.5f;
+                        _points[_points.Count - 2] = _points[_points.Count - 1] + (prevDir - forDir) * halfRadius;
+                        _points.Add(_points[_points.Count - 1] + (forDir - prevDir) * halfRadius);
+
+                        Vector2 controlPoint = point - forDir * halfRadius;
+                        _points.Add(controlPoint);
+                        _points.Add(point);
+
                     }
                     else
-                    { 
+                    {
+                        Debug.Log("Straight=>Curve");
+                        Vector2 mid = _points[_points.Count - 1];
                         
-                        //Set the end point of the curve backward
-                        _segments[_segments.Count - 1] = new BezierCurve(_segments[_segments.Count - 1].P0, _segments[_segments.Count - 1].P1, 
-                            _segments[_segments.Count - 1].P2, _segments[_segments.Count-1].P3 + (_segments[_segments.Count - 1].P2 -_segments[_segments.Count-1].P3).normalized * _nodeDiamater , true);
+                        _points[_points.Count - 1] += prevDir * _radius;
+                        _points[_points.Count - 2] += prevDir * _radius;
                     
-                         
-                        
-                        //Set the first point of curve to blend between curve
-                        _segments.Add(new BezierCurve(_points[_points.Count -1] - prevDir * _nodeDiamater * 0.5f, connected, connected, point, true));
-                        
-                    }
-                    
+                        //Add new control point for last anchor point
+                        _points.Add(_points[_points.Count - 1] + (mid - _points[_points.Count - 1]).normalized  * _radius);
 
-                    _points.Add(connected);
-                    _points.Add(connected);
-                    _points.Add(point);
+                        //Add new control point for added anchor point
+                        Vector2 controlPoint = point + (mid - point).normalized * _radius;
+                        _points.Add(controlPoint);
                     
+                        //Add new anchor point
+                        _points.Add(point);
+                    }
                 }
+                
             }
-            
             UpdateMesh();
         }
 
         private void UpdateMesh()
         {
-            if (_segments.Count == 0)
+            if (NumbSeg == 0)
             {
                 _mesh = new Mesh();
                 return;
@@ -185,23 +162,21 @@ namespace Game._00.Script._04.Timer.CurvePath
             spacing = Mathf.Min(spacing, 1f);
             List<Vector2> evenlySpacedPoints = new List<Vector2>();
             
-            foreach (BezierCurve segment in _segments)
+            for(int i = 0 ; i < _points.Count -3 ; i += 3)
             {
-                evenlySpacedPoints.Add(segment.GetPoint(0));
+                evenlySpacedPoints.Add(_points[i]);
 
-                Vector2 previousPoint = segment.GetPoint(0);
+                Vector2 previousPoint = _points[i];
                 float distanceSinceLastPoint = 0f;
                 
-                if (segment.IsCurve)
-                {
-                    Vector2 lastSample = segment.GetPoint(0);
-
-                    for (int i = 1; i <= curveSmooth; i++)
+                // if (IsCurve(_points[i], _points[i + 1], _points[i + 2], _points[i+3]))
+                // {
+                    for (int j = 1; j <= curveSmooth; j++)
                     {
-                        float t = i / (float)curveSmooth;
-                        Vector2 currentSample = segment.GetPoint(t);
+                        float t = j / (float)curveSmooth;
+                        Vector2 currentSample = BezierCurve.GetPoint(_points[i], _points[i+1], _points[i+2], _points[i+3],t);
                         float distance = Vector2.Distance(previousPoint, currentSample);
-
+                        
                         if (distanceSinceLastPoint + distance >= spacing)
                         {
                             float overshoot = spacing - distanceSinceLastPoint;
@@ -210,7 +185,7 @@ namespace Game._00.Script._04.Timer.CurvePath
 
                             distanceSinceLastPoint = 0f;
                             previousPoint = newPoint;
-                            i--;
+                            j--;
                         }
                         else
                         {
@@ -218,90 +193,51 @@ namespace Game._00.Script._04.Timer.CurvePath
                             previousPoint = currentSample;
                         }
 
-                        lastSample = currentSample;
                     }
-                }
-                else
-                {
-                    //Only have to add end point for straight line
-                    evenlySpacedPoints.Add(segment.GetPoint(1));
-                }
+                // }
+                // else
+                // {
+                //     //Only have to add end point for straight line
+                //     evenlySpacedPoints.Add(BezierCurve.GetPoint(_points[i], _points[i+1], _points[i+2], _points[i+3],1));
+                // }
             }
 
             return evenlySpacedPoints.ToArray();
         }
         public void Pop()
         {
-
-            if (_segments.Count == 0 || _points.Count == 0)
-            {
-                return;
-            }
-            
-            //Delete the curve
-            if (_segments[_segments.Count - 1].IsCurve)
-            {
-                Debug.Log("Delete curve");
-                GridManager.NodeFromWorldPosition(_points[_points.Count - 1]).SetRoad(false);
-                GridManager.NodeFromWorldPosition(_points[_points.Count - 2]).SetRoad(false);
-                
-                _points.RemoveRange(_points.Count - 2, 2);
-                _segments.RemoveAt(_segments.Count - 1);
-                
-                
-                if (_segments.Count == 0)
-                {
-                    _points.Clear();
-                }
-                else //Set back the last 2 point because the last segment is deleted
-                {
-                        Vector2 prevDir = (_points[Mathf.Max(0, _points.Count - 4)] - _points[_points.Count - 1]).normalized;
-                        _segments[_segments.Count - 1] = new BezierCurve(_segments[_segments.Count - 1].P0, _segments[_segments.Count - 1].P1, _points[_points.Count-2] - prevDir * _nodeDiamater, 
-                            _points[_points.Count - 1] - prevDir * _nodeDiamater, false);
-                }
-            }
-            else //Do not delete, only set back point, and segment 
-            {                
-                GridManager.NodeFromWorldPosition(_points[_points.Count - 1]).SetRoad(false);
-                
-                Vector2 prevDir = (_points[Mathf.Max(0, _points.Count - 4)] - _points[_points.Count - 1]).normalized;
-                Vector2 newLastPoint =  _points[_points.Count - 1] + prevDir * _nodeDiamater;
-                
-                //If the new last point overpass the start of segment=>Destroy the segment, points
-                if (Vector2.Distance(newLastPoint, _points[Mathf.Max(0, _points.Count - 4)]) <= 0.05f)
-                {
-                    _points.RemoveRange(_points.Count - 2, 2);
-                    _segments.RemoveAt(_segments.Count - 1);
-
-                    if (_segments.Count == 0)
-                    {
-                        _points.Clear();
-                    }
-                    else if (_segments[_segments.Count - 1].IsCurve) //Handle the blend between curve and straight
-                    {
-                        _points.RemoveAt(_points.Count - 1);
-                        _segments.RemoveAt(_segments.Count - 1);
-                        
-                        if (!_segments[_segments.Count - 1].IsCurve)
-                        {
-                            _segments[_segments.Count - 1] = new BezierCurve(_segments[_segments.Count - 1].P0, _segments[_segments.Count - 1].P1, _points[_points.Count-2], _points[_points.Count - 1], false);
-                        }
-                        
-                    }
-                }
-                else //If not, only need to move the point back
-                {
-                    _points[_points.Count - 1] = newLastPoint;
-                    _points[_points.Count - 2] += prevDir * _nodeDiamater;
-                    
-                    _segments[_segments.Count - 1] = new BezierCurve(_segments[_segments.Count - 1].P0, _segments[_segments.Count - 1].P1, _points[_points.Count - 2], _points[_points.Count - 1], false);
-                }
-               
-            }
             
             UpdateMesh();
         }
 
+        public Vector2[] GetPointInSegment(int i)
+        {
+            if (i< 0 || i > NumbSeg)
+            {
+                return new Vector2[]{};
+            }
+            return new[] {_points[i], _points[i+1], _points[i+2], _points[i+3]};
+        }
+        private bool IsCurve(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3)
+        {
+            Vector2 dir = p3 - p0;
+    
+            // Check if both control points lie on the line formed by p0->p3
+            float cross1 = Cross(dir.normalized, p1 - p0);
+            float cross2 = Cross(dir.normalized, p2 - p0);
+
+            return !(Mathf.Approximately(cross1, 0f) && Mathf.Approximately(cross2, 0f));
+        }
+
+        private bool IsCurve(Vector2 anchor1, Vector2 anchor2, Vector2 anchor3)
+        {
+            Vector2 dir = anchor3 - anchor1;
+            float cross1 = Cross(dir.normalized, anchor2 - anchor1);
+            float cross2 = Cross(dir.normalized, anchor3 - anchor1);
+            
+            return !(Mathf.Approximately(cross1, 0f) && Mathf.Approximately(cross2, 0f));
+        }
+        
         private float Cross(Vector2 a, Vector2 b)
         {
             return a.x * b.y - a.y * b.x;

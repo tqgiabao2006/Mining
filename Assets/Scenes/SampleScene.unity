@@ -2081,7 +2081,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49fe3c293a25c4a709ec8b2499fe01b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debugMode: 0
+  debugMode: 1
   walkableDisplay: 0
   drawableDisplay: 0
   drawEmpty: 0
@@ -3275,7 +3275,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isGizmos: 1
-  showCurve: 0
+  showLine: 0
   showPoint: 1
   alpha: 0.3
   spacing: 0.05

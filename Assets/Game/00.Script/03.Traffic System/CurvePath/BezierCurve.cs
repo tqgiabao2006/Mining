@@ -1,19 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Entities.UniversalDelegates;
 using UnityEngine;
 
-public struct BezierCurve
+public static class BezierCurve
 {
-    public Vector2 P0, P1, P2, P3;
-    
-    public bool IsCurve; //Mesh optimziation: straight mesh need 2 tri, 4 vertices max
-    
-    public BezierCurve(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, bool isCurve)
-    {
-        (this.P0, this.P1, this.P2, this.P3) = (p0, p1, p2, p3);
-        this.IsCurve = isCurve;
-    }
-    public Vector2 GetPoint(float t)
+    public static Vector2 GetPoint(Vector2 P0, Vector2 P1, Vector2 P2, Vector2 P3,float t)
     {
         float omt = (1f - t);
         float omt2 = omt * omt;
@@ -25,7 +17,7 @@ public struct BezierCurve
                + P3 * t*t2;
     }
 
-    public Vector2 GetTangent(float t)
+    public static Vector2 GetTangent(Vector2 P0, Vector2 P1, Vector2 P2, Vector2 P3, float t)
     {
         float omt = (1f - t);
         float omt2 = omt * omt;
@@ -39,5 +31,4 @@ public struct BezierCurve
         
         return tangent.normalized;
     }
-    
 }
