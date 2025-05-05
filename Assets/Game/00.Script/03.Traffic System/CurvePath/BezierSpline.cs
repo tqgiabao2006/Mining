@@ -32,6 +32,7 @@ namespace Game._00.Script._04.Timer.CurvePath
 
         private float _radius;
 
+        private float _diameter;
         public int NumbSeg
         {
             get
@@ -59,6 +60,8 @@ namespace Game._00.Script._04.Timer.CurvePath
             _points = new List<Vector2>();
             
             _radius = GridManager.NodeRadius; 
+            
+            _diameter = GridManager.NodeDiameter;
         }
 
         public void AddPoint(Vector2 point)
@@ -106,7 +109,6 @@ namespace Game._00.Script._04.Timer.CurvePath
                         // -5 is the index of first control point of 2rd, because when straight to curve,
                         // the 3rd anchor point is set back so can not use it to change if curve
                     {
-                        Debug.Log("Curve=>Curve");
                         //Vector tangent blend between prev and new point, between calculate vector orthogonal
                         //Change tangent in, and out for last anchor point
                         //Lower the range of radius
@@ -122,7 +124,6 @@ namespace Game._00.Script._04.Timer.CurvePath
                     }
                     else
                     {
-                        Debug.Log("Straight=>Curve");
                         Vector2 mid = _points[_points.Count - 1];
                         
                         _points[_points.Count - 1] += prevDir * _radius;
@@ -206,7 +207,36 @@ namespace Game._00.Script._04.Timer.CurvePath
         }
         public void Pop()
         {
-            
+            if (!IsCurve(_points[_points.Count - 1], _points[_points.Count - 2], _points[_points.Count - 3], _points[_points.Count - 4]))
+            {
+                Vector2 prevDir = (_points[_points.Count - 4] - _points[_points.Count - 1]).normalized;
+                _points[_points.Count - 2] += prevDir * _diameter;
+                _points[_points.Count - 1] += prevDir * _diameter;
+
+                if (Vector2.Distance(_points[_points.Count - 1], _points[_points.Count - 4]) <= 0.005f)
+                {
+                    _points.RemoveRange(_points.Count - 3, 3);
+                }
+
+                if (_points.Count == 1)
+                {
+                    _points.Clear();
+                }
+            }
+            else
+            {
+                _points.RemoveRange(_points.Count-3, 3); 
+                
+                //If straight to curve deletion, delete current, and move part forward
+                if(!IsCurve(_points[_points.Count-1], _points[_points.Count -2], _points[_points.Count - 3]))
+                {
+                    Vector2 prevDir = (_points[_points.Count - 4] -  _points[_points.Count - 1]).normalized;
+                                    
+                    //Move forward the straight line curve
+                    _points[_points.Count - 1] -= prevDir * _diameter;
+                    _points[_points.Count - 2] -= prevDir * _diameter;
+                }
+            }
             UpdateMesh();
         }
 
