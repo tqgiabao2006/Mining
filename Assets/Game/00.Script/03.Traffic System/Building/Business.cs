@@ -34,7 +34,6 @@ public class Business : BuildingBase
         BuildingManager.RegisterBuilding(this);
         
         _connectedHomes = new List<Home>();
-
     }
 
     public void AddHome(Home home)

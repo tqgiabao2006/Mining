@@ -225,26 +225,25 @@ namespace Game._00.Script._03.Traffic_System.Building
 
             ParkingResquest.Dequeue();
         }
-        
-        
-         /// <summary>
-         /// Get way points to direct the car to park following these rules:
-         /// 1/ Always go from the right of a lane. If it is an outward lane, it = 1/4f Node radius (divided) Radius 2 lane, road. If it inward lane (lane close to building), it = 1/2 Node radius, 1 lane road
-         /// 2/ Bot corner = corner close to the street, top corner = corner close to the building. Each = 1/2 node radius
-         /// 3/ Normally, go from bot corner to parking lot to top corner, there is 1 special situation on each buildingDirection that it reverses the route, from top to bot
-         /// 4/ Step in, step out corner is to make sure to set car in the right lane of road outside, transStep is transition step between each corner and step in, step out
-         /// 5/ Parking Pos 
-         /// </summary>
-         /// <param name="buildingDirection>
-         /// <param name="sizeingLotSize"></param>
-         /// <param name="parkingPos"></param>
-         /// <param name="roadNode"></param>
-         /// <param name = "center point"></param> in the center of vertical (or horizontal if Right,Left) of parking (2 nodes)
-         /// <returns></returns>
-         public float3[] GetParkingWaypoints(Vector2 originPos, BuildingDirection buildingDirection, ParkingLotSize size, float3 parkingPos, float3 centerPoint, Vector2 roadPos)
+
+
+        /// <summary>
+        /// Get way points to direct the car to park following these rules:
+        /// 1/ Always go from the right of a lane. If it is an outward lane, it = 1/4f Node radius (divided) Radius 2 lane, road. If it inward lane (lane close to building), it = 1/2 Node radius, 1 lane road
+        /// 2/ Bot corner = corner close to the street, top corner = corner close to the building. Each = 1/2 node radius
+        /// 3/ Normally, go from bot corner to parking lot to top corner, there is 1 special situation on each buildingDirection that it reverses the route, from top to bot
+        /// 4/ Step in, step out corner is to make sure to set car in the right lane of road outside, transStep is transition step between each corner and step in, step out
+        /// 5/ Parking Pos 
+        /// </summary>
+        public float3[] GetParkingWaypoints(Vector2 originPos, BuildingDirection buildingDirection, ParkingLotSize size, float3 parkingPos, float3 centerPoint, Vector2 roadPos)
          {
              float nodeRadius = GridManager.NodeRadius;
              float roadWidth = RoadManager.RoadWidth;
+             float halfRadius = nodeRadius / 2f;
+             float halfWidth = roadWidth / 2f;
+             float quarterRoadWidth =roadWidth / 4f;
+             float quaterRadius = nodeRadius / 4f;
+             
             Vector2 roadDirection = GetRoadNodeDirection(roadPos, originPos, buildingDirection, size);
 
             var inOutSteps = GetInOutCorner(roadPos, roadDirection);
@@ -262,17 +261,19 @@ namespace Game._00.Script._03.Traffic_System.Building
                 if (buildingDirection == BuildingDirection.Up || buildingDirection == BuildingDirection.Down)
                 {
                     float directionMultipler = buildingDirection == BuildingDirection.Up ? 1 : -1;
-                    float3 right = new float3(originPos.x - directionMultipler * roadWidth/4f, originPos.y, 0);
-                    float3 left = new float3(originPos.x + directionMultipler * roadWidth/4f, originPos.y, 0);
-                    return new []{right, center, left};
+                    float3 right = new float3(originPos.x - directionMultipler * quarterRoadWidth, originPos.y, 0);
+                    float3 left = new float3(originPos.x + directionMultipler * quarterRoadWidth, originPos.y, 0);
+                    float3 leftExtend = new float3(left.x, left.y + directionMultipler * nodeRadius *2/3f , 0);
+                    return new []{right, center, left, leftExtend};
                 }
                 
                 if (buildingDirection == BuildingDirection.Right || buildingDirection == BuildingDirection.Left)
                 {
                     float directionMultipler = buildingDirection == BuildingDirection.Right ? 1 : -1;
-                    float3 top = new float3(originPos.x, originPos.y + directionMultipler * roadWidth/4f, 0);
-                    float3 bot = new float3(originPos.x, originPos.y - directionMultipler * roadWidth/4f, 0);
-                    return new []{top, center, bot};
+                    float3 top = new float3(originPos.x, originPos.y + directionMultipler * quarterRoadWidth, 0);
+                    float3 bot = new float3(originPos.x, originPos.y - directionMultipler * quarterRoadWidth, 0);
+                    float3 botExtend = new float3(bot.x + directionMultipler * nodeRadius * 2/3f, bot.y, 0);
+                    return new []{top, center, bot, botExtend};
                 }
             }
             else //More complicated building complex
@@ -282,7 +283,7 @@ namespace Game._00.Script._03.Traffic_System.Building
                     float directionMultipler = buildingDirection == BuildingDirection.Up ? 1 : -1;
 
                     float3 botParking = new float3(parkingPos.x,
-                        centerPoint.y + directionMultipler * nodeRadius * 1 / 4f, 0);
+                        centerPoint.y + directionMultipler * quaterRadius, 0);
                     float3 topParking = new float3(parkingPos.x, topCorner.y, 0);
 
                     float3 inTransStep = new float3(inCorner.x, botCorner.y, 0);
@@ -293,7 +294,7 @@ namespace Game._00.Script._03.Traffic_System.Building
                         (buildingDirection == BuildingDirection.Down && roadDirection == Vector2.left))
                     {
                         inTransStep = new float3(inCorner.x, topCorner.y, 0);
-                        botParking.y = centerPoint.y + directionMultipler * nodeRadius * 1 / 2f;
+                        botParking.y = centerPoint.y + directionMultipler * halfRadius;
                         outTransStep = new float3(outCorner.x, botParking.y, 0);
 
                         return new[]
@@ -335,7 +336,7 @@ namespace Game._00.Script._03.Traffic_System.Building
                 {
                     float directionMultipler = buildingDirection == BuildingDirection.Right ? 1 : -1;
                     float3 topParking = new float3(topCorner.x, parkingPos.y, 0);
-                    float3 botParking = new float3(centerPoint.x + directionMultipler * nodeRadius * 1 / 4f,
+                    float3 botParking = new float3(centerPoint.x + directionMultipler * quaterRadius,
                         parkingPos.y, 0);
 
                     float3 inTransStep = new float3(botCorner.x, inCorner.y, 0);
@@ -346,7 +347,7 @@ namespace Game._00.Script._03.Traffic_System.Building
                         (roadDirection == Vector2.down && buildingDirection == BuildingDirection.Right))
                     {
                         //Set bot parking && bot corner to the left side of lane
-                        botCorner.x = centerPoint.x + directionMultipler * nodeRadius * 1 / 2f;
+                        botCorner.x = centerPoint.x + directionMultipler * halfRadius;
                         botParking.x = botCorner.x;
 
                         //Update out and in trans step: inTranStep, base on topCorner

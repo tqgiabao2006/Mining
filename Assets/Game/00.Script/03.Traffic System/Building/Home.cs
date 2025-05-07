@@ -125,7 +125,7 @@ public class Home: BuildingBase
     protected override void OnDrawGizmos()
     {
         base.OnDrawGizmos();
-        if (!isGizmos)
+        if (!isGizmos || _cars == null )
         {
             return;
         }

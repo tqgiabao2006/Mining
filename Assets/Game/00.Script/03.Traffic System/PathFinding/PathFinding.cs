@@ -45,7 +45,7 @@ namespace Game._00.Script._03.Traffic_System.PathFinding
             
             Heap<Node> openSet = new Heap<Node>(graphListCount) ; //the set of nodes to be evaluated
             HashSet<Node> closedSet = new HashSet<Node>(); //the set of nodes already evaluated
-           
+            
             openSet.Add(startNode);
             startNode.Parent = startNode;
 

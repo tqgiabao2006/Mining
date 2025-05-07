@@ -58,6 +58,7 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                 AddComponent(entity, new FollowPathData
                 {
                     CurrentIndex = 0,
+                    EnterIndex =  0,
                 });
 
                 // Traffic simulation components
@@ -108,6 +109,8 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
     {
         public BlobAssetReference<BlobArray<float3>> WaypointsBlob;
         public int CurrentIndex;
+        public int EnterIndex; //the last index of path lead to the business,
+                               //because it generates a circular path, not straight path
     }
 
 

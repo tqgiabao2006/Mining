@@ -46,15 +46,15 @@ namespace Game._00.Script._03.Traffic_System.PathFinding
         public Vector3[] GetPathWaypoints(Vector3 startPos, Vector3 endPos)
         {
             PathRequest pathRequest = new PathRequest(startPos, endPos);
-            Vector3[] waypoints = _pathFinding.GetFuncFindPath()?.Invoke(pathRequest);
-            if (waypoints != null && waypoints.Length > 0)
+            Vector3[] circularPath = _pathFinding.GetFuncFindPath()?.Invoke(pathRequest);
+            if (circularPath != null && circularPath.Length > 0)
             {
-               Vector3[] path = ShilftWaypoint(waypoints, RoadManager.RoadWidth/ 4f);
+               Vector3[] path = ShilftWaypoint(circularPath, RoadManager.RoadWidth/ 4f);
                
                #if UNITY_EDITOR
                _debugData.Add(new PathDebugData()
                {
-                   OriginalPaths = new List<Vector3>(waypoints),
+                   OriginalPaths = new List<Vector3>(circularPath),
                    Waypoints = new List<Vector3>(path),
                });
                #endif
@@ -72,7 +72,9 @@ namespace Game._00.Script._03.Traffic_System.PathFinding
         /// </summary>
         public Vector3[] ShilftWaypoint(Vector3[] pathWaypoints, float quarterRoadWidth)
         {
-            List<Vector3> shiftedPoints = new List<Vector3>();
+            List<Vector3> rightLane = new List<Vector3>();
+            List<Vector3> leftLane = new List<Vector3>();
+            
             int count = pathWaypoints.Length;
 
             for (int i = 0; i < count; i++) {
@@ -81,11 +83,19 @@ namespace Game._00.Script._03.Traffic_System.PathFinding
     
                 Vector2 forward = (next - prev).normalized;
                 Vector2 right = new Vector2(forward.y, -forward.x); 
-                Vector2 shiftedPoint = (Vector2)pathWaypoints[i] + right * (quarterRoadWidth);
-                shiftedPoints.Add(shiftedPoint);
+                
+                Vector2 rightPoint = (Vector2)pathWaypoints[i] + right * (quarterRoadWidth);
+                rightLane.Add(rightPoint);
+                
+                Vector2 leftPoint =  (Vector2)pathWaypoints[i] - right * (quarterRoadWidth);
+                leftLane.Add(leftPoint);
             }
             
-            return shiftedPoints.ToArray();
+            leftLane.Reverse();
+            
+            rightLane.AddRange(leftLane);
+            
+            return rightLane.ToArray();
         }
 
         
