@@ -51,11 +51,10 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
         {
            
         }
-        
+
         /// <summary>
         /// Using entity manager to run this in main thread, moving car in jobs => more optimized
         /// </summary>
-        /// <param name="objectFlags"></param>
         /// <param name="spawnData"></param>
         public void SpawnCarEntity(SpawnCarRequest spawnData)
         {  

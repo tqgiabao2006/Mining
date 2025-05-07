@@ -12,7 +12,7 @@ namespace Game._00.Script._03.Traffic_System.Road
 {
     public class RoadManager : MonoBehaviour
     {
-        public static readonly float RoadWidth = 0.4f;
+        public static readonly float RoadWidth = 0.45f;
         [SerializeField] private bool isGizmos = false;
         private List<Node> _nodeList;
         private Dictionary<int, List<int>> _adjList;

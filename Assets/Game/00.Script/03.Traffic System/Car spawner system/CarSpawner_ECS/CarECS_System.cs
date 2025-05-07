@@ -105,8 +105,8 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
             foreach ((CarAspect car, Entity entity) in SystemAPI.Query<CarAspect>().WithEntityAccess())
             {
                 if (car.State.ValueRO.Value == CarState.FollowingPath
-                    && math.distance(car.LocalTransform.ValueRO.Position, car.FollowPathData.ValueRO.WaypointsBlob.Value[car.FollowPathData.ValueRO.WaypointsBlob.Value.Length - 1]) <= 0.05f && car.FollowPathData.ValueRW.CurrentIndex ==
-                    car.FollowPathData.ValueRO.WaypointsBlob.Value.Length - 1)
+                    && math.distance(car.LocalTransform.ValueRO.Position, car.FollowPathData.ValueRO.WaypointsBlob.Value[car.FollowPathData.ValueRO.WaypointsBlob.Value.Length - 1]) <= 0.01f 
+                    && car.FollowPathData.ValueRW.CurrentIndex == car.FollowPathData.ValueRO.WaypointsBlob.Value.Length - 1)
                 {
                     Node node = GridManager.NodeFromWorldPosition(new Vector2(car.LocalTransform.ValueRO.Position.x,
                         car.LocalTransform.ValueRO.Position.y));
@@ -134,7 +134,7 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                          car.ParkingData.ValueRO.WaypointsBlob.IsCreated)
                 {
                     if (car.ParkingData.ValueRO.CurrentIndex == car.ParkingData.ValueRO.WaypointsBlob.Value.Length - 1
-                        && math.distance(car.LocalTransform.ValueRO.Position, car.ParkingData.ValueRO.WaypointsBlob.Value[car.ParkingData.ValueRO.CurrentIndex]) <= 0.05f
+                        && math.distance(car.LocalTransform.ValueRO.Position, car.ParkingData.ValueRO.WaypointsBlob.Value[car.ParkingData.ValueRO.CurrentIndex]) <= 0.01f
                         && !car.NextDestination.ValueRO.IsGoWork)
                     {
                         if (!car.ParkingData.ValueRO.WaypointsBlob.IsCreated)
@@ -232,9 +232,9 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
             HandleSpeedAndCollision(ref speedStats, localTransform.Position, direction, stopDistance, colliderBound);
             MoveTowardsWaypoint(ref localTransform, direction, speedStats.CurSpeed, distanceToWaypoint);
 
-            if (distanceToWaypoint < 0.02f && parkingData.CurrentIndex < waypoints.Length - 1)
+            if (distanceToWaypoint < 0.01f && parkingData.CurrentIndex < waypoints.Length - 1)
             {
-                if (math.distance(nextWaypoint, parkingData.ParkingPos) <= 0.05f && !nextDestination.IsGoWork) // If close to parkingPos => turn to Mining state
+                if (math.distance(nextWaypoint, parkingData.ParkingPos) <= 0.01f && !nextDestination.IsGoWork) // If close to parkingPos => turn to Mining state
                 {
                     state.Value = CarState.Mining;
                     return;
@@ -283,7 +283,7 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
         private void MoveTowardsWaypoint(ref LocalTransform localTransform, float3 direction, float speed,
             float distance)
         {
-            if (distance >= 0.02f)
+            if (distance >= 0.01f)
                 localTransform.Position += direction * speed * DeltaTime;
         }
     }
@@ -342,7 +342,7 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                 HandleSpeedAndCollision(ref speedStat, localTransform.Position, direction, stopDistance, colliderBound);
                 MoveTowardsWaypoint(ref localTransform, direction, speedStat.CurSpeed, distanceToWaypoint);
 
-                if (distanceToWaypoint < 0.05f && followPathData.CurrentIndex < waypoints.Length - 1)
+                if (distanceToWaypoint < 0.01f && followPathData.CurrentIndex < waypoints.Length - 1)
                     followPathData.CurrentIndex++;
             }
 
@@ -386,7 +386,7 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
             private void MoveTowardsWaypoint(ref LocalTransform localTransform, float3 direction, float speed,
                 float distance)
             {
-                if (distance >= 0.05f)
+                if (distance >= 0.01f)
                     localTransform.Position += direction * speed * DeltaTime;
             }
         }

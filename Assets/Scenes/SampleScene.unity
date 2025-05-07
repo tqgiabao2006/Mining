@@ -2082,7 +2082,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   debugMode: 1
-  walkableDisplay: 0
+  walkableDisplay: 1
   drawableDisplay: 0
   drawEmpty: 0
   drawBuildingZone: 0
@@ -3184,50 +3184,6 @@ Transform:
   - {fileID: 875803453}
   m_Father: {fileID: 1759929862}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1380346345
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1380346346}
-  - component: {fileID: 1380346347}
-  m_Layer: 0
-  m_Name: Path finding
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1380346346
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1380346345}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1726331168}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1380346347
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1380346345}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5dcef965b43e44d29107a7f6a6a74092, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1397883271
 GameObject:
   m_ObjectHideFlags: 0
@@ -3277,9 +3233,6 @@ MonoBehaviour:
   isGizmos: 1
   showLine: 0
   showPoint: 1
-  alpha: 0.3
-  spacing: 0.05
-  curveSmooth: 10
 --- !u!23 &1397883274
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -4460,7 +4413,6 @@ Transform:
   - {fileID: 1652260447}
   - {fileID: 1665879700}
   - {fileID: 611122348}
-  - {fileID: 1380346346}
   - {fileID: 604103409}
   - {fileID: 2074224015}
   m_Father: {fileID: 1560514643}
@@ -7018,7 +6970,7 @@ MonoBehaviour:
   - Prefab: {fileID: 3949733121163879824, guid: f0791c28a326e534fae59f5e7b90da3e, type: 3}
     Color: 1
     Type: 0
-  spawnDelayTime: 1
+  spawnDelayTime: 0.2
   carDemandRatio: 3
 --- !u!1 &2065546701
 GameObject:
@@ -7074,6 +7026,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2074224015}
   - component: {fileID: 2074224016}
+  - component: {fileID: 2074224017}
   m_Layer: 0
   m_Name: Path request
   m_TagString: Untagged
@@ -7108,9 +7061,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c986db57e726454f87291a69114065a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isGizmos: 0
+  isGizmos: 1
   displayWaypoints: 0
-  originalLines: 0
+  originalLines: 1
+--- !u!114 &2074224017
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2074224014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5dcef965b43e44d29107a7f6a6a74092, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2086397389
 GameObject:
   m_ObjectHideFlags: 0

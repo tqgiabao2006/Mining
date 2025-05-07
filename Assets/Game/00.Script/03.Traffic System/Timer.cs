@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using Game._00.Script._00.Manager.Observer;
 using Game._00.Script._03.Traffic_System.Building;
 using Unity.Collections;
@@ -88,45 +90,55 @@ namespace Game._00.Script._04.Timer
         private void Start()
         {
             ObserversSetup();
+            StartCoroutine(BusySpawn());
+        }
+
+        private IEnumerator BusySpawn()
+        {
+            yield return new WaitForSeconds(1);
+            
             _randomDay = PickRandomDay();
             _hasSpawned = false;
             _stopTest = false;
             _week = 1;
+            Notify(null, NotificationFlags.DEMAND_BUILDING); 
         }
         
         private void Tick()
         {
-            _timeCounter += Time.deltaTime * timeScale;
-
-            if (_timeCounter >= secPerDay)
-            {
-                int nextDay = (int)_day + 1;
-
-                if (Enum.IsDefined(typeof(WeekDay), nextDay))
-                {
-                    _day =  (WeekDay)nextDay;
-
-                    if (_day == _randomDay && !_hasSpawned)
-                    {
-                        Notify(null, NotificationFlags.DEMAND_BUILDING);
-                        if (stopTest)
-                        { 
-                            _stopTest = true;
-                        }
-                       
-                        _hasSpawned = true;
-                    }
-                }
-                else //Week end
-                {
-                    _randomDay = PickRandomDay();
-                    _day = WeekDay.Monday;
-                    _week++;
-                    _hasSpawned = false;
-                }
-                
-                _timeCounter = 0;
-            }
+            
+        // {
+        //     _timeCounter += Time.deltaTime * timeScale;
+        //
+        //     if (_timeCounter >= secPerDay)
+        //     {
+        //         int nextDay = (int)_day + 1;
+        //
+        //         if (Enum.IsDefined(typeof(WeekDay), nextDay))
+        //         {
+        //             _day =  (WeekDay)nextDay;
+        //
+        //             if (_day == _randomDay && !_hasSpawned)
+        //             {
+        //                 Notify(null, NotificationFlags.DEMAND_BUILDING);
+        //                 if (stopTest)
+        //                 { 
+        //                     _stopTest = true;
+        //                 }
+        //                
+        //                 _hasSpawned = true;
+        //             }
+        //         }
+        //         else //Week end
+        //         {
+        //             _randomDay = PickRandomDay();
+        //             _day = WeekDay.Monday;
+        //             _week++;
+        //             _hasSpawned = false;
+        //         }
+        //         
+        //         _timeCounter = 0;
+        //     }
         }
 
         private void OnDrawGizmos()

@@ -39,10 +39,6 @@ namespace Game._00.Script._02.Grid_setting
         
         [CustomReadOnly] public static readonly float NodeRadius = 0.5f;
 
-        //The box smaller than node, add some threshold to correct player mistake
-        public static readonly float HitBoxRadius = 0.3f;
-
-        
         //Weight:
         public LayerMask UnwalkableMask;
         
@@ -270,8 +266,7 @@ namespace Game._00.Script._02.Grid_setting
                     // Compute the color based on the movement penalty
                     float normalizedPenalty = Mathf.InverseLerp(penaltyMin, penaltyMax, n.MovementPenalty);
                     Color penaltyColor = Color.Lerp(Color.white, Color.black, normalizedPenalty);
-                    Gizmos.color = n.Walkable ? penaltyColor : Color.red;
-                        
+                    Gizmos.color = n.Walkable ? Color.green : Color.red;
                 }
 
                 if (drawableDisplay)
@@ -293,13 +288,6 @@ namespace Game._00.Script._02.Grid_setting
                 {
                     Gizmos.color = n.IsRoad ? Color.yellow : Color.white;
                 }
-                
-                
-                // Draw the gizmo cube at the node's position
-                Gizmos.color = Color.cyan;
-                Gizmos.DrawWireCube(n.WorldPosition, Vector2.one * (HitBoxRadius*2));
-                
-                Gizmos.color = Color.white;
                 Gizmos.DrawWireCube(n.WorldPosition, Vector2.one * (NodeDiameter -0.05f));
             }
         }

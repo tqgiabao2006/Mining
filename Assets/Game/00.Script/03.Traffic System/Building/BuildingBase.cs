@@ -14,35 +14,7 @@ using UnityEngine;
 
 namespace Game._00.Script._03.Traffic_System.Building
 {
-    public enum BuildingType
-    {
-        Home,
-        Business
-    }
 
-    public enum BuildingColor
-    {
-        Red,
-        Blue
-    }
-
-    /// <summary>
-    /// Note: keep the order exactly this because JSON databased on this to convert
-    /// </summary>
-    public enum BuildingDirection
-    {
-        Left,
-        Right,
-        Up,
-        Down,
-    }
-
-    public enum ParkingLotSize
-    {
-        _1x1,
-        _2x2,
-        _2x3
-    }
   
     public abstract class BuildingBase : MonoBehaviour
     {

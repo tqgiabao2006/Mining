@@ -115,10 +115,11 @@ namespace Game._00.Script._01.PlacingSystem
                         {
                             _curSpline = _roadMesh.CreateSpline();
                             _curSpline.AddPoint(_curNode.WorldPosition);
+                            _curNode.SetRoad(true);
                         }
                         
                         _curSpline.AddPoint(newNode.WorldPosition);
-                        
+                        _curNode.SetRoad(true);
                         _roadMesh.UpdateRoadMesh(_curSpline);
                         
                         _gridManager.UpdateWalkable(newNode.WorldPosition);
@@ -132,6 +133,7 @@ namespace Game._00.Script._01.PlacingSystem
                     }
                     else
                     {
+                        GridManager.NodeFromWorldPosition(_prevStack.Peek()).SetRoad(false);
                         _prevStack.Pop();
                         _curSpline.Pop();
                         _roadMesh.UpdateRoadMesh(_curSpline);

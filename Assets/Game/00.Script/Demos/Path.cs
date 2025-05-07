@@ -11,9 +11,7 @@ namespace Game._00.Script.Demos
 
         public Path(Vector3[] waypoints, Vector3 startPos) 
         {
-        
-        
-        
+            
             // lookPoints = waypoints;
             // turnBoundaries = new Line[lookPoints.Length];
             // finishLineIndex = turnBoundaries.Length - 1;

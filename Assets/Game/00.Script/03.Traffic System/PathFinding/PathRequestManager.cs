@@ -49,14 +49,13 @@ namespace Game._00.Script._03.Traffic_System.PathFinding
             Vector3[] waypoints = _pathFinding.GetFuncFindPath()?.Invoke(pathRequest);
             if (waypoints != null && waypoints.Length > 0)
             {
-               Vector3[] path = Path(waypoints, RoadManager.RoadWidth/ 4f);
+               Vector3[] path = ShilftWaypoint(waypoints, RoadManager.RoadWidth/ 4f);
                
                #if UNITY_EDITOR
                _debugData.Add(new PathDebugData()
                {
                    OriginalPaths = new List<Vector3>(waypoints),
                    Waypoints = new List<Vector3>(path),
-                   
                });
                #endif
 
@@ -67,43 +66,28 @@ namespace Game._00.Script._03.Traffic_System.PathFinding
         }
 
         /// <summary>
-        /// Car always run on the right side *from their buildingDirection*
-        /// Method: Calculate buildingDirection between 2 points, calculate perpendicular vector to it buildingDirection
-        /// normalized it then multiple by 1/2 half roadWidth
+        /// Shifts the path waypoints to the right side of their movement direction.
+        /// Cars always stay on the right side relative to their buildingDirection.
+        /// Each segment's perpendicular is used to shift points by quarterRoadWidth.
         /// </summary>
-        /// <param name="pathWaypoints"></param>
-        /// <returns></returns>
-        public Vector3[] Path(Vector3[] pathWaypoints, float quarterRoadWidth)
+        public Vector3[] ShilftWaypoint(Vector3[] pathWaypoints, float quarterRoadWidth)
         {
-            List<Vector3> waypoints = new List<Vector3>();
+            List<Vector3> shiftedPoints = new List<Vector3>();
+            int count = pathWaypoints.Length;
 
-            //Half normal path
-            for (int i = 0; i < pathWaypoints.Length - 2; i++)
-            {
-                Vector2 direction = (pathWaypoints[i + 1] - pathWaypoints[i]);
-                Vector2 perDirection = (new Vector2(direction.y, -direction.x)).normalized;
-
-                Vector3 shiftedPoint1 = new Vector3(quarterRoadWidth * perDirection.x + pathWaypoints[i].x
-                    , quarterRoadWidth * perDirection.y + pathWaypoints[i].y, 0);
-                if (!waypoints.Contains(shiftedPoint1))
-                {
-                    waypoints.Add(shiftedPoint1);
-                }
-                
-                Vector3 shilftedPoint2 = new Vector3(quarterRoadWidth * perDirection.x + pathWaypoints[i + 1].x
-                    , quarterRoadWidth * perDirection.y + pathWaypoints[i + 1].y, 0);
-
-                if (!waypoints.Contains(shilftedPoint2))
-                {
-                    waypoints.Add(shilftedPoint2);
-                }
+            for (int i = 0; i < count; i++) {
+                Vector2 prev = i > 0 ? pathWaypoints[i - 1] : pathWaypoints[i];
+                Vector2 next = i < count - 1 ? pathWaypoints[i + 1] : pathWaypoints[i];
+    
+                Vector2 forward = (next - prev).normalized;
+                Vector2 right = new Vector2(forward.y, -forward.x); 
+                Vector2 shiftedPoint = (Vector2)pathWaypoints[i] + right * (quarterRoadWidth);
+                shiftedPoints.Add(shiftedPoint);
             }
             
-            waypoints.Add(pathWaypoints[pathWaypoints.Length - 1]);
-            return waypoints.ToArray();
-            
-           
+            return shiftedPoints.ToArray();
         }
+
         
         #if UNITY_EDITOR
         public void OnDrawGizmos()

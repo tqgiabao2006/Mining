@@ -108,7 +108,6 @@ public class Home: BuildingBase
         //Use to differentiate between 2 cars
         Vector2 difVector = this.BuildingDirection == BuildingDirection.Up || this.BuildingDirection == BuildingDirection.Down ? Vector2.right : Vector2.up;
         
-        //Spawn first car
         BuildingManager.SpawnCarWaves(
             this,
             this.WorldPosition + GridManager.NodeRadius*2/3f*direction + difVector * Game._00.Script._03.Traffic_System.Road.RoadManager.RoadWidth/4f,

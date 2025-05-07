@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
 {
-    public partial class CarRequest_System: SystemBase, IObserver
+    public partial class DemandCarRequestSystem: SystemBase, IObserver
     {
         private PathRequestManager _pathRequestManager;
         protected override void OnUpdate()

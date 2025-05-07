@@ -40,7 +40,7 @@ namespace Game._00.Script._03.Traffic_System.Building
         [Header("Delay setting")]
         
         [Tooltip("Time delay between each spawn")]
-        [SerializeField] private float spawnDelayTime = 1;
+        [SerializeField] private float spawnDelayTime = 0.5f;
         
         [FormerlySerializedAs("_carDemandRatio")]
         [Header("Spawn Stats")]
@@ -104,7 +104,7 @@ namespace Game._00.Script._03.Traffic_System.Building
             {
                 _buildingPrefabsDict.Add((buildingPrefabs[i].Type, buildingPrefabs[i].Color), buildingPrefabs[i]);
             }
-            
+
             _buildingColors = Enum.GetValues(typeof(BuildingColor)) as BuildingColor[];
             
             _buildingDirections = Enum.GetValues(typeof(BuildingDirection)) as BuildingDirection[];
@@ -281,7 +281,7 @@ namespace Game._00.Script._03.Traffic_System.Building
                     _spawnQueue.Enqueue(new SpawnInfo()
                     {
                         Type = BuildingType.Home,
-                        Color = color,
+                        Color = BuildingColor.Red,
                         Size = ParkingLotSize._1x1,
                         Direction = _buildingDirections[Random.Range(0, _buildingDirections.Length)]
                     });
@@ -289,11 +289,27 @@ namespace Game._00.Script._03.Traffic_System.Building
                     _spawnQueue.Enqueue(new SpawnInfo()
                     {
                         Type = BuildingType.Home,
-                        Color = color,
+                        Color = BuildingColor.Blue,
                         Size = ParkingLotSize._1x1,
                         Direction = _buildingDirections[Random.Range(0, _buildingDirections.Length)]
                     });
                     
+                    
+                    _spawnQueue.Enqueue(new SpawnInfo()
+                    {
+                        Type = BuildingType.Business,
+                        Color =BuildingColor.Red,
+                        Size = ParkingLotSize._2x3,
+                        Direction = _buildingDirections[Random.Range(0, _buildingDirections.Length)]
+                    });
+                    
+                    _spawnQueue.Enqueue(new SpawnInfo()
+                    {
+                        Type = BuildingType.Business,
+                        Color = BuildingColor.Blue,
+                        Size = ParkingLotSize._2x3,
+                        Direction = _buildingDirections[Random.Range(0, _buildingDirections.Length)]
+                    });
                     
                     // _spawnQueue.Enqueue(new SpawnInfo()
                     // {

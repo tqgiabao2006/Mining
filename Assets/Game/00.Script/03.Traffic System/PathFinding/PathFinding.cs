@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using Game._00.Script._00.Manager.Custom_Editor;
 using Game._00.Script._02.Grid_setting;
 using Game._00.Script._03.Traffic_System.Road;
+using Game._00.Script._04.Timer.CurvePath;
 using UnityEngine;
+using Debug = System.Diagnostics.Debug;
 
 namespace Game._00.Script._03.Traffic_System.PathFinding
 {
@@ -100,42 +102,53 @@ namespace Game._00.Script._03.Traffic_System.PathFinding
                 path.Add(currentNode);
                 currentNode = currentNode.Parent;
             }
-            Vector3[] waypoints = SimplifyPath(path, startNode, endNode);
-            return waypoints;
+
+            BezierSpline spline = new BezierSpline(null, CurveRoadMesh.spacing, CurveRoadMesh.curveSmooth);
+
+            // Vector3[] simplifyPath = SimplifyPath(path,startNode,endNode);
+            spline.AddPoint(startNode.WorldPosition);
+            for (int i = path.Count - 1; i>=0; i--)
+            {
+                spline.AddPoint(path[i].WorldPosition);
+            }
+
+            Vector3[] waypoints = spline.GetEvenlySpacedPoints(0.4f, 10);
+            Vector3[] simplifyPath = SimplifyPath(waypoints, startNode, endNode);
+            return simplifyPath;
         }
 	
-        
         /// <summary>
         /// Cut out repetitive buildingDirection BECAUSE to optimize calculation
         /// Add start, end node BECAUSE track the angle of road when it changes buildingDirection
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="bezierPath"></param>
         /// <param name="startNode"></param>
         /// <param name="endNode"></param>
         /// <returns></returns>
-        private Vector3[] SimplifyPath(List<Node> path, Node startNode, Node endNode) 
+        private Vector3[] SimplifyPath(Vector3[] bezierPath, Node startNode, Node endNode) 
         {
             List<Vector3> waypoints = new List<Vector3>();
             waypoints.Add(startNode.WorldPosition);
 
             Vector2 directionOld = Vector2.zero;
-		
-            //Only add the last index of a buildingDirection  For ex, up, up, top up, we will simply
-            //up _ top up => run outside the road, so we have to simply as _ up, top up
-            for (int i = path.Count - 1; i >=1 ; i --)  //Path start from end to startNode so we loop inversely
+            float angleThresholdCos = Mathf.Cos(5 * Mathf.Deg2Rad);
+
+            for (int i = 0; i < bezierPath.Length - 1; i++)
             {
-                Vector2 directionNew = new Vector2(path[i-1].GridX - path[i].GridX,path[i-1].GridY - path[i].GridY);
-                if (Mathf.Abs(Vector2.Dot(directionNew.normalized, directionOld.normalized)) < 0.99f)
+                Vector2 directionNew = (bezierPath[i + 1] - bezierPath[i]).normalized;
+
+                if (Vector2.Dot(directionNew, directionOld) < angleThresholdCos)
                 {
-                    //Add last index of buildingDirection 
-                    waypoints.Add(path[i].WorldPosition);
+                    waypoints.Add(bezierPath[i]);
                 }
 
                 directionOld = directionNew;
             }
+
             waypoints.Add(endNode.WorldPosition);
             return waypoints.ToArray();
         }
+
         
         private int GetDistance(Node nodeA, Node nodeB) {
             int dstX = Mathf.Abs(nodeA.GridX - nodeB.GridX);

@@ -8,6 +8,35 @@ using UnityEngine;
 
 namespace Game._00.Script._03.Traffic_System.Building
 {
+    public enum BuildingType
+    {
+        Home,
+        Business
+    }
+
+    public enum BuildingColor
+    {
+        Red,
+        Blue
+    }
+
+    /// <summary>
+    /// Note: keep the order exactly this because JSON databased on this to convert
+    /// </summary>
+    public enum BuildingDirection
+    {
+        Left,
+        Right,
+        Up,
+        Down,
+    }
+
+    public enum ParkingLotSize
+    {
+        _1x1,
+        _2x2,
+        _2x3
+    }
 
     public class BuildingManager: SubjectBase, IObserver
     {
@@ -73,7 +102,7 @@ namespace Game._00.Script._03.Traffic_System.Building
             {
                 _observers.Add(spawnSystemInstance);
             }
-            IObserver carRequestSystem =World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<CarRequest_System>();
+            IObserver carRequestSystem =World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<DemandCarRequestSystem>();
             _observers.Add(carRequestSystem);
         }
         #endregion
@@ -157,6 +186,7 @@ namespace Game._00.Script._03.Traffic_System.Building
         {
             Vector3[] waypoints = _pathRequestManager.GetPathWaypoints(home.RoadNode.WorldPosition, business.RoadNode.WorldPosition);
             Debug.Log("OnNotified");
+            
             Notify(new DemandCarRequest()
             {
                 CarEntity = carEntity,
@@ -212,6 +242,10 @@ namespace Game._00.Script._03.Traffic_System.Building
                     if (!found)
                     {
                         i--; 
+                    }
+                    else
+                    {
+                        break;
                     }
                 }
             }

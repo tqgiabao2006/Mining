@@ -12,7 +12,7 @@ namespace Game._00.Script._04.Timer.CurvePath
     {
         private Mesh _mesh;
 
-        private Func<Vector2[], Mesh> _meshCreator;
+        private Func<Vector3[], Mesh> _meshCreator;
 
         private float _spacing;
 
@@ -49,7 +49,7 @@ namespace Game._00.Script._04.Timer.CurvePath
             }
         }
         
-        public BezierSpline(float alpha, Func<Vector2[], Mesh> meshCreator, float spacing, int curveSmoothness)
+        public BezierSpline(Func<Vector3[], Mesh> meshCreator, float spacing, int curveSmoothness)
         {
             _meshCreator = meshCreator; 
             
@@ -91,7 +91,6 @@ namespace Game._00.Script._04.Timer.CurvePath
                     if (IsCurve(_points[_points.Count - 1], _points[_points.Count - 2], _points[_points.Count - 3], _points[_points.Count - 4])
                         && !IsCurve(_points[_points.Count-1], _points[_points.Count -2], point))
                     {
-                        Debug.Log("New straight point");
                         _points.Add(_points[_points.Count-1] + forDir * _radius);
                         _points.Add(point - forDir * _radius);
                         _points.Add(point);
@@ -147,6 +146,11 @@ namespace Game._00.Script._04.Timer.CurvePath
 
         private void UpdateMesh()
         {
+            if (_meshCreator == null)
+            {
+                return;
+            }
+            
             if (NumbSeg == 0)
             {
                 _mesh = new Mesh();
@@ -155,13 +159,12 @@ namespace Game._00.Script._04.Timer.CurvePath
             
             _mesh =  _meshCreator.Invoke(GetEvenlySpacedPoints(_spacing, _curveSmoothness));
         }
-
-      
-        private Vector2[] GetEvenlySpacedPoints(float spacing, int curveSmooth)
+        
+        public Vector3[] GetEvenlySpacedPoints(float spacing, float curveSmoothness)
         {
             spacing = Mathf.Max(spacing, 0.005f);
             spacing = Mathf.Min(spacing, 1f);
-            List<Vector2> evenlySpacedPoints = new List<Vector2>();
+            List<Vector3> evenlySpacedPoints = new List<Vector3>();
             
             for(int i = 0 ; i < _points.Count -3 ; i += 3)
             {
@@ -170,11 +173,11 @@ namespace Game._00.Script._04.Timer.CurvePath
                 Vector2 previousPoint = _points[i];
                 float distanceSinceLastPoint = 0f;
                 
-                // if (IsCurve(_points[i], _points[i + 1], _points[i + 2], _points[i+3]))
-                // {
-                    for (int j = 1; j <= curveSmooth; j++)
+                if (IsCurve(_points[i], _points[i + 1], _points[i + 2], _points[i+3]))
+                {
+                    for (int j = 1; j <= curveSmoothness; j++)
                     {
-                        float t = j / (float)curveSmooth;
+                        float t = j / (float)curveSmoothness;
                         Vector2 currentSample = BezierCurve.GetPoint(_points[i], _points[i+1], _points[i+2], _points[i+3],t);
                         float distance = Vector2.Distance(previousPoint, currentSample);
                         
@@ -195,12 +198,12 @@ namespace Game._00.Script._04.Timer.CurvePath
                         }
 
                     }
-                // }
-                // else
-                // {
-                //     //Only have to add end point for straight line
-                //     evenlySpacedPoints.Add(BezierCurve.GetPoint(_points[i], _points[i+1], _points[i+2], _points[i+3],1));
-                // }
+                }
+                else
+                {
+                    //Only have to add end point for straight line
+                    evenlySpacedPoints.Add(BezierCurve.GetPoint(_points[i], _points[i+1], _points[i+2], _points[i+3],1));
+                }
             }
 
             return evenlySpacedPoints.ToArray();

@@ -6,7 +6,7 @@ using UnityEngine.Serialization;
 
 namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
 {
-  public class CarSpawnerECS_Author_Component: MonoBehaviour
+  public class CarSpawnerEcsAuthorComponent: MonoBehaviour
     {
         private PathRequestManager _pathRequestManager;
          public GameObject redCar;
@@ -17,9 +17,9 @@ namespace  Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
             _pathRequestManager = FindObjectOfType<PathRequestManager>();
         }
         
-        private class Baker: Baker<CarSpawnerECS_Author_Component>
+        private class Baker: Baker<CarSpawnerEcsAuthorComponent>
         {
-            public override void Bake(CarSpawnerECS_Author_Component author)
+            public override void Bake(CarSpawnerEcsAuthorComponent author)
             {
                 Entity entity = GetEntity(TransformUsageFlags.None);
                 DependsOn(author.transform);

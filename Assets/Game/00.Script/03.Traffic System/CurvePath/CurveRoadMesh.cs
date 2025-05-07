@@ -24,14 +24,12 @@ public class CurveRoadMesh:MonoBehaviour
     [SerializeField] private bool showPoint;
     
     [Header("Mesh settings")]
-    [Tooltip("The larger, the closer to straight line")]
-    [SerializeField] [Range(0, 1)] private float alpha;
 
     [Tooltip("The smaller, the smoother the curve")]
-    [SerializeField] [Range(0.05f, 0.2f)] private float spacing = 1;
+    [Range(0.05f, 0.2f)] public readonly static float spacing = 0.05f;
     
-    [Tooltip("The larger, the smoother the curve")]
-    [SerializeField] [Range(1, 20)] private int curveSmooth = 10;
+    [Tooltip("The larger, the smoother the curve")] 
+    [Range(1, 20)] public readonly static int curveSmooth = 10;
     
     private float _roadWidth = 0.5f;
     
@@ -54,7 +52,7 @@ public class CurveRoadMesh:MonoBehaviour
 
     public BezierSpline CreateSpline()
     {
-        BezierSpline spline = new BezierSpline(alpha, CreateRoadMesh, spacing, curveSmooth);
+        BezierSpline spline = new BezierSpline(CreateRoadMesh, spacing, curveSmooth);
         _splines.Add(spline, new CombineInstance());   
         return spline;
     }
@@ -78,7 +76,7 @@ public class CurveRoadMesh:MonoBehaviour
     }
 
     
-    private Mesh CreateRoadMesh(Vector2[] points)
+    private Mesh CreateRoadMesh(Vector3[] points)
     {
         Vector3[] verts = new Vector3[points.Length * 2];
         int numbTris = 2 * (points.Length - 1);
@@ -90,16 +88,17 @@ public class CurveRoadMesh:MonoBehaviour
 
         for (int i = 0; i < points.Length; i++)
         {
+
             Vector2 forward = Vector2.zero;
 
             if (i < points.Length - 1)
             {
-                forward += points[(i + 1) % points.Length] - points[i];
+                forward += (Vector2)points[(i + 1) % points.Length] - (Vector2)points[i];
             }
 
             if (i > 0)
             {
-                forward += points[i] - points[(i - 1 + points.Length) % points.Length];
+                forward += (Vector2)points[i] - (Vector2)points[(i - 1 + points.Length) % points.Length];
             }
 
             forward.Normalize();
@@ -107,8 +106,8 @@ public class CurveRoadMesh:MonoBehaviour
             //Orthogonal vector
             Vector2 left = new Vector2(-forward.y, forward.x);
 
-            verts[vertIndex] = points[i] + left * _roadWidth * 0.5f;
-            verts[vertIndex + 1] = points[i] - left * _roadWidth * 0.5f;
+            verts[vertIndex] = (Vector2)points[i] + left * _roadWidth * 0.5f;
+            verts[vertIndex + 1] = (Vector2)points[i] - left * _roadWidth * 0.5f;
 
             float completePer = i / (float)(points.Length - 1);
             uvs[vertIndex] = new Vector2(0, completePer);
@@ -151,6 +150,15 @@ public class CurveRoadMesh:MonoBehaviour
         
         foreach (BezierSpline spline in _splines.Keys)
         {
+            if (showLine)
+            {
+                Vector3[] points = spline.GetEvenlySpacedPoints(0.3f, curveSmooth);
+
+                foreach (Vector3 p in points)
+                {
+                    Gizmos.DrawSphere(p, 0.02f);
+                }
+            }
             if (showPoint)
             {
                 for (int j = 0; j < spline.Points.Count; j++)
