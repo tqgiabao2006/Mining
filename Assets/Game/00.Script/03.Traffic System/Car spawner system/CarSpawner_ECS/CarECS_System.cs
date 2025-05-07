@@ -101,7 +101,6 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                 switch (car.State.ValueRO.Value)
                 {
                     case CarState.FollowingPath:
-                        Debug.Log("Following path");
                         bool parkingBusiness = math.distance(car.LocalTransform.ValueRO.Position, car.FollowPathData.ValueRO.WaypointsBlob.Value[car.FollowPathData.ValueRO.EnterIndex]) <= 0.01f
                                                && car.FollowPathData.ValueRO.EnterIndex != 0
                                                && car.FollowPathData.ValueRO.CurrentIndex == car.FollowPathData.ValueRO.EnterIndex 
@@ -143,7 +142,6 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                         break;
                     
                     case CarState.Parking:
-                        Debug.Log("Parking");
                         if (car.ParkingData.ValueRO.CurrentIndex == car.ParkingData.ValueRO.WaypointsBlob.Value.Length - 1
                             && math.distance(car.LocalTransform.ValueRO.Position, car.ParkingData.ValueRO.WaypointsBlob.Value[car.ParkingData.ValueRO.WaypointsBlob.Value.Length - 1]) <= 0.01f
                            )
@@ -168,7 +166,6 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                         break;
                     
                     case CarState.Mining:
-                        Debug.Log("Mining");
                         if (car.MiningTime.ValueRO.CounterValue < 0)
                         {
                             //Reset
@@ -326,7 +323,6 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                     || (followPathData.CurrentIndex > waypoints.Length && !nextDestination.IsGoWork))
                     return;
                 
-                Debug.Log("Pass 2");
                 float3 nextWaypoint = waypoints[followPathData.CurrentIndex];
                 float3 direction = math.normalize(nextWaypoint - localTransform.Position);
                 float distanceToWaypoint = math.distance(localTransform.Position, nextWaypoint);

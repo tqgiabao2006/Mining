@@ -68,7 +68,7 @@ namespace Game._00.Script._03.Traffic_System.MapData
         {
             _layerWeight = new Dictionary<(string, float), HashSet<Vector2>>();
             LoadTileLayers();
-            _possionDisc = new PossionDisc(CameraZoom.Instance.Zone.BotLeftPivot, CameraZoom.Instance.Zone.Size);
+            _possionDisc = new PossionDisc(CameraZoom.Instance.SpawnZone.BotLeftPivot, CameraZoom.Instance.SpawnZone.Size);
         }
         
         /// <summary>

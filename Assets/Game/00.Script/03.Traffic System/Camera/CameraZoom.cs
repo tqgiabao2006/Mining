@@ -1,5 +1,6 @@
 using Game._00.Script._00.Manager;
 using Game._00.Script._02.Grid_setting;
+using Game._00.Script._04.Timer;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -27,6 +28,8 @@ namespace Game._00.Script.Camera
         private float zoneRatio;
         
         private UnityEngine.Camera _camera;
+        
+        private Timer _timer;
 
         public bool EnabledZoom
         {
@@ -35,7 +38,13 @@ namespace Game._00.Script.Camera
                 enabledZoom = value;
             }
         }
-        public Zone Zone
+        public Zone InteractZone
+        {
+            get;
+            private set;
+        }
+
+        public Zone SpawnZone
         {
             get;
             private set;
@@ -43,6 +52,8 @@ namespace Game._00.Script.Camera
         private void Start()
         {
             _camera = GetComponent<UnityEngine.Camera>();
+            
+            _timer = GetComponent<Timer>();
             //Set Initial first
             UpdateBound();
         }
@@ -58,7 +69,7 @@ namespace Game._00.Script.Camera
 
         private void Zoom()
         {
-            this._camera.orthographicSize = Mathf.Min( _camera.orthographicSize + zoomSpeed * Time.deltaTime, maxSize );
+            this._camera.orthographicSize = Mathf.Min( _camera.orthographicSize + zoomSpeed *_timer.TimeScale* Time.deltaTime, maxSize );
         }
         private void UpdateBound()
         {
@@ -68,18 +79,30 @@ namespace Game._00.Script.Camera
             float sizeX = zoneRatio * halfWidth * 2;
             float sizeY = zoneRatio * halfHeight * 2;
 
+            float spawnX = sizeX -3;
+            float spawnY = sizeY -3;
+            
             // Round to the nearest multiple of NodeDiameter
             sizeX = Mathf.RoundToInt(sizeX / GridManager.NodeDiameter) * GridManager.NodeDiameter;
             sizeY = Mathf.RoundToInt(sizeY / GridManager.NodeDiameter) * GridManager.NodeDiameter;
+
+            spawnX = Mathf.RoundToInt(spawnX / GridManager.NodeDiameter) * GridManager.NodeDiameter;
+            spawnY = Mathf.RoundToInt(spawnY/GridManager.NodeDiameter) * GridManager.NodeDiameter;
             
             //Round to even number
             sizeX += sizeX % 2;
             sizeY += sizeY % 2;
 
-            Zone = new Zone()
+            InteractZone = new Zone()
             {
                 BotLeftPivot = new Vector2(-sizeX/2, -sizeY/2),
                 Size = new Vector2(sizeX, sizeY),
+            };
+
+            SpawnZone = new Zone()
+            {
+                BotLeftPivot = new Vector2(-spawnX/2, -spawnY/2),
+                Size = new Vector2(spawnX, spawnY),
             };
         }
 
@@ -91,8 +114,12 @@ namespace Game._00.Script.Camera
                 return;
             }
             Gizmos.color = Color.blue;
-            Gizmos.DrawWireSphere(Zone.BotLeftPivot, 0.5f);
-            Gizmos.DrawWireCube(this.transform.position, this.Zone.Size);
+            Gizmos.DrawWireSphere(InteractZone.BotLeftPivot, 0.5f);
+            Gizmos.DrawWireCube(this.transform.position, this.InteractZone.Size);
+
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireCube(this.transform.position, this.SpawnZone.Size);
+            Gizmos.DrawWireSphere(SpawnZone.BotLeftPivot, 0.5f);
         }
     }
 

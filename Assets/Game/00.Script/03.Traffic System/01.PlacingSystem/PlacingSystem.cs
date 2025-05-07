@@ -179,7 +179,7 @@ namespace Game._00.Script._01.PlacingSystem
         private bool IsInGrid()
         {
             return IsInSide(_mousePos, 0.5f, 0.5f, GridManager.GridSizeX, GridManager.GridSizeY) 
-                && IsInSide(_mousePos, 0.5f, 0.5f, _cameraZoom.Zone.Size.x, _cameraZoom.Zone.Size.y);
+                && IsInSide(_mousePos, 0.5f, 0.5f, _cameraZoom.InteractZone.Size.x, _cameraZoom.InteractZone.Size.y);
         }
         
         #endregion

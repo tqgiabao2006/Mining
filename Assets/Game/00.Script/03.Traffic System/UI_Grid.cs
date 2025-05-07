@@ -28,8 +28,8 @@ public class UI_Grid : MonoBehaviour, IObserver
 
     private void Update()
     {
-        _material.SetVector(Pivot, new  Vector4(_cameraZoom.Zone.BotLeftPivot.x, _cameraZoom.Zone.BotLeftPivot.y, 0,0));
-        _material.SetVector(Size, new Vector4(_cameraZoom.Zone.Size.x, _cameraZoom.Zone.Size.y, 0,0));
+        _material.SetVector(Pivot, new  Vector4(_cameraZoom.InteractZone.BotLeftPivot.x, _cameraZoom.InteractZone.BotLeftPivot.y, 0,0));
+        _material.SetVector(Size, new Vector4(_cameraZoom.InteractZone.Size.x, _cameraZoom.InteractZone.Size.y, 0,0));
     }
 
     public void OnNotified(object data, string flag)

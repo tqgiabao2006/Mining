@@ -278,55 +278,55 @@ namespace Game._00.Script._03.Traffic_System.Building
                 //If there is no count, prefer to 
                 if (_buildingManager.TotalCount <= 0 )
                 {
-                    _spawnQueue.Enqueue(new SpawnInfo()
-                    {
-                        Type = BuildingType.Home,
-                        Color = BuildingColor.Red,
-                        Size = ParkingLotSize._1x1,
-                        Direction = _buildingDirections[Random.Range(0, _buildingDirections.Length)]
-                    });
-                    
-                    _spawnQueue.Enqueue(new SpawnInfo()
-                    {
-                        Type = BuildingType.Home,
-                        Color = BuildingColor.Blue,
-                        Size = ParkingLotSize._1x1,
-                        Direction = _buildingDirections[Random.Range(0, _buildingDirections.Length)]
-                    });
-                    
-                    
-                    _spawnQueue.Enqueue(new SpawnInfo()
-                    {
-                        Type = BuildingType.Business,
-                        Color =BuildingColor.Red,
-                        Size = ParkingLotSize._2x3,
-                        Direction = _buildingDirections[Random.Range(0, _buildingDirections.Length)]
-                    });
-                    
-                    _spawnQueue.Enqueue(new SpawnInfo()
-                    {
-                        Type = BuildingType.Business,
-                        Color = BuildingColor.Blue,
-                        Size = ParkingLotSize._2x3,
-                        Direction = _buildingDirections[Random.Range(0, _buildingDirections.Length)]
-                    });
-                    
                     // _spawnQueue.Enqueue(new SpawnInfo()
                     // {
                     //     Type = BuildingType.Home,
-                    //     Color = color,
+                    //     Color = BuildingColor.Red,
                     //     Size = ParkingLotSize._1x1,
                     //     Direction = _buildingDirections[Random.Range(0, _buildingDirections.Length)]
                     // });
                     //
                     // _spawnQueue.Enqueue(new SpawnInfo()
                     // {
-                    //
-                    //     Type = BuildingType.Business,
-                    //     Color = color,
-                    //     Size = ParkingLotSize._2x2,
+                    //     Type = BuildingType.Home,
+                    //     Color = BuildingColor.Blue,
+                    //     Size = ParkingLotSize._1x1,
                     //     Direction = _buildingDirections[Random.Range(0, _buildingDirections.Length)]
                     // });
+                    //
+                    //
+                    // _spawnQueue.Enqueue(new SpawnInfo()
+                    // {
+                    //     Type = BuildingType.Business,
+                    //     Color =BuildingColor.Red,
+                    //     Size = ParkingLotSize._2x3,
+                    //     Direction = _buildingDirections[Random.Range(0, _buildingDirections.Length)]
+                    // });
+                    //
+                    // _spawnQueue.Enqueue(new SpawnInfo()
+                    // {
+                    //     Type = BuildingType.Business,
+                    //     Color = BuildingColor.Blue,
+                    //     Size = ParkingLotSize._2x3,
+                    //     Direction = _buildingDirections[Random.Range(0, _buildingDirections.Length)]
+                    // });
+                    
+                    _spawnQueue.Enqueue(new SpawnInfo()
+                    {
+                        Type = BuildingType.Home,
+                        Color = color,
+                        Size = ParkingLotSize._1x1,
+                        Direction = _buildingDirections[Random.Range(0, _buildingDirections.Length)]
+                    });
+                    
+                    _spawnQueue.Enqueue(new SpawnInfo()
+                    {
+                    
+                        Type = BuildingType.Business,
+                        Color = color,
+                        Size = ParkingLotSize._2x2,
+                        Direction = _buildingDirections[Random.Range(0, _buildingDirections.Length)]
+                    });
                 }
                 else
                 {
