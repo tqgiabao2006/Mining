@@ -17,8 +17,8 @@ namespace Game._00.Script._03.Traffic_System.MapData
 {
     public class MapSupplyDemand : MonoBehaviour
     {
-        [Header("Debug Property")] [SerializeField]
-        private bool isGizmos;
+        [Header("Debug Property")] 
+        [SerializeField] private bool isGizmos;
 
         [SerializeField] private bool drawSupply;
 
@@ -26,13 +26,15 @@ namespace Game._00.Script._03.Traffic_System.MapData
 
         [SerializeField] private bool drawUnspawnable;
 
-        private Dictionary<(string,float), HashSet<Vector2>> _layerWeight;
-
+        //Weight of each node in grid layout (2D array)
+        private Dictionary<string, float[,]> _layerWeights; //String is layer: Demand (business), Supply (home). and unspawnable,
+        
         private Vector2 _size = Vector2.zero;
 
         public readonly float[] WeightValue = { 0.2f, 0.4f, 0.6f, 0.8f, 1.0f};
+
+        private CameraZoom _cameraZoom;
         
-        private PossionDisc _possionDisc;
         public Vector2 Size
         {
             get
@@ -47,14 +49,9 @@ namespace Game._00.Script._03.Traffic_System.MapData
             {
                 string layerTag = GetLayerTag(size);
                 weight = FloorToNearestStep(weight, 0.2f);
-                if (_layerWeight.ContainsKey((layerTag, weight)) && _layerWeight != null && _possionDisc != null)
+                if (_layerWeights.ContainsKey(layerTag))
                 { 
-                    HashSet<Vector2> weights = _layerWeight[(layerTag, weight)];
-                    List<Vector2> randomPos = _possionDisc[size];
-
-                    //Filter out by weight
-                    List<Vector2> matches = randomPos.Where(pos => weights.Any(w => IsVectorEqual(w, pos))).ToList();
-                    return matches;
+                    return GetMatches(weight, layerTag);
                 }
                 return new List<Vector2>();
             }
@@ -66,9 +63,9 @@ namespace Game._00.Script._03.Traffic_System.MapData
         /// </summary>
         public void SetUp()
         {
-            _layerWeight = new Dictionary<(string, float), HashSet<Vector2>>();
+            _cameraZoom = CameraZoom.Instance;
+            _layerWeights = new Dictionary<string, float[,]>();
             LoadTileLayers();
-            _possionDisc = new PossionDisc(CameraZoom.Instance.SpawnZone.BotLeftPivot, CameraZoom.Instance.SpawnZone.Size);
         }
         
         /// <summary>
@@ -108,35 +105,36 @@ namespace Game._00.Script._03.Traffic_System.MapData
         /// </summary>
         /// <param name="tilemap">tilemap component</param>
         /// <param name="validTag">tag of layer</param>
-        /// <param name="weight"></param>
         /// <returns>AlphaNode[,]</returns>
         private void LoadAlphaNodeMap(Tilemap tilemap, string validTag)
         {
-            int yMin = tilemap.cellBounds.yMin;
-            int yMax = tilemap.cellBounds.yMax;
-            int xMin = tilemap.cellBounds.xMin;
-            int xMax = tilemap.cellBounds.xMax;
-            
-            for (int y = yMin; y < yMax; y++)
-            {
-                for (int x = xMin; x < xMax; x++)
-                {
-                    Vector3Int gridPos = new Vector3Int(x,y,0);
-                    if (tilemap.HasTile(gridPos))
-                    {
-                        Vector3 worldPos = tilemap.layoutGrid.CellToWorld(gridPos);
-                        Vector2 nodePos = GridManager.NodeFromWorldPosition(worldPos).WorldPosition;
-                        float alphaVal = FloorToNearestStep(GetSpriteAlpha(tilemap, gridPos), 0.2f);
+            BoundsInt bounds = tilemap.cellBounds;
+               
+            _layerWeights.Add(validTag, new float[GridManager.GridSizeX, GridManager.GridSizeY]);
 
-                        if (_layerWeight.ContainsKey((validTag, alphaVal)))
+            for (int x = bounds.xMin; x < bounds.xMax; x++)
+            {
+                for (int y = bounds.yMin; y < bounds.yMax; y++)
+                {
+                    Vector3Int cellPos = new Vector3Int(x, y, 0);
+                    Vector2 worldPos = tilemap.GetCellCenterWorld(cellPos);
+                    Vector2Int index = GetGridIndex(worldPos);
+                    if (tilemap.HasTile(cellPos))
+                    {
+                        float alphaVal = FloorToNearestStep(GetSpriteAlpha(tilemap, cellPos), 0.2f);
+                    
+                        if (validTag == LayerTag.UNSPAWNABLE)
                         {
-                            _layerWeight[(validTag, alphaVal)].Add(nodePos);
+                            alphaVal = 1;
                         }
-                        else
-                        {
-                            _layerWeight.Add((validTag, alphaVal), new HashSet<Vector2>());
-                        }
+                        Debug.Log(index);
+                        _layerWeights[validTag][index.x,index.y] = alphaVal;
                     }
+                    else
+                    { 
+                        _layerWeights[validTag][index.x, index.y] = 0;
+                    }
+
                 }
             }
         }
@@ -145,11 +143,11 @@ namespace Game._00.Script._03.Traffic_System.MapData
         /// Get sprite alpha
         /// </summary>
         /// <param name="tilemap">Chosen layer tilemap</param>
-        /// <param name="gridPos">grid pos of cell</param>
+        /// <param name="cellPos">cell pos of cell</param>
         /// <returns></returns>
-        private float GetSpriteAlpha(Tilemap tilemap, Vector3Int gridPos)
+        private float GetSpriteAlpha(Tilemap tilemap, Vector3Int cellPos)
         {
-            TileBase tileBase = tilemap.GetTile(gridPos);
+            TileBase tileBase = tilemap.GetTile(cellPos);
             if (tileBase is Tile tile && tile.sprite != null)
             {
                 Texture2D tex = tile.sprite.texture;
@@ -189,102 +187,113 @@ namespace Game._00.Script._03.Traffic_System.MapData
             _ => LayerTag.UNSPAWNABLE
         };
 
+        /// <summary>
+        /// Get points that matches the weight insid the spawn zone
+        /// </summary>
+        /// <param name="weight">matched weight</param>
+        /// <param name="validLayerTag">verified layer tag</param>
+        /// <returns></returns>
+        private List<Vector2> GetMatches(float weight, string validLayerTag)
+        {
+            List<Vector2> matches = new List<Vector2>();
+            Vector2 pivot = _cameraZoom.SpawnZone.BotLeftPivot;
+            Vector2 size = _cameraZoom.SpawnZone.Size;
+
+            float[,] weights = _layerWeights[validLayerTag];
+            
+            for (float x = pivot.x + GridManager.NodeRadius; x < pivot.x + size.x - GridManager.NodeDiameter; x += GridManager.NodeDiameter)
+            {
+                for (float y = pivot.y + GridManager.NodeRadius; y < pivot.y + size.y - GridManager.NodeDiameter; y += GridManager.NodeDiameter)
+                {
+                    Vector2Int indexes = GetGridIndex(new Vector2(x, y));
+
+                    if (Mathf.Approximately(weights[indexes.x, indexes.y], weight))
+                    {
+                        matches.Add(new Vector2(x, y));
+                    }
+                }
+            }
+            return matches;
+        }
+
+        /// <summary>
+        /// Convert from world pos to index x,y in the grid
+        /// </summary>
+        /// <param name="worldPos"></param>
+        /// <returns></returns>
+        private Vector2Int GetGridIndex(Vector2 worldPos)
+        {
+            int gridSizeX = GridManager.GridSizeX;
+            int gridSizeY = GridManager.GridSizeY;
+            Vector2 gridWorldSize = GridManager.GridWorldSize;
+            
+            // Check for the zero vector case
+            if (worldPos == Vector2.zero)
+            {
+                // Return the center node of the _gridManager
+                int centerX = gridSizeX / 2;
+                int centerY = gridSizeY / 2;
+                return new Vector2Int(centerX, centerY);
+            }
+       
+            float percentX = worldPos.x / gridWorldSize.x + 0.5f;
+            float percentY = worldPos.y / gridWorldSize.y + 0.5f;
+            //if worldPosition = (0,y) percentX = 0, (x, y) = 1, in center = 0.5x
+            // worldPoint.x/worldSize.x = the index x-axis of it, + 0.5f is center of it;
+
+
+            percentX = Mathf.Clamp01(percentX);
+            percentY = Mathf.Clamp01(percentY);
+            //Make sure it not outsize the _gridManager
+
+
+            int x = Mathf.FloorToInt(Mathf.Clamp((gridSizeX) * percentX, 0, gridSizeX - 1));
+            //gridSizeX - 1 because in the array system, count from 0, so do it avoid out range of array
+            int y = Mathf.FloorToInt(Mathf.Clamp((gridSizeY) * percentY, 0, gridSizeY - 1));
+            
+            
+            return new Vector2Int(x, y);
+        }
         private bool IsVectorEqual(Vector2 a, Vector2 b, float tolerance = 0.05f)
         {
             return (a-b).sqrMagnitude <= tolerance;
         }
         
-            
-        public int GetNodeCount(string layerTag, float weight)
-        {
-            return layerTag switch
-            {
-                LayerTag.DEMAND => _layerWeight.ContainsKey((layerTag,weight)) ? _layerWeight[(layerTag,weight)].Count : 0,
-                LayerTag.SUPPLY => _layerWeight.ContainsKey((layerTag,weight)) ? _layerWeight[(layerTag,weight)].Count : 0,
-                LayerTag.UNSPAWNABLE => _layerWeight.ContainsKey((layerTag,weight)) ? _layerWeight[(layerTag,weight)].Count : 0,
-                _ => 0
-            };
-        }
 
         private void OnDrawGizmos()
         {
-            if (!isGizmos)
+            if (!isGizmos || _layerWeights == null)
             {
                 return;
             }
-
-            if (drawDemand) 
-            {
-                for (int i = 0; i < WeightValue.Length; i++)
-                {
-                    if (_layerWeight.ContainsKey((LayerTag.DEMAND, WeightValue[i])))
-                    {
-                        HashSet<Vector2> points = _layerWeight[(LayerTag.DEMAND, WeightValue[i])];
-                        foreach(Vector2 point in points)
-                        {
-                            Handles.Label(point, 
-                                String.Format("{0:F1}", WeightValue[i]),
-                                new GUIStyle()
-                                {
-                                    fontSize = 20,
-                                    normal = new GUIStyleState()
-                                    {
-                                        textColor = Color.yellow,
-                                    }
-                                });
-                        }
-                    }
-                }
-            }
             
-            if (drawSupply) 
+             Vector2 worldBottomLeft = Vector2.zero - Vector2.right * GridManager.GridWorldSize.x / 2 
+                                                    - Vector2.up * GridManager.GridWorldSize.y / 2;
+             
+            for (int x = 0; x < GridManager.GridSizeX; x++)
             {
-                for (int i = 0; i < WeightValue.Length; i++)
+                for (int y = 0; y < GridManager.GridSizeY; y++)
                 {
-                    if (_layerWeight.ContainsKey((LayerTag.SUPPLY, WeightValue[i])))
+                    Vector3 worldPos = worldBottomLeft + Vector2.right * (x * GridManager.NodeDiameter + GridManager.NodeRadius)
+                                                         + Vector2.up * (y * GridManager.NodeDiameter + GridManager.NodeRadius);
+                    if (drawDemand)
                     {
-                        HashSet<Vector2> points = _layerWeight[(LayerTag.SUPPLY, WeightValue[i])];
-                        foreach(Vector2 point in points)
-                        {
-                            Handles.Label(point, 
-                                String.Format("{0:F1}", WeightValue[i]),
-                                new GUIStyle()
-                                {
-                                    fontSize = 20,
-                                    normal = new GUIStyleState()
-                                    {
-                                        textColor = Color.red,
-                                    }
-                                });
-                        }
+                        Handles.Label(worldPos, _layerWeights[LayerTag.DEMAND][x,y].ToString());
                     }
-                }
-            }
-            
-            if (drawUnspawnable) 
-            {
-                for (int i = 0; i < WeightValue.Length; i++)
-                {
-                    if (_layerWeight.ContainsKey((LayerTag.UNSPAWNABLE, WeightValue[i])))
-                    {
-                        HashSet<Vector2> points = _layerWeight[(LayerTag.UNSPAWNABLE, WeightValue[i])];
-                        foreach(Vector2 point in points)
-                        {
-                            Handles.Label(point, 
-                                String.Format("{0:F1}", WeightValue[i]),
-                                new GUIStyle()
-                                {
-                                    fontSize = 20,
-                                    normal = new GUIStyleState()
-                                    {
-                                        textColor = Color.black,
-                                    }
-                                });
-                        }
-                    }
-                }
-            }
 
+                    if (drawSupply)
+                    {
+                        Handles.Label(worldPos, _layerWeights[LayerTag.SUPPLY][x,y].ToString());
+                    }
+
+                    if (drawUnspawnable)
+                    {
+                        Handles.Label(worldPos, _layerWeights[LayerTag.UNSPAWNABLE][x,y].ToString());
+                    }
+                    
+                    
+                }
+            }
         }
     }
 }

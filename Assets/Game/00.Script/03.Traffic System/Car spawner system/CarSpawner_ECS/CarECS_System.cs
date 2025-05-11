@@ -131,14 +131,12 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                             }
                                 
                             car.NextDestination.ValueRW.IsGoWork = !car.NextDestination.ValueRO.IsGoWork;
-                            Debug.Log(car.NextDestination.ValueRW.IsGoWork);
                             car.ParkingData.ValueRW.CurrentIndex = 0;
                             car.State.ValueRW.Value = CarState.Parking;
                         }
                         break;
                     
                     case CarState.Idle: 
-                        
                         break;
                     
                     case CarState.Parking:
@@ -166,6 +164,7 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                         break;
                     
                     case CarState.Mining:
+                        Debug.Log(car.MiningTime.ValueRO.CounterValue);
                         if (car.MiningTime.ValueRO.CounterValue < 0)
                         {
                             //Reset
@@ -392,6 +391,7 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
             state.RequireForUpdate<Speed>();
             state.RequireForUpdate<StopDistance>();
             state.RequireForUpdate<ColliderBound>();
+            state.RequireForUpdate<MiningTime>();
         }
     
         public void OnUpdate(ref SystemState state)
@@ -411,8 +411,8 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
         {
             if (state.Value != CarState.Mining) return;
             
-          
             time.CounterValue -= DeltaTime;
+            Debug.Log("On Mining    ");
         }
     }
 }

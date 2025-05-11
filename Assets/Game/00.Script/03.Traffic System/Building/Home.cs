@@ -125,12 +125,15 @@ public class Home: BuildingBase
     protected override void OnDrawGizmos()
     {
         base.OnDrawGizmos();
-        if (!isGizmos || _cars == null )
+        if (_cars == null )
         {
             return;
         }
-        Handles.Label(new Vector3(transform.position.x, transform.position.y  + 0.5f, transform.position.z), 
-           _cars.Count + " cars", new GUIStyle { fontSize = 24, normal = { textColor = Color.black } });
-        
+
+        if (drawInfo)
+        {
+            Handles.Label(new Vector3(transform.position.x, transform.position.y  + 0.5f, transform.position.z), 
+                _cars.Count + " cars", new GUIStyle { fontSize = 24, normal = { textColor = Color.black } });
+        }
     }
 }

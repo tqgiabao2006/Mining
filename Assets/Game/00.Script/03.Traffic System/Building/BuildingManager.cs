@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Game._00.Script._00.Manager.Observer;
 using Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS;
@@ -41,6 +42,10 @@ namespace Game._00.Script._03.Traffic_System.Building
     public class BuildingManager: SubjectBase, IObserver
     {
         //Directed graph => adjacent list => building type + its output
+
+        [Tooltip("Show current demand, current cars")]
+        [Header("Debug")]
+        [SerializeField] private bool isGizmos;
         
         private Dictionary<BuildingColor, List<Home>> _currentHomes;
         
@@ -57,7 +62,7 @@ namespace Game._00.Script._03.Traffic_System.Building
         private Dictionary<int, List<BuildingBase>> _connectedBuildings;
 
         private PathRequestManager _pathRequestManager;
-
+        
         public int HomeCount
         {
             get { return _currentHomes.Count; }
@@ -149,7 +154,16 @@ namespace Game._00.Script._03.Traffic_System.Building
             return new List<Home>();
         }
 
+        public List<Home> GetHomeList(BuildingColor color)
+        {
+            if (_currentHomes.ContainsKey(color))
+            {
+                return _currentHomes[color];
+            }
 
+            return null;
+        }
+        
         /// <summary>
         /// Spawn multiple cars have waiting time between by notifying spawn car system through time
         /// Can not bring this function to the system itself because it makes system ignore other notification when 2, 3 cars spawned
@@ -250,8 +264,37 @@ namespace Game._00.Script._03.Traffic_System.Building
                 }
             }
         }
-    }
 
+
+        private void OnGUI()
+        {
+            if (!isGizmos || _currentCars == null || _currentDemands == null)
+            {
+                return;
+            }
+            
+            GUIStyle style = new GUIStyle();
+            style.fontSize = 20;
+            style.normal.textColor = Color.yellow;
+
+            Vector2 topLeft = new Vector2(10, 30);
+            int i = 0;
+
+            foreach (BuildingColor color in _currentCars.Keys)
+            {
+                GUI.Label(new Rect(10, 10 + topLeft.y *i, 200, 200), 
+                    $"Car {color}: {_currentCars[color]}", style);
+                i++;
+            }
+
+            foreach (BuildingColor color in _currentDemands.Keys)
+            {
+                GUI.Label(new Rect(10, 10 + topLeft.y *i, 200, 200), 
+                    $"Demand {color}: {_currentDemands[color]}", style);
+                i++;
+            }
+        }
+    }
 }
 
 public struct DemandCarRequest

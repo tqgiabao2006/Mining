@@ -12189,6 +12189,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c33af3ba6c784c8397b0030e69ec9ab6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isGizmos: 1
 --- !u!1 &1658386544
 GameObject:
   m_ObjectHideFlags: 0
@@ -22036,7 +22037,7 @@ MonoBehaviour:
   stopTest: 0
   isGizmos: 1
   secPerDay: 0.5
-  timeScale: 30
+  timeScale: 5
 --- !u!1 &2014558152
 GameObject:
   m_ObjectHideFlags: 0
@@ -22081,6 +22082,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c68539bce0944a31bb2ec5d3bbffb68, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  showSpawnQueue: 0
   buildingPrefabs:
   - Prefab: {fileID: 3689738951310742799, guid: 3981291a478a34a83a6052f1b5e891bd, type: 3}
     Color: 0
@@ -22096,6 +22098,10 @@ MonoBehaviour:
     Type: 0
   spawnDelayTime: 0.2
   carDemandRatio: 3
+  maxNeighbors: 0
+  minNeighbors: 0
+  randomNewNeighborRate: 0
+  gridRadius: 0
 --- !u!1 &2065546701
 GameObject:
   m_ObjectHideFlags: 0

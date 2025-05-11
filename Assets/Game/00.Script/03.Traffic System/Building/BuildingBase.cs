@@ -10,16 +10,23 @@ using Unity.Mathematics;
 using Unity.Physics;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 
 namespace Game._00.Script._03.Traffic_System.Building
 {
-
-  
-    public abstract class BuildingBase : MonoBehaviour
+    public abstract class BuildingBase : MonoBehaviour,IDebugable
     {
         [Header("Default building settings")] 
         [SerializeField] protected bool isGizmos;
+
+        [Tooltip("Draw parking waypoints")]
+        [SerializeField] protected bool drawWaypoints;
+
+        [Tooltip("Draw road node, and layout, car numbers, or demands")]
+        [SerializeField] protected bool drawInfo;
+        
+        protected Dictionary<DebugMenu.DebugFlag, bool> debugButtonMap;
         
         [SerializeField] private BuildingSpriteCollection spriteCollections;
 
@@ -136,13 +143,15 @@ namespace Game._00.Script._03.Traffic_System.Building
             this._worldPosition = worldPosition;
             
             this._originBuildingNode = GridManager.NodeFromWorldPosition(worldPosition);
-
+            
             _parkingNodes = new List<Node>();
             
             ParkingPos = new List<ParkingLot>();
             
-            //After finish initialize parking lots, initlize bool[] to track if the parking lot is available
+            //After finish initialize parking lots, initialize bool[] to track if the parking lot is available
             ParkingResquest = new Queue<Entity>();
+            
+            SetUpDebugFlag();
             
             //Test-only
             #if    UNITY_EDITOR
@@ -156,7 +165,7 @@ namespace Game._00.Script._03.Traffic_System.Building
         }
         
         /// <summary>
-        /// Recieve a parking request, if available, create waypoints in parking lot
+        /// Receive a parking request, if available, create waypoints in parking lot
         /// 2x1 parking node is divided by 4 |/ / / /|, number of parking lots = 3,
         /// position1 = node1.WorldPos, position2 = node2.WorldPos, position 3 = point between them, x (for up, down), y for (left, right) buildingDirection
         /// Flow: Go in to the top right then go left until reach the parking lot x, then go to it, then move to the bottom then go right to out
@@ -226,7 +235,8 @@ namespace Game._00.Script._03.Traffic_System.Building
             ParkingResquest.Dequeue();
         }
 
-
+        #region Generate Parking Waypoints
+        
         /// <summary>
         /// Get way points to direct the car to park following these rules:
         /// 1/ Always go from the right of a lane. If it is an outward lane, it = 1/4f Node radius (divided) Radius 2 lane, road. If it inward lane (lane close to building), it = 1/2 Node radius, 1 lane road
@@ -509,6 +519,10 @@ namespace Game._00.Script._03.Traffic_System.Building
                 };
             }
          }
+        
+        #endregion
+        
+        
        #if UNITY_EDITOR  
         private void PrintWaypoints(float3[] waypoints)
         {
@@ -518,6 +532,8 @@ namespace Game._00.Script._03.Traffic_System.Building
             }
         }
         #endif
+
+        #region Debug
         protected virtual void OnDrawGizmos()
         {
             if (ParkingNodes == null || _originBuildingNode == null || TestParkingWaypoints == null || !isGizmos)
@@ -525,9 +541,13 @@ namespace Game._00.Script._03.Traffic_System.Building
                 return;
             }
             Gizmos.color = Color.yellow;
-            foreach (var waypoint in ParkingNodes)
+
+            if (drawWaypoints)
             {
-                Gizmos.DrawWireSphere(waypoint.WorldPosition, 0.5f);
+                foreach (var waypoint in ParkingNodes)
+                {
+                    Gizmos.DrawWireSphere(waypoint.WorldPosition, 0.5f);
+                }
             }
 
             Gizmos.color = Color.yellow;
@@ -535,23 +555,62 @@ namespace Game._00.Script._03.Traffic_System.Building
             {
                 Gizmos.DrawSphere(node, 0.05f);
             }
-            
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(_roadNode .WorldPosition, 0.5f);
-            
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(_originBuildingNode.WorldPosition, 0.5f);
 
-            if (this._isConnected)
+            if (drawInfo)
             {
-                Handles.Label(new Vector3(transform.position.x, transform.position.y, transform.position.z), "Connected", new GUIStyle { fontSize = 16, normal = { textColor = Color.green } });
-            }
-            else
-            {
-                Handles.Label(new Vector3(transform.position.x, transform.position.y, transform.position.z), "Unconnected", new GUIStyle { fontSize = 16, normal = { textColor = Color.red } });
+                Gizmos.color = Color.green;
+                Gizmos.DrawWireSphere(_roadNode .WorldPosition, 0.5f);
+            
+                Gizmos.color = Color.red;
+                Gizmos.DrawWireSphere(_originBuildingNode.WorldPosition, 0.5f);
 
+                if (this._isConnected)
+                {
+                    Handles.Label(new Vector3(transform.position.x, transform.position.y, transform.position.z), "Connected", new GUIStyle { fontSize = 16, normal = { textColor = Color.green } });
+                }
+                else
+                {
+                    Handles.Label(new Vector3(transform.position.x, transform.position.y, transform.position.z), "Unconnected", new GUIStyle { fontSize = 16, normal = { textColor = Color.red } });
+
+                }
             }
         }
+
+        public string Name
+        {
+            get
+            {
+                return  "Building";
+            }
+        }
+
+        private void SetUpDebugFlag()
+        {
+            debugButtonMap = new Dictionary<DebugMenu.DebugFlag, bool>();
+            debugButtonMap.Add(DebugMenu.DebugFlag.BuildingNode, drawInfo);
+            debugButtonMap.Add(DebugMenu.DebugFlag.BuildingWaypoint, drawWaypoints);
+        }
+
+        public void ToggleDebug(DebugMenu.DebugFlag flag , bool enabled)
+        {
+            if (!debugButtonMap.ContainsKey(flag) || debugButtonMap == null)
+            {
+                return;
+            }
+            debugButtonMap[flag] = enabled;
+        }
+
+        public void TurnOffAll(bool enabled)
+        {
+            isGizmos = enabled;
+        }
+
+        public Dictionary<DebugMenu.DebugFlag, bool> GetDebugFlags()
+        {
+            return debugButtonMap;
+        }
+        
+        #endregion
     }
     
     

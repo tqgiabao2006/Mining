@@ -92,6 +92,9 @@ namespace Game._00.Script.Camera
             //Round to even number
             sizeX += sizeX % 2;
             sizeY += sizeY % 2;
+            
+            spawnX += spawnX % 2;
+            spawnY += spawnY % 2;
 
             InteractZone = new Zone()
             {

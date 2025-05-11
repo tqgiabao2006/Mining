@@ -123,7 +123,7 @@ namespace Game._00.Script._04.Timer
                         { 
                             _stopTest = true;
                         }
-                   
+               
                         _hasSpawned = true;
                     }
                 }
@@ -134,7 +134,7 @@ namespace Game._00.Script._04.Timer
                     _week++;
                     _hasSpawned = false;
                 }
-            
+        
                 _timeCounter = 0;
             }
         }
