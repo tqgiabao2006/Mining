@@ -127,7 +127,6 @@ namespace Game._00.Script._03.Traffic_System.MapData
                         {
                             alphaVal = 1;
                         }
-                        Debug.Log(index);
                         _layerWeights[validTag][index.x,index.y] = alphaVal;
                     }
                     else

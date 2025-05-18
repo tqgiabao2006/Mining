@@ -164,7 +164,6 @@ namespace Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS
                         break;
                     
                     case CarState.Mining:
-                        Debug.Log(car.MiningTime.ValueRO.CounterValue);
                         if (car.MiningTime.ValueRO.CounterValue < 0)
                         {
                             //Reset

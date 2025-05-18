@@ -20,6 +20,13 @@ namespace Game._00.Script._03.Traffic_System.Building
             {
                 return demands;
             }
+            set
+            {
+                if (value > 0)
+                {
+                    demands = value;
+                }
+            }
         }
 
         private bool RequestCar

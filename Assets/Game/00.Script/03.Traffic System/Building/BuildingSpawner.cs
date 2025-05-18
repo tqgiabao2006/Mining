@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Game._00.Script._00.Manager;
 using Game._00.Script._00.Manager.Observer;
@@ -7,6 +8,7 @@ using Game._00.Script._02.Grid_setting;
 using Game._00.Script._03.Traffic_System.MapData;
 using Game._00.Script._03.Traffic_System.Mesh_Generator;
 using Game._00.Script._03.Traffic_System.Road;
+using Game._00.Script.Camera;
 using Unity.Mathematics;
 using UnityEditor;
 using UnityEngine;
@@ -22,101 +24,107 @@ namespace Game._00.Script._03.Traffic_System.Building
         public BuildingColor Color;
         public BuildingType Type;
     }
+    
+    /// <summary>
+    /// Spawn wave info, require keys stat
+    /// </summary>
     public struct SpawnInfo
     {
+        public bool DemandOnly;
         public BuildingType Type;
         public BuildingColor Color;
         public ParkingLotSize Size;
         public BuildingDirection Direction;
     }
+
     public class BuildingSpawner : MonoBehaviour, IObserver
     {
-        [Header("Debug")] 
-        [Tooltip("Show spawn queue count")]
-        [SerializeField] private bool showSpawnQueue;
-       
-        [Header("BuildingBase Prefabs")]
-        
-        [SerializeField] private List<BuildingPrefab> buildingPrefabs; 
-        
-        [Header("Delay setting")]
-        
-        [Tooltip("Time delay between each spawn")]
-        [SerializeField] private float spawnDelayTime = 0.5f;
-        
-        [FormerlySerializedAs("_carDemandRatio")]
-        [Header("Spawn Stats")]
-        
-        [Tooltip("Time delay between each spawn")]
-        [SerializeField] private float carDemandRatio = 2; //Ration between demands/cars
-        
-        [Tooltip("Max range of random number neighbors before breaking to a new neighbor hoods")]
-        [Range(0, 10)]
-        [SerializeField] private int maxNeighbors; 
-        
-        [Range(0, 10)]
-        [Tooltip("Min range of random number neighbors before breaking to a new neighbor hoods")]
-        [SerializeField] private int minNeighbors;
+        [Header("Debug")] [Tooltip("Show spawn queue count")] [SerializeField]
+        private bool showSpawnQueue;
 
-        [Tooltip("Max neighbor for break to creat new neighbor hoods")]
-        [Range(0,100)]
-        [SerializeField] private int randomNewNeighborRate;
+        [Header("BuildingBase Prefabs")] [SerializeField]
+        private List<BuildingPrefab> buildingPrefabs;
+
+        [Header("Delay setting")] 
+        [Tooltip("Time delay between each spawn")] [SerializeField]
+        private float spawnDelayTime = 0.5f;
         
-        [Tooltip("Min distance of business, and homes, calculated by how many nodes far away")]
-        [SerializeField] private int gridRadius;
-    
+        [Space]
+        [Header("Spawn Stats")]
+        [Tooltip("Time delay between each spawn")]
+        [SerializeField]
+        private int carDemandRatio = 2; //Ration between demands/cars
+        
+        [Tooltip("Decrease car demand ratio speed")]
+        [SerializeField]
+        private float decreaseCarDemand = 0.05f; //Ration between demands/cars
+        private float _curDecreaseCarDemand; //Track to build up, when > 1 then actually decrease
+        
+        [Space]
+        [Tooltip("Max distance from home to business that go over it, the candiate does not get more weight")]
+        [SerializeField]
+        private int maxDst = 5;
+
+        [Tooltip("The increase in max distance per week")] 
+        [SerializeField] 
+        private int increaseMaxDst = 1;
+        
+        [FormerlySerializedAs("newAddRatio")]
+        [Space]
+        [Tooltip("Ratio between adding news building, or increase, 0.8 => 80% new building")]
+        [Range(0, 1)] 
+        [SerializeField] private float addNewRatio = 0; 
+        
+        [FormerlySerializedAs("increaseNewAddRatio")]
+        [Range(0, 1)]
+        [SerializeField] private float increaseAddNewRatio = 0.15f;
+        
+        
         private Dictionary<(BuildingType, BuildingColor), BuildingPrefab> _buildingPrefabsDict;
-        
+
         private BuildingColor[] _buildingColors;
 
-        private HashSet<BuildingColor> _currentColors;
-        
         private BuildingDirection[] _buildingDirections;
-        
+
         private Coroutine _spawnWaveCoroutine;
-        
+
         private ParkingMesh _parkingMesh;
 
         //Top level class
         private BuildingManager _buildingManager;
-        
+
         private RoadManager _roadManager;
 
         private ObjectPooling _objectPooling;
         
         private MapSupplyDemand _mapSupplyDemand;
-        
-        private int _currentWeek;
 
-        private float _spawnTimeCounter;
-        
-        private Queue<SpawnInfo>  _spawnQueue;
-        
-        
+        private Queue<SpawnInfo> _spawnQueue;
+
         private void Start()
         {
             IntialSetUp();
         }
-        
 
         #region Initialize
+
         private void IntialSetUp()
         {
             //Top-level classes
             _buildingManager = FindObjectOfType<BuildingManager>();
-            
+
             _roadManager = FindObjectOfType<RoadManager>();
-            
+
             _objectPooling = GameManager.Instance.ObjectPooling;
             
             _parkingMesh = FindObjectOfType<ParkingMesh>();
 
             _mapSupplyDemand = FindObjectOfType<MapSupplyDemand>();
-            
+
             _mapSupplyDemand.SetUp();
-            
+
             _buildingPrefabsDict = new Dictionary<(BuildingType, BuildingColor), BuildingPrefab>();
-            
+
             _spawnQueue = new Queue<SpawnInfo>();
 
             for (int i = 0; i < buildingPrefabs.Count; i++)
@@ -125,21 +133,17 @@ namespace Game._00.Script._03.Traffic_System.Building
             }
 
             _buildingColors = Enum.GetValues(typeof(BuildingColor)) as BuildingColor[];
-            
+
             _buildingDirections = Enum.GetValues(typeof(BuildingDirection)) as BuildingDirection[];
-            
-            _currentColors = new HashSet<BuildingColor>();
-            
-            _currentWeek = 1;
-            
-            _spawnTimeCounter = spawnDelayTime;
         }
+
         #endregion
 
         private void Update()
         {
             ProcessWave();
         }
+
         /// <summary>
         /// ISubject: GameStateManager
         /// manage the current level
@@ -148,22 +152,17 @@ namespace Game._00.Script._03.Traffic_System.Building
         /// <param name="flag"> NotificationsFlag: Update Level</param>
         public void OnNotified(object data, string flag)
         {
-            // if (flag == NotificationFlags.UPDATE_LEVEL && data is int && !_isProcessingWave)
-            // {
-            //     ProcessWave((int)data);
-            // //    }
             if (flag == NotificationFlags.WEEK_PASS)
             {
-                _currentWeek++;
+               UpdateSpawningStat(); 
             }
-            
-            if(flag == NotificationFlags.DEMAND_BUILDING)
+
+            if (flag == NotificationFlags.DEMAND_BUILDING)
             {
-              GenerateWaves();   
+                GenerateWaves();
             }
         }
-
-
+        
         /// <summary>
         /// Process the wave from queue list
         /// </summary>
@@ -173,60 +172,73 @@ namespace Game._00.Script._03.Traffic_System.Building
             {
                 return;
             }
+
             SpawnInfo spawnInfo = _spawnQueue.Peek();
 
-            float[] weights = new float[] { 0.2f, 0.4f, 0.6f, 0.8f, 1 };
-            float weight = GetRandomWeight(weights);
-            int startIndex = Mathf.Max(Array.IndexOf(weights, weight),0);
-
-            for (int i = startIndex; i < weights.Length; i++)
+            if (spawnInfo.DemandOnly)
             {
-                bool spawnSuccess = false;
+                _buildingManager.IncreaseDemand();
+            }
+            else
+            {
+                float[] weights = new float[] { 0.2f, 0.4f, 0.6f, 0.8f, 1 };
+            
+                //If spawning home, choose and select around neighborhood;
+                Dictionary<Vector2, float> scores = new Dictionary<Vector2, float>();
+                foreach (float weight in weights)
+                {
+                    foreach (Vector2 point in _mapSupplyDemand[spawnInfo.Size, weight])
+                    {
+                        scores.Add(point, spawnInfo.Size == ParkingLotSize._1x1 ? GetHomeScore(point, spawnInfo.Color, weight) : GetBusinessScore(point, spawnInfo.Color, weight));
+                    }
+                }
                 
-                List<Vector2> points = _mapSupplyDemand[spawnInfo.Size, weights[i]];
+                List<KeyValuePair<Vector2, float>> sortedScores = scores.OrderByDescending(kv => kv.Value).ToList();
 
-                Debug.Log($"{spawnInfo.Size} " + points.Count);
-                foreach (Vector2 point in points)
+                foreach (KeyValuePair<Vector2, float> data in sortedScores)
                 {
                     //10 Attempts to change road node
-                    for (int j = 0; j < 10; j++)
+                    for (int j = 0; j < 5; j++)
                     {
                         Node road = null;
-                        if (IsValid(point, spawnInfo.Size, spawnInfo.Direction, out road))
+                        if (IsValid(data.Key, spawnInfo.Size, spawnInfo.Direction, out road))
                         {
-                            Debug.Log(point);
                             //Spawned object
-                            GameObject buildingObj = _objectPooling.GetObj(_buildingPrefabsDict[(spawnInfo.Type, spawnInfo.Color)].Prefab);
+                            GameObject buildingObj =
+                                _objectPooling.GetObj(_buildingPrefabsDict[(spawnInfo.Type, spawnInfo.Color)].Prefab);
 
                             BuildingBase buildingComp = buildingObj.GetComponent<BuildingBase>();
 
                             //Get and initialize class
-                            Vector2 buildingPos = point;
+                            Vector2 buildingPos = data.Key;
 
                             BuildingDirection buildingDirection = spawnInfo.Direction;
-                        
+
                             BuildingType buildingType = spawnInfo.Type;
-                        
+
                             ParkingLotSize parkingLotSize = spawnInfo.Size;
 
                             Node buildingNode = GridManager.NodeFromWorldPosition(buildingPos);
-                            buildingComp.Initialize(_buildingManager, buildingNode, buildingType, buildingDirection, buildingPos);
-                        
+                            buildingComp.Initialize(_buildingManager, buildingNode, buildingType, buildingDirection,
+                                buildingPos);
+
                             //Set Sprite
-                            Sprite sprite = buildingComp.SpriteCollections.GetBuildingSprite(buildingDirection, buildingComp.Size);
+                            Sprite sprite =
+                                buildingComp.SpriteCollections.GetBuildingSprite(buildingDirection, buildingComp.Size);
                             buildingObj.GetComponent<SpriteRenderer>().sprite = sprite;
 
                             //Set Transform
-                            buildingObj.transform.position = SetTransformOnSize(buildingComp.Size, buildingDirection, buildingPos);
+                            buildingObj.transform.position =
+                                SetTransformOnSize(buildingComp.Size, buildingDirection, buildingPos);
                             buildingObj.SetActive(true);
-                        
+
                             //This has to be called first to set up for the next function, save parking nodes to set adj list to road nodes later
                             SetBuildingAndInsideRoads(buildingComp, buildingNode, buildingComp.Size, buildingDirection);
                             buildingComp.CenterPos = GetCenterPos(buildingPos, buildingDirection, buildingComp.Size);
 
                             //Set road to building
                             Node roadNode = road;
-                            buildingComp.RoadNode = roadNode; 
+                            buildingComp.RoadNode = roadNode;
                             buildingComp.RoadNode.SetBelongedBuilding(buildingComp.gameObject);
                             _roadManager.PlaceNode(roadNode);
 
@@ -242,8 +254,9 @@ namespace Game._00.Script._03.Traffic_System.Building
                                 _roadManager.CreateMesh(roadNode,
                                     GetRoadDirection(roadNode, buildingComp.ParkingNodes, buildingDirection));
                             }
-                        
-                            buildingComp.ParkingPos = GetParkingPos(buildingNode.WorldPosition, buildingDirection, parkingLotSize);
+
+                            buildingComp.ParkingPos =
+                                GetParkingPos(buildingNode.WorldPosition, buildingDirection, parkingLotSize);
 
                             Vector3 SetTransformOnSize(ParkingLotSize parkingLotSize, BuildingDirection direction,
                                 Vector2 spawnPos)
@@ -274,7 +287,7 @@ namespace Game._00.Script._03.Traffic_System.Building
 
                                         break;
                                     default:
-                                        offset = Vector2.zero;  
+                                        offset = Vector2.zero;
                                         break;
                                 }
 
@@ -283,23 +296,30 @@ namespace Game._00.Script._03.Traffic_System.Building
 
                             _spawnQueue.Dequeue();
 
-                            _spawnTimeCounter = spawnDelayTime;
-                            spawnSuccess = true;
-                            break;
+                            return;
+                        }
                     }
-                    }
-
-                    if (spawnSuccess)
-                    {
-                        return;
-                    }
-                    else
-                    {
-                        
-                        Debug.LogError("Ca not spawn");
-                    }
+                    
                 }
             }
+        }
+
+
+        /// <summary>
+        /// Update controlling task of spawning houses, includes max distance, add/new ratio spawn color or not
+        /// </summary>
+        private void UpdateSpawningStat()
+        {
+            maxDst += increaseMaxDst;
+            _curDecreaseCarDemand -= decreaseCarDemand;
+
+            if (_curDecreaseCarDemand >= 1)
+            {
+                carDemandRatio -= 1;
+                _curDecreaseCarDemand = 0;
+            }
+
+            addNewRatio += increaseAddNewRatio;
         }
 
         /// <summary>
@@ -307,52 +327,68 @@ namespace Game._00.Script._03.Traffic_System.Building
         /// </summary>
         private void GenerateWaves()
         {
-            bool isFull = true;
-            List<BuildingColor> notExistColor = new List<BuildingColor>();
-            foreach (BuildingColor c in _buildingColors)
+            bool increaseOnly = Random.value <= addNewRatio;
+
+            if (increaseOnly && _buildingManager.BusinessCount > 0)
             {
-                if (_buildingManager.GetDemand(c) == 0 && _buildingManager.GetCarNumb(c) == 0)
+                Debug.Log(addNewRatio);
+                _spawnQueue.Enqueue(new SpawnInfo()
                 {
-                    notExistColor.Add(c);
-                }  //Prioritize feeling demands first
-                else if (_buildingManager.GetCarNumb(c) < _buildingManager.GetDemand(c) * carDemandRatio && _buildingManager.GetDemand(c) >0)
+                    DemandOnly =  true
+                });
+            }
+            else
+            {
+                bool isFull = true;
+                List<BuildingColor> notExistColor = new List<BuildingColor>();
+                foreach (BuildingColor c in _buildingColors)
                 {
+                    int demand = _buildingManager.GetDemand(c);
+                    int carNumb = _buildingManager.GetCarNumb(c);
+
+                    if (demand == 0 && carNumb == 0)
+                    {
+                        notExistColor.Add(c);
+                    } //Prioritize feeling demands first
+                    else if (carNumb < demand * carDemandRatio && demand > 0)
+                    {
+                        _spawnQueue.Enqueue(new SpawnInfo()
+                        {
+                            Color = c,
+                            Direction = _buildingDirections[Random.Range(0, _buildingDirections.Length)],
+                            Size = ParkingLotSize._1x1,
+                            Type = BuildingType.Home,
+                        });
+
+                        isFull = false;
+                    }
+                }
+
+                if (isFull)
+                {
+                    //If all demands fill out, spawn the color that current does not exist
+                    BuildingColor color = _buildingColors[Random.Range(0, _buildingColors.Length)];
+                    if (notExistColor.Count > 0)
+                    {
+                        color = notExistColor[Random.Range(0, notExistColor.Count)];
+                    }
+
                     _spawnQueue.Enqueue(new SpawnInfo()
                     {
-                        Color =  c,
+                        Color = color,
+                        Direction = _buildingDirections[Random.Range(0, _buildingDirections.Length)],
+                        Size = ParkingLotSize._2x3,
+                        Type = BuildingType.Business,
+                    });
+
+                    _spawnQueue.Enqueue(new SpawnInfo()
+                    {
+                        Color = color,
                         Direction = _buildingDirections[Random.Range(0, _buildingDirections.Length)],
                         Size = ParkingLotSize._1x1,
-                        Type =  BuildingType.Home,
+                        Type = BuildingType.Home,
                     });
-                    
-                    isFull = false;
                 }
-            }
-
-            if (isFull)
-            {
-                //If all demands fill out, spawn the color that current does not exist
-                BuildingColor color = _buildingColors[Random.Range(0, _buildingColors.Length)];
-                if (notExistColor.Count > 0)
-                { 
-                    color =  notExistColor[Random.Range(0, notExistColor.Count)];
-                }
-                
-                _spawnQueue.Enqueue(new SpawnInfo()
-                {
-                    Color =  color,
-                    Direction = _buildingDirections[Random.Range(0, _buildingDirections.Length)],
-                    Size = ParkingLotSize._2x3,
-                    Type =  BuildingType.Business,
-                });
-                
-                _spawnQueue.Enqueue(new SpawnInfo()
-                {
-                    Color =  color,
-                    Direction = _buildingDirections[Random.Range(0, _buildingDirections.Length)],
-                    Size = ParkingLotSize._1x1,
-                    Type =  BuildingType.Home,
-                });
             }
         }
 
@@ -367,11 +403,12 @@ namespace Game._00.Script._03.Traffic_System.Building
         /// <param name="originalBuildingNode"></param>
         /// <param name="parkingLotSize"></param>
         /// <param name="buildingDirection"></param>
-        private void SetBuildingAndInsideRoads(BuildingBase buildingComp,Node originalBuildingNode, ParkingLotSize parkingLotSize, BuildingDirection buildingDirection)
+        private void SetBuildingAndInsideRoads(BuildingBase buildingComp, Node originalBuildingNode,
+            ParkingLotSize parkingLotSize, BuildingDirection buildingDirection)
         {
             Vector2 position = originalBuildingNode.WorldPosition;
             float nodeDiameter = GridManager.NodeDiameter;
-            
+
             (List<Vector2>, List<Vector2>) GetBuildingWalkableOffsets(ParkingLotSize size, BuildingDirection dir)
             {
                 List<Vector2> buildingOffsets = new();
@@ -449,13 +486,13 @@ namespace Game._00.Script._03.Traffic_System.Building
 
                 return (buildingOffsets, walkableOffsets);
             }
-            
+
             // Iterate through calculated offsets and apply building settings
             List<Vector2> buildingOffsets = GetBuildingWalkableOffsets(parkingLotSize, buildingDirection).Item1;
             foreach (Vector2 offset in buildingOffsets)
             {
                 Node buildingNode = GridManager.NodeFromWorldPosition(position + offset);
-                
+
                 buildingNode.SetBuilding(true);
                 buildingNode.SetWalkable(false);
                 buildingNode.SetDrawable(false);
@@ -463,28 +500,28 @@ namespace Game._00.Script._03.Traffic_System.Building
             }
 
             List<Vector2> walkableOffsets = GetBuildingWalkableOffsets(parkingLotSize, buildingDirection).Item2;
-            
+
             foreach (Vector2 offset in walkableOffsets)
             {
                 //Set this like a road with RoadManager, set but not create mesh
                 Node insideRoadNode = GridManager.NodeFromWorldPosition(position + offset);
-                
+
                 buildingComp.ParkingNodes.Add(insideRoadNode);
                 insideRoadNode.SetBelongedBuilding(buildingComp.gameObject);
-                
+
                 insideRoadNode.SetRoad(true);
                 insideRoadNode.SetWalkable(true);
                 insideRoadNode.SetDrawable(false);
-                
+
                 _roadManager.PlaceNode(insideRoadNode);
             }
-            
+
             _roadManager.PlaceNode(originalBuildingNode);
             _parkingMesh.PlaceBuildingMesh(originalBuildingNode, parkingLotSize, buildingDirection);
         }
 
 
-        
+
         /// <summary>
         /// This is an overloading function, for test only
         /// Used to check if one direction is available in spawn random
@@ -493,12 +530,13 @@ namespace Game._00.Script._03.Traffic_System.Building
         /// <param name="parkingLotSize"></param>
         /// <param name="buildingDirection"></param>
         /// <returns></returns>
-        private List<Node> SetBuildingAndInsideRoads(Node originalBuildingNode, ParkingLotSize parkingLotSize, BuildingDirection buildingDirection)
+        private List<Node> SetBuildingAndInsideRoads(Node originalBuildingNode, ParkingLotSize parkingLotSize,
+            BuildingDirection buildingDirection)
         {
             Vector2 position = originalBuildingNode.WorldPosition;
             float nodeDiameter = GridManager.NodeDiameter;
             List<Node> result = new List<Node>();
-            
+
             (List<Vector2>, List<Vector2>) GetBuildingWalkableOffsets(ParkingLotSize size, BuildingDirection dir)
             {
                 List<Vector2> buildingOffsets = new();
@@ -576,7 +614,7 @@ namespace Game._00.Script._03.Traffic_System.Building
 
                 return (buildingOffsets, walkableOffsets);
             }
-            
+
             List<Vector2> buildingOffsets = GetBuildingWalkableOffsets(parkingLotSize, buildingDirection).Item1;
             foreach (Vector2 offset in buildingOffsets)
             {
@@ -590,16 +628,18 @@ namespace Game._00.Script._03.Traffic_System.Building
                 Node insideRoadNode = GridManager.NodeFromWorldPosition(position + offset);
                 result.Add(insideRoadNode);
             }
+
             return result;
         }
-        
+
         /// <summary>
         /// Spawns a road node based on the parking lot size and buildingDirection.
         /// </summary>
         /// <param name="buildingNode"></param>
         /// <param name="parkingLotSize"></param>
         /// <param name="buildingDirection"></param>
-        private Node SpawnRoadRandomDirection(Node buildingNode, ParkingLotSize parkingLotSize, BuildingDirection buildingDirection)
+        private Node SpawnRoadRandomDirection(Node buildingNode, ParkingLotSize parkingLotSize,
+            BuildingDirection buildingDirection)
         {
             int randomIndex = UnityEngine.Random.Range(0, 4);
             Vector2 position = buildingNode.WorldPosition;
@@ -622,10 +662,10 @@ namespace Game._00.Script._03.Traffic_System.Building
             {
                 Vector2 offset = GetOffset(buildingDirection, 1, 1); // Same multiplier for _1x1
                 Node roadNode = GridManager.NodeFromWorldPosition(position + offset);
-                
+
                 return roadNode;
 
-              
+
             }
             else if (parkingLotSize == ParkingLotSize._2x2 || parkingLotSize == ParkingLotSize._2x3)
             {
@@ -689,14 +729,15 @@ namespace Game._00.Script._03.Traffic_System.Building
                     closestNode = parkingNode;
                 }
             }
+
             //Set closest walkable node to drawable
             if (closestNode != null)
             {
                 closestNode.SetDrawable(true);
             }
-            
+
         }
-       
+
         /// <summary>
         /// Get buildingDirection of a road by calculating angle, and compare x, y component
         /// </summary>
@@ -771,7 +812,7 @@ namespace Game._00.Script._03.Traffic_System.Building
                     ParkingLot centerLot = new ParkingLot(center, true);
                     ParkingLot rightLot = new ParkingLot(right, true);
                     ParkingLot leftLot = new ParkingLot(left, true);
-                    
+
                     return new List<ParkingLot>() { leftLot, centerLot, rightLot };
                 }
                 else if (direction == BuildingDirection.Left || direction == BuildingDirection.Right)
@@ -789,6 +830,7 @@ namespace Game._00.Script._03.Traffic_System.Building
                     return new List<ParkingLot> { topLot, centerLot, botLot };
                 }
             }
+
             return new List<ParkingLot>();
         }
 
@@ -796,7 +838,7 @@ namespace Game._00.Script._03.Traffic_System.Building
         {
             if (size == ParkingLotSize._1x1)
             {
-                return new float3(originPos.x, originPos.y, 0);  
+                return new float3(originPos.x, originPos.y, 0);
             }
 
             if (size == ParkingLotSize._2x2 || size == ParkingLotSize._2x3)
@@ -804,7 +846,7 @@ namespace Game._00.Script._03.Traffic_System.Building
                 float sizeMultipler = size == ParkingLotSize._2x2 ? 1 : 2;
                 float nodeRadius = GridManager.NodeRadius;
                 float nodeDiameter = GridManager.NodeDiameter;
-                
+
                 if (direction == BuildingDirection.Up || direction == BuildingDirection.Down)
                 {
                     float directionMultipler = direction == BuildingDirection.Up ? 1 : -1;
@@ -812,16 +854,18 @@ namespace Game._00.Script._03.Traffic_System.Building
                         originPos.y + directionMultipler * sizeMultipler * nodeDiameter, 0);
                     return center;
                 }
+
                 if (direction == BuildingDirection.Left || direction == BuildingDirection.Right)
                 {
                     float directionMultipler = direction == BuildingDirection.Right ? 1 : -1;
                     float3 center = new float3(originPos.x + directionMultipler * sizeMultipler * nodeDiameter,
                         originPos.y + nodeRadius, 0);
-                
-                   return center;
-                } 
-                
+
+                    return center;
+                }
+
             }
+
             return float3.zero;
         }
 
@@ -829,7 +873,7 @@ namespace Game._00.Script._03.Traffic_System.Building
         #endregion
 
         #region Helper
-       
+
         /// <summary>
         /// Check node around road
         /// </summary>
@@ -839,9 +883,10 @@ namespace Game._00.Script._03.Traffic_System.Building
             Node buildingNode = GridManager.NodeFromWorldPosition(spawnNodePos);
             List<Node> nodes = SetBuildingAndInsideRoads(buildingNode, size, direction);
 
-            Node road= SpawnRoadRandomDirection(buildingNode, size, direction);
-            nodes.Add(road);
+            Node road = SpawnRoadRandomDirection(buildingNode, size, direction);
             
+            nodes.Add(road);
+
             foreach (Node node in nodes)
             {
                 if (!node.IsEmpty)
@@ -850,69 +895,63 @@ namespace Game._00.Script._03.Traffic_System.Building
                     return false;
                 }
             }
-            
-            roadNode = road; 
+
+            roadNode = road;
             return true;
-        }
-        private List<BuildingSpawnInfo> GetBuildingSpawn(float zoneRadius, ParkingLotSize size)
-        {
-            Stack<(Vector2, BuildingDirection)> stack = new Stack<(Vector2, BuildingDirection)>();
-            stack.Push((new Vector2(0, -1), BuildingDirection.Down));
-            stack.Push((new Vector2(0, 1), BuildingDirection.Up));
-            stack.Push((new Vector2(-1, 0), BuildingDirection.Left));
-            stack.Push((new Vector2(1, 0), BuildingDirection.Right));
-            
-            int maxAttempt = 100;
-            int attempt = 0;
-            do
-            {
-                Vector2 worldRandomPos = Random.insideUnitCircle * zoneRadius;
-                Node spawnNode = GridManager.NodeFromWorldPosition(worldRandomPos);
-                
-                if (!spawnNode.IsEmpty)
-                {
-                    attempt++;
-                    continue;
-                }else 
-                {
-                    List<BuildingSpawnInfo> result = new List<BuildingSpawnInfo>();
-
-                    while (stack.Count > 0)
-                    {
-                        var (dir, buildingDirection) = stack.Peek();
-                        stack.Pop();
-                        
-                       List<Node> nodes =  SetBuildingAndInsideRoads(spawnNode, size, buildingDirection);
-
-                       bool isValid = true;
-                       foreach (Node node in nodes)
-                       {
-                           if (!node.IsEmpty)
-                           {
-                               isValid = false;
-                               break;
-                           }
-                       }
-
-                       if (isValid)
-                       {
-                           result.Add(new BuildingSpawnInfo(){Position = spawnNode.WorldPosition, BuildingDirection = buildingDirection});
-                       }
-
-
-                    }
-                    if (result.Count > 0)
-                    {
-                        return result;
-                    }
-                        attempt++;
-                }
-            } while (attempt < maxAttempt);
-
-            return new List<BuildingSpawnInfo>();
         }
 
         /// <summary>
+        /// get score to pick the best score of all candidate, pick it to spawn
+        /// criteria:
+        /// far from business
+        /// good density, around 3-5 houses same color
+        /// </summary>
+        /// <param name="candidate">candidate of spawn pos (must be the center of node)</param>
+        /// <param name="weight">weight of layout</param>
+        /// <param name="color">color of candidate</param>
+        /// <returns></returns>
+        private float GetHomeScore(Vector2 candidate, BuildingColor color, float weight)
+        {
+            float minDst = Mathf.Min(_buildingManager.DstToClosestBuilding(candidate, color), maxDst);
+            int neighbors = _buildingManager.GetHomeDensity(candidate, 5);
+            int businesses = _buildingManager.GetBusinessDensity(candidate, 5);
+            
+            if (neighbors > 7)
+                return float.MinValue;
+
+            float idealNeighbors = 4f;
+            float neighborScore = -Mathf.Pow(neighbors - idealNeighbors, 2) + (idealNeighbors * idealNeighbors);
+
+            bool forceSpread = Random.value < 0.2f; // 20% chance spread spawn
+            float finalNeighborScore = forceSpread ? 0 : neighborScore;
+
+            float score = minDst * 20 + finalNeighborScore * 10 + weight * 2f - businesses * 10;
+
+            return score;
+        }
+
+        
+        
+        /// <summary>
+        /// Get score to pick the best score of all candidate, pick it to spawn
+        /// criteria:
+        /// far from home
+        /// prefer empty space
+        /// </summary>
+        /// <param name="candidate">candidate of spawn pos (must be the center of node)</param>
+        /// <param name="weight">weight of layout</param>
+        /// <param name="color">color of candidate</param>
+        /// <returns></returns>
+        private float GetBusinessScore(Vector2 candidate, BuildingColor color, float weight)
+        {
+            float minDst = _buildingManager.DstToClosestBuilding(candidate, color);
+
+            int nearHomes = _buildingManager.GetHomeDensity(candidate, 5);
+
+            return minDst - nearHomes + weight * 2f;
+        }
+
+            /// <summary>
         /// Get random choice base on the demand, which larger number get to pick mor frequently
         /// </summary>
         /// <param name="weights">The number of float with weight</param>
@@ -959,9 +998,5 @@ namespace Game._00.Script._03.Traffic_System.Building
         }
     }
 
-    public struct BuildingSpawnInfo
-    {
-        public Vector2 Position;
-        public BuildingDirection BuildingDirection;
-    }
+  
 }

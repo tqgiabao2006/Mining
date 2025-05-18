@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Game._00.Script._00.Manager.Observer;
+using Game._00.Script._02.Grid_setting;
 using Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS;
 using Game._00.Script._03.Traffic_System.PathFinding;
 using Game._00.Script._03.Traffic_System.Road;
@@ -50,10 +51,6 @@ namespace Game._00.Script._03.Traffic_System.Building
         private Dictionary<BuildingColor, List<Home>> _currentHomes;
         
         private Dictionary<BuildingColor, List<Business>> _currentBusiness;
-
-        private Dictionary<BuildingColor, int> _currentCars;
-
-        private Dictionary<BuildingColor, int> _currentDemands;
         
         private List<Business> _unconnectedBusinesses;
         
@@ -62,6 +59,7 @@ namespace Game._00.Script._03.Traffic_System.Building
         private Dictionary<int, List<BuildingBase>> _connectedBuildings;
 
         private PathRequestManager _pathRequestManager;
+        
         
         public int HomeCount
         {
@@ -86,10 +84,6 @@ namespace Game._00.Script._03.Traffic_System.Building
             _currentHomes = new Dictionary<BuildingColor, List<Home>>();
             
             _currentBusiness = new Dictionary<BuildingColor, List<Business>>();
-            
-            _currentCars = new Dictionary<BuildingColor, int>();
-            
-            _currentDemands = new Dictionary<BuildingColor, int>();
             
             _unconnectedBusinesses = new List<Business>();
             
@@ -121,12 +115,10 @@ namespace Game._00.Script._03.Traffic_System.Building
                 if (_currentHomes.ContainsKey(building.BuildingColor))
                 {
                     _currentHomes[building.BuildingColor].Add(home);
-                    _currentCars[building.BuildingColor] += home.NumbCars;
                 }
                 else
                 {
                     _currentHomes.Add(building.BuildingColor, new List<Home>() { home });
-                    _currentCars.Add(building.BuildingColor, home.NumbCars);
                 }
             }else if (building is Business)
             {
@@ -135,13 +127,34 @@ namespace Game._00.Script._03.Traffic_System.Building
                 if (_currentBusiness.ContainsKey(building.BuildingColor))
                 {
                    _currentBusiness[building.BuildingColor].Add(business);
-                   _currentDemands[building.BuildingColor] += business.Demands;
                 }
                 else
                 {
                     _currentBusiness.Add(building.BuildingColor, new List<Business>() {business});
-                    _currentDemands.Add(building.BuildingColor, business.Demands);
                 } 
+            }
+        }
+
+        public void IncreaseDemand(int increase = 1)
+        {
+            int lowest = int.MaxValue;
+            Business business = null;
+            
+            foreach (List<Business> l in _currentBusiness.Values)
+            {
+                foreach (Business b in l)
+                {
+                    if (b.Demands < lowest)
+                    {
+                        lowest = b.Demands;
+                        business = b;
+                    }
+                }
+            }
+
+            if (business != null)
+            {
+                business.Demands += increase;
             }
         }
 
@@ -154,14 +167,131 @@ namespace Game._00.Script._03.Traffic_System.Building
             return new List<Home>();
         }
 
-        public List<Home> GetHomeList(BuildingColor color)
+        /// <summary>
+        /// Get min distance to surrounding buildings
+        /// </summary>
+        /// <param name="candidate">node position of candidate</param>
+        /// <param name="color">color of candidate</param>
+        /// <returns></returns>
+        public float DstToClosestBuilding(Vector2 candidate, BuildingColor color)
         {
-            if (_currentHomes.ContainsKey(color))
-            {
-                return _currentHomes[color];
-            }
+            //Not set to float.MaxValue because the edge case no home spawned match the color => avoid max value + some float value
+            float minDst = 10000;
 
-            return null;
+            if (!_currentBusiness.ContainsKey(color))
+            {
+                return 10000;
+            }
+            
+            foreach (Business business in _currentBusiness[color])
+            {
+                float dst = Vector2.SqrMagnitude(candidate - business.WorldPosition);
+
+                if (dst < minDst)
+                {
+                    minDst = dst;
+                }
+            }
+            
+            return minDst;
+        }
+
+        public float DstToClosestHome(Vector2 candidate, BuildingColor color)
+        {
+            //Not set to float.MaxValue because the edge case no home spawned match the color => avoid max value + some float value
+            float minDst = 10000;
+            
+            if (!_currentHomes.ContainsKey(color))
+            {
+                return 10000;
+            }
+            foreach (Home home in _currentHomes[color])
+            {
+                float dst = Vector2.SqrMagnitude(candidate - home.WorldPosition);
+
+                if (dst < minDst)
+                {
+                    minDst = dst;
+                }
+            }
+            
+            return minDst;
+        }
+
+        /// <summary>
+        /// Get number of home surrounding a given candidate
+        /// </summary>
+        /// <param name="candidate"></param>
+        /// <param name="radius"></param>
+        /// <returns></returns>
+        public int GetHomeDensity(Vector2 candidate, int radius)
+        {
+            HashSet<Home> occured = new HashSet<Home>();
+            int cnt = 0;
+            for (int x = -radius; x <= radius; x++)
+            {
+                for (int y = -radius; y <= radius; y++)
+                {
+                    if (x == 0 && y == 0)
+                    {
+                        continue;
+                    }
+                    
+                    Vector2 pos = candidate + Vector2.right * x * GridManager.NodeDiameter + Vector2.up *  y * GridManager.NodeDiameter;
+
+                    GameObject building = GridManager.NodeFromWorldPosition(pos).BelongedBuilding;
+
+                    if (building !=null)
+                    {
+                        Home home = building.GetComponent<Home>();
+                        if (home != null && !occured.Contains(home))
+                        {
+                            cnt++;
+                            occured.Add(home);
+                        }
+                    }
+                }
+            }
+            return cnt;
+        }
+        
+        
+        /// <summary>
+        /// Get number of business surrounding a given candidate
+        /// </summary>
+        /// <param name="candidate"></param>
+        /// <param name="radius"></param>
+        /// <returns></returns>
+        public int GetBusinessDensity(Vector2 candidate, int radius)
+        {
+            HashSet<Business> occured = new HashSet<Business>();
+            int cnt = 0;
+            for (int x = -radius; x <= radius; x++)
+            {
+                for (int y = -radius; y <= radius; y++)
+                {
+                    if (x == 0 && y == 0)
+                    {
+                        continue;
+                    }
+                    
+                    Vector2 pos = candidate + Vector2.right * x * GridManager.NodeDiameter + Vector2.up *  y * GridManager.NodeDiameter;
+
+                    GameObject building = GridManager.NodeFromWorldPosition(pos).BelongedBuilding;
+
+                    if (building != null)
+                    {
+                        Business business = building.GetComponent<Business>();
+                        if (business != null && !occured.Contains(business))
+                        {
+                            occured.Add(business);
+                            cnt++;
+                        }
+                    }
+                }
+            }
+            
+            return cnt;
         }
         
         /// <summary>
@@ -183,12 +313,26 @@ namespace Game._00.Script._03.Traffic_System.Building
 
         public int GetCarNumb(BuildingColor color)
         {
-            return _currentCars.ContainsKey(color) ? _currentCars[color] : 0;
+            if (!_currentHomes.ContainsKey(color))
+            {
+                return 0;
+            }
+            return _currentHomes[color].Count * 2;
         }
 
         public int GetDemand(BuildingColor color)
         {
-            return _currentDemands.ContainsKey(color) ? _currentDemands[color] : 0;
+            if (!_currentBusiness.ContainsKey(color))
+            {
+                return 0;
+            }
+
+            int cnt = 0;
+            foreach (Business b in _currentBusiness[color])
+            {
+                cnt += b.Demands;
+            }
+            return cnt;
         }
         
         /// <summary>
@@ -268,7 +412,7 @@ namespace Game._00.Script._03.Traffic_System.Building
 
         private void OnGUI()
         {
-            if (!isGizmos || _currentCars == null || _currentDemands == null)
+            if (!isGizmos)
             {
                 return;
             }
@@ -280,17 +424,17 @@ namespace Game._00.Script._03.Traffic_System.Building
             Vector2 topLeft = new Vector2(10, 30);
             int i = 0;
 
-            foreach (BuildingColor color in _currentCars.Keys)
+            foreach (BuildingColor color in _currentHomes.Keys)
             {
                 GUI.Label(new Rect(10, 10 + topLeft.y *i, 200, 200), 
-                    $"Car {color}: {_currentCars[color]}", style);
+                    $"Car {color}: {GetCarNumb(color)}", style);
                 i++;
             }
 
-            foreach (BuildingColor color in _currentDemands.Keys)
+            foreach (BuildingColor color in _currentBusiness.Keys)
             {
                 GUI.Label(new Rect(10, 10 + topLeft.y *i, 200, 200), 
-                    $"Demand {color}: {_currentDemands[color]}", style);
+                    $"Demand {color}: {GetDemand(color)}", style);
                 i++;
             }
         }

@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Game._00.Script._00.Manager.Observer;
 using Game._00.Script._03.Traffic_System.Building;
 using Unity.Collections;
 using UnityEditor;
 using UnityEngine;
-using URandom = UnityEngine.Random;
 namespace Game._00.Script._04.Timer
 {
     public class Timer: SubjectBase
@@ -22,18 +22,27 @@ namespace Game._00.Script._04.Timer
             Sunday
         }
 
+        [Header("Time settings")]
         [Tooltip("Stop after 1 week to determine the week.")]
         [SerializeField] private bool stopTest = false;
-
-        private bool _stopTest;
         
         [SerializeField] private bool isGizmos;
         
         [SerializeField] private float secPerDay;
         
         [ReadOnly] private WeekDay _day;
-       
+          
         [SerializeField] private float timeScale;
+
+        [Header("Weeks update settings")]
+        [SerializeField]
+        [Range(0, 1)]
+        [Tooltip("Increase number of notifications to building spawner over a week")]
+        private float increaseFrequency;
+
+        private float _curFrequency;
+
+        private Queue<WeekDay> _notiQueue;
         
         private float _timeCounter;
         
@@ -41,10 +50,6 @@ namespace Game._00.Script._04.Timer
 
         private int _week;
 
-        private WeekDay _randomDay;
-
-        private bool _hasSpawned; //Check has spawned this week
-        
         public WeekDay Day
         {
             get
@@ -76,65 +81,55 @@ namespace Game._00.Script._04.Timer
             }
         }
 
-      
-
         private void Update()
         {
-            if (_stopTest)
-            {
-                return;
-            }
             Tick();
         }
 
         private void Start()
         {
             ObserversSetup();
-            // StartCoroutine(BusySpawn());
+            
+            _notiQueue = new Queue<WeekDay>();
+
+            _curFrequency = 1;
+            
+            AddRandomDays();
         }
 
-        // private IEnumerator BusySpawn()
-        // {
-        //     yield return new WaitForSeconds(1);
-        //     
-        //     _randomDay = PickRandomDay();
-        //     _hasSpawned = false;
-        //     _stopTest = false;
-        //     _week = 1;
-        //     Notify(null, NotificationFlags.DEMAND_BUILDING); 
-        // }
-        //
+        /// <summary>
+        /// Each week, pick a random day to notify to spawn a building
+        /// </summary>
         private void Tick()
         {
             _timeCounter += Time.deltaTime * timeScale;
         
             if (_timeCounter >= secPerDay)
             {
-                int nextDay = (int)_day + 1;
-        
-                if (Enum.IsDefined(typeof(WeekDay), nextDay))
+                if (Enum.IsDefined(typeof(WeekDay), _day))
                 {
-                    _day =  (WeekDay)nextDay;
-        
-                    if (_day == _randomDay && !_hasSpawned)
+                    if (_notiQueue.Count > 0 && _day <= _notiQueue.Peek())
                     {
+                        _notiQueue.Dequeue();
+                        Debug.Log("Notify");
                         Notify(null, NotificationFlags.DEMAND_BUILDING);
-                        if (stopTest)
-                        { 
-                            _stopTest = true;
-                        }
-               
-                        _hasSpawned = true;
                     }
                 }
-                else //Week end
+                int nextDay = (int)_day + 1;
+
+                if (Enum.IsDefined(typeof(WeekDay), nextDay))
                 {
-                    _randomDay = PickRandomDay();
+                    _day = (WeekDay)nextDay;
+                }
+                else // Week ends
+                {
+                    _curFrequency += increaseFrequency;
+                    Notify(null, NotificationFlags.WEEK_PASS);
+                    AddRandomDays(Mathf.Max(1, Mathf.FloorToInt(_curFrequency)));
                     _day = WeekDay.Monday;
                     _week++;
-                    _hasSpawned = false;
                 }
-        
+
                 _timeCounter = 0;
             }
         }
@@ -172,10 +167,48 @@ namespace Game._00.Script._04.Timer
                 );
         }
 
-        private WeekDay PickRandomDay()
+        /// <summary>
+        /// Add random, unique days, in other into the queue
+        /// </summary>
+        /// <param name="cnt">number of days to notify</param>
+        private void AddRandomDays(int cnt = 1)
         {
-            return (WeekDay)URandom.Range(0, 8);
+            //Wrap around days
+            cnt = Mathf.Min(cnt, 7);
+            
+            if (cnt == 1)
+            { 
+                _notiQueue.Enqueue((WeekDay)UnityEngine.Random.Range(0, 7));
+                return;
+            }
+            
+            //Pick random
+            List<WeekDay> days = Enum.GetValues(typeof(WeekDay)).Cast<WeekDay>().ToList();
+
+            //Randomly shuffle
+            for (int i = days.Count - 1; i >= 0; i--)
+            {
+                int j = UnityEngine.Random.Range(0, i + 1);
+                
+                (days[i], days[j]) = (days[j], days[i]);
+            }
+            
+            //Pick first => then sorting
+            List<WeekDay> pick =  new List<WeekDay>();
+            for (int i = 0; i < cnt; i++)
+            {
+                pick.Add(days[i]);
+            }
+            
+            pick.Sort();
+
+            foreach (WeekDay day in pick)
+            {
+                Debug.Log(day.ToString());
+                _notiQueue.Enqueue(day);
+            }
         }
+
         public override void ObserversSetup()
         {
             _buildingSpawner = FindObjectOfType<BuildingSpawner>();

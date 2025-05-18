@@ -22006,7 +22006,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 6
+  orthographic size: 4
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
@@ -22036,8 +22036,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stopTest: 0
   isGizmos: 1
-  secPerDay: 0.5
-  timeScale: 5
+  secPerDay: 4
+  timeScale: 1
+  increaseFrequency: 0
 --- !u!1 &2014558152
 GameObject:
   m_ObjectHideFlags: 0
@@ -22098,10 +22099,11 @@ MonoBehaviour:
     Type: 0
   spawnDelayTime: 0.2
   carDemandRatio: 3
-  maxNeighbors: 0
-  minNeighbors: 0
-  randomNewNeighborRate: 0
-  gridRadius: 0
+  decreaseCarDemand: 0.05
+  maxDst: 8
+  increaseMaxDst: 1
+  addNewRatio: 0
+  increaseAddNewRatio: 0
 --- !u!1 &2065546701
 GameObject:
   m_ObjectHideFlags: 0
