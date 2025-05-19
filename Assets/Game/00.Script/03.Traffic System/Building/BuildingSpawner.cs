@@ -336,6 +336,7 @@ namespace Game._00.Script._03.Traffic_System.Building
                 {
                     DemandOnly =  true
                 });
+                Debug.LogError("Add demand");
             }
             else
             {
@@ -798,16 +799,16 @@ namespace Game._00.Script._03.Traffic_System.Building
             else if (size == ParkingLotSize._2x2 || size == ParkingLotSize._2x3)
             {
                 float sizeMultipler = size == ParkingLotSize._2x2 ? 1 : 2;
-                float nodeRadius = GridManager.NodeRadius;
+                float quarterWidth = RoadManager.QuarterWidth;
                 float nodeDiameter = GridManager.NodeDiameter;
 
                 if (direction == BuildingDirection.Up || direction == BuildingDirection.Down)
                 {
                     float directionMultipler = direction == BuildingDirection.Up ? 1 : -1;
-                    float3 center = new float3(originPos.x - nodeRadius,
+                    float3 center = new float3(originPos.x - quarterWidth,
                         originPos.y + directionMultipler * sizeMultipler * nodeDiameter, 0);
-                    float3 right = new float3(center.x + nodeRadius, center.y, 0);
-                    float3 left = new float3(center.x - nodeRadius, center.y, 0);
+                    float3 right = new float3(center.x + quarterWidth, center.y, 0);
+                    float3 left = new float3(center.x - quarterWidth, center.y, 0);
 
                     ParkingLot centerLot = new ParkingLot(center, true);
                     ParkingLot rightLot = new ParkingLot(right, true);
@@ -819,9 +820,9 @@ namespace Game._00.Script._03.Traffic_System.Building
                 {
                     float directionMultipler = direction == BuildingDirection.Right ? 1 : -1;
                     float3 center = new float3(originPos.x + directionMultipler * sizeMultipler * nodeDiameter,
-                        originPos.y + nodeRadius, 0);
-                    float3 top = new float3(center.x, center.y + nodeRadius, 0);
-                    float3 bot = new float3(center.x, center.y - nodeRadius, 0);
+                        originPos.y + quarterWidth, 0);
+                    float3 top = new float3(center.x, center.y + quarterWidth, 0);
+                    float3 bot = new float3(center.x, center.y - quarterWidth, 0);
 
                     ParkingLot centerLot = new ParkingLot(center, true);
                     ParkingLot topLot = new ParkingLot(top, true);
@@ -998,5 +999,4 @@ namespace Game._00.Script._03.Traffic_System.Building
         }
     }
 
-  
 }

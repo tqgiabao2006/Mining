@@ -79,8 +79,9 @@ namespace Game._00.Script.Camera
             float sizeX = zoneRatio * halfWidth * 2;
             float sizeY = zoneRatio * halfHeight * 2;
 
-            float spawnX = Mathf.CeilToInt(sizeX *3/4f);
-            float spawnY = Mathf.CeilToInt(sizeY *3/4f);
+            //Make sure at least 1 node lesser than size
+            float spawnX = Mathf.Min(Mathf.CeilToInt(sizeX *3/4f), sizeX - 2);
+            float spawnY = Mathf.Min(Mathf.CeilToInt(sizeY *3/4f), sizeY - 2);
             
             // Round to the nearest multiple of NodeDiameter
             sizeX = Mathf.RoundToInt(sizeX / GridManager.NodeDiameter) * GridManager.NodeDiameter;

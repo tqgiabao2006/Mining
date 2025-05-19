@@ -20,18 +20,16 @@ namespace Game._00.Script._03.Traffic_System.Building
             {
                 return demands;
             }
-            set
-            {
-                if (value > 0)
-                {
-                    demands = value;
-                }
-            }
         }
+
+        /// <summary>
+        /// Similiar to demands, but it is the number of notify it try to find
+        /// </summary>
+        private int _notiCnt;
 
         private bool RequestCar
         {
-            get { return demands > 0; }
+            get { return _notiCnt > 0; }
         }
     
         public override void Initialize(BuildingManager buildingManager,Node node, BuildingType buildingType, BuildingDirection direction,
@@ -41,6 +39,8 @@ namespace Game._00.Script._03.Traffic_System.Building
             BuildingManager.RegisterBuilding(this);
         
             _connectedHomes = new List<Home>();
+            
+            _notiCnt = demands;
         }
 
         public void AddHome(Home home)
@@ -70,7 +70,7 @@ namespace Game._00.Script._03.Traffic_System.Building
                     else
                     {
                         BuildingManager.DemandCars(carEntity, home, this);
-                        demands--;
+                        _notiCnt--;
                     }
                 
                 }
@@ -89,12 +89,23 @@ namespace Game._00.Script._03.Traffic_System.Building
                 demands.ToString(), new GUIStyle { fontSize = 24, normal = { textColor = Color.yellow } });
         }
 
+        public void Increase()
+        {
+            CarEnter();
+            _notiCnt++;
+        }
+
+        public void CarEnter()
+        {
+            demands--;
+        }
         /// <summary>
         /// Calling by cars when transition from parking to follow park
         /// </summary>
         public void CarLeave()
         {
             demands++;
+            _notiCnt++;
         }
     }
 }

@@ -154,7 +154,7 @@ namespace Game._00.Script._03.Traffic_System.Building
 
             if (business != null)
             {
-                business.Demands += increase;
+                business.Increase();
             }
         }
 
@@ -343,8 +343,7 @@ namespace Game._00.Script._03.Traffic_System.Building
         public void DemandCars(Entity carEntity,Home home, Business business)
         {
             Vector3[] waypoints = _pathRequestManager.GetPathWaypoints(home.RoadNode.WorldPosition, business.RoadNode.WorldPosition);
-            Debug.Log("OnNotified");
-            
+            Debug.Log("Demand car");
             Notify(new DemandCarRequest()
             {
                 CarEntity = carEntity,
