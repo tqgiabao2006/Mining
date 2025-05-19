@@ -189,6 +189,12 @@ namespace Game._00.Script._03.Traffic_System.Building
             float3 parkingPos = float3.zero;
             bool foundSlot = false;
 
+            if (this is Business)
+            {
+                Business business = this as Business;
+                business.CarEnter();
+            }
+
             for (int i = 0; i < ParkingPos.Count; i++)
             {
                 if (ParkingPos[i].IsEmpty)
