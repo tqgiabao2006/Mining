@@ -369,8 +369,9 @@ namespace Game._00.Script._03.Traffic_System.Building
                     {
                         if (_currentHomes[_unconnectedBusinesses[j].BuildingColor].Count > 0)
                         {
-                            if (_unconnectedHomes[i].RoadNode.GraphIndex == _unconnectedBusinesses[j].RoadNode.GraphIndex &&
-                                _unconnectedHomes[i].RoadNode.GraphIndex != -1)
+                            if (_unconnectedHomes[i].RoadNode.GraphIndex == _unconnectedBusinesses[j].RoadNode.GraphIndex 
+                                && _unconnectedHomes[i].RoadNode.GraphIndex != -1 
+                                && _unconnectedBusinesses[j].BuildingColor ==  _unconnectedHomes[i].BuildingColor)
                             {
                                 found = true;
                                 _unconnectedBusinesses[j].IsConnected = true;

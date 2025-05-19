@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Game._00.Script._00.Manager.Custom_Editor;
 using Game._00.Script._02.Grid_setting;
 using Unity.Entities;
 using UnityEditor;
@@ -27,7 +28,7 @@ namespace Game._00.Script._03.Traffic_System.Building
         /// </summary>
         private int _notiCnt;
 
-        private bool RequestCar
+        private bool CanRequestCar
         {
             get { return _notiCnt > 0; }
         }
@@ -55,25 +56,29 @@ namespace Game._00.Script._03.Traffic_System.Building
 
         private void Update()
         {
-            if (IsConnected)
+            if (!IsConnected || _notiCnt <= 0 || _connectedHomes.Count == 0)
+                return;
+
+            int attempts = 0;
+            int maxAttempts = _connectedHomes.Count * 2; // Reasonable limit to avoid infinite loops
+
+            while (CanRequestCar && attempts < maxAttempts)
             {
-                while (RequestCar)
+                attempts++;
+
+                Home home = _connectedHomes[Random.Range(0, _connectedHomes.Count)];
+                Entity carEntity = home.GetCar();
+
+                if (carEntity != Entity.Null)
                 {
-                    //RIGHT NOW: Get random connected home
-                    Home home = _connectedHomes[Random.Range(0, _connectedHomes.Count)];
-                
-                    Entity carEntity = home.GetCar();
-                    if (carEntity == Entity.Null)
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        BuildingManager.DemandCars(carEntity, home, this);
-                        _notiCnt--;
-                    }
-                
+                    BuildingManager.DemandCars(carEntity, home, this);
+                    _notiCnt--;
                 }
+            }
+
+            if (_notiCnt > 0)
+            {
+                DebugUtility.LogWarning($"[Business] Could not fulfill {_notiCnt} car requests. No available cars.","Business " + _worldPosition);
             }
         }
 
