@@ -13,6 +13,23 @@ namespace Game._00.Script._03.Traffic_System.Road
     public class RoadManager : MonoBehaviour
     {
         public static readonly float RoadWidth = 0.45f;
+
+        public static float HalfWidth
+        {
+            get
+            {
+              return RoadWidth / 2f;
+            }
+        }
+
+        public static float QuarterWidth
+        {
+            get
+            {
+                return RoadWidth / 4f;
+            }
+        }
+        
         [SerializeField] private bool isGizmos = false;
         private List<Node> _nodeList;
         private Dictionary<int, List<int>> _adjList;

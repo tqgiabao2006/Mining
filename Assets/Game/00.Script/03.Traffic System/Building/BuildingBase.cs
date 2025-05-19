@@ -4,6 +4,7 @@ using Game._00.Script._02.Grid_setting;
 using Game._00.Script._03.Traffic_System.Car_spawner_system.CarSpawner_ECS;
 using Game._00.Script._03.Traffic_System.Mesh_Generator;
 using Game._00.Script._03.Traffic_System.Road;
+using Game._00.Script._04.Timer.CurvePath;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -17,7 +18,7 @@ namespace Game._00.Script._03.Traffic_System.Building
 {
     public abstract class BuildingBase : MonoBehaviour,IDebugable
     {
-        [Header("Default building settings")] 
+        [Header("Debug settings")] 
         [SerializeField] protected bool isGizmos;
 
         [Tooltip("Draw parking waypoints")]
@@ -26,8 +27,7 @@ namespace Game._00.Script._03.Traffic_System.Building
         [Tooltip("Draw road node, and layout, car numbers, or demands")]
         [SerializeField] protected bool drawInfo;
         
-        protected Dictionary<DebugMenu.DebugFlag, bool> debugButtonMap;
-        
+        [Header("Basic stats")] 
         [SerializeField] private BuildingSpriteCollection spriteCollections;
 
         [SerializeField] private ParkingLotSize size;
@@ -35,6 +35,17 @@ namespace Game._00.Script._03.Traffic_System.Building
         [SerializeField] private BuildingType buildingType;
         
         [SerializeField] private BuildingColor buildingColor;
+
+        [Header("Curve smoothness")] 
+        [Tooltip("The smaller, the smoother the curve")]
+        [Range(0.05f, 0.2f)] 
+        [SerializeField] private float spacing = 0.3f;
+    
+        [Tooltip("The larger, the smoother the curve")] 
+        [Range(1, 20)] 
+        [SerializeField]private  int curveSmooth = 10;
+        
+        protected Dictionary<DebugMenu.DebugFlag, bool> debugButtonMap;
         //Manager
         protected BuildingManager BuildingManager;
         
@@ -194,12 +205,11 @@ namespace Game._00.Script._03.Traffic_System.Building
             {
                 
                 float3[] waypoints = GetParkingWaypoints(
-                    _originBuildingNode.WorldPosition,
-                    BuildingDirection,
-                    size,
+                    _originBuildingNode.WorldPosition, 
                     parkingPos,
-                    new float3(_centerPos),
-                    _roadNode.WorldPosition
+                    _roadNode.WorldPosition,
+                    BuildingDirection,
+                    Size
                 );
                 
                 TestParkingWaypoints.AddRange(waypoints);
@@ -236,6 +246,76 @@ namespace Game._00.Script._03.Traffic_System.Building
         }
 
         #region Generate Parking Waypoints
+
+        /// <summary>
+        /// Use beziercurve to create waypoints to enter waypoint
+        /// </summary>
+        /// <param name="parkingPos"></param>
+        /// <param name="roadPos"></param>
+        /// <param name="dir"></param>
+        /// <returns></returns>
+        public float3[] GetParkingWaypoints(Vector2 buildingPos, float3 parkingPos, Vector2 roadPos, BuildingDirection dir, ParkingLotSize size)
+        {
+            Vector2 parkingPos2 = new Vector2(parkingPos.x, parkingPos.y);
+         
+            Vector2 entryBuildingDir = (GetRoadNodeDirection(roadPos, buildingPos, dir, size) * -1).normalized;
+
+            Vector2 right = new Vector2(entryBuildingDir.y, -entryBuildingDir.x);
+            
+            BezierSpline spline = new BezierSpline(null, spacing, curveSmooth);
+
+            Vector2 entryParkingDir = Vector2.zero;
+
+            if (dir == BuildingDirection.Down || dir == BuildingDirection.Up)
+            {
+                float dirMul = dir == BuildingDirection.Up ? -1 : 1;
+                entryBuildingDir = Vector2.up * dirMul;
+            }
+            else
+            {
+                float dirMul = dir == BuildingDirection.Right  ? -1 : 1;
+                entryBuildingDir = Vector2.right  * dirMul;
+            }
+            
+            Vector2 rightRoadPos = roadPos + right * RoadManager.QuarterWidth;
+            Vector2 leftRoadPos = roadPos - right * RoadManager.QuarterWidth;
+            
+            spline.AddPoint(rightRoadPos);
+            spline.AddPoint( rightRoadPos + entryBuildingDir * GridManager.NodeDiameter);
+            
+            spline.AddPoint(parkingPos2 + entryParkingDir * GridManager.NodeRadius);
+            spline.AddPoint(parkingPos2);
+            spline.AddPoint(parkingPos2 - entryParkingDir * GridManager.NodeRadius);
+            
+            spline.AddPoint(leftRoadPos + entryBuildingDir * GridManager.NodeDiameter);
+            spline.AddPoint(leftRoadPos);
+
+            
+            List<Vector3> points = new List<Vector3>();
+            points.Add(rightRoadPos);
+            points.Add(rightRoadPos + entryBuildingDir * GridManager.NodeDiameter);
+            points.Add(parkingPos2 + entryParkingDir * GridManager.NodeRadius);
+            points.Add(parkingPos2);
+            points.Add(parkingPos2 - entryParkingDir * GridManager.NodeRadius); 
+            points.Add(leftRoadPos + entryBuildingDir * GridManager.NodeDiameter);
+            points.Add(leftRoadPos);
+            float3[] waypoints = new float3[points.Count];
+
+            for (int i = 0; i < points.Count; i++)
+            {
+                waypoints[i] = points[i];
+            }
+
+            return waypoints;
+            // Vector3[] points = spline.GetEvenlySpacedPoints(spacing, curveSmooth);
+            // float3[]  waypoints= new  float3[points.Length];
+
+            // for (int i = 0; i < points.Length; i++)
+            // {
+            //     waypoints[i] = points[i];
+            // }
+            //
+        }
         
         /// <summary>
         /// Get way points to direct the car to park following these rules:
@@ -401,56 +481,7 @@ namespace Game._00.Script._03.Traffic_System.Building
 
             return new[] { float3.zero };
             
-            //Instead of using get neighbours list of road node, we compare Y-axis or X-axis of roadPos to the origin node
-            //to decouple from GridManager (for testing majorly)
-            //Return vector2.left if the road is on the left of parking node 
-            Vector2 GetRoadNodeDirection(Vector2 roadPos, Vector2 buildingPos, BuildingDirection direction, ParkingLotSize size)
-            {
-                float nodeRadius = GridManager.NodeRadius;
-                if (size == ParkingLotSize._1x1)
-                {
-                    Vector2 dir = roadPos - buildingPos;
-                    if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y))
-                    {
-                        return dir.x > 0 ? Vector2.left : Vector2.right;
-                    }
-                    else
-                    {
-                        return dir.y > 0 ? Vector2.down : Vector2.up;
-                    }
-
-                }
-                else
-                {
-                    if (direction == BuildingDirection.Up || direction == BuildingDirection.Down)
-                    {
-                        if (roadPos.x > buildingPos.x)
-                        {
-                            return Vector2.left;
-                        }
-                        if (roadPos.x < buildingPos.x && buildingPos.x  - roadPos.x > 2 * nodeRadius)
-                        {
-                            return Vector2.right;
-                        }
-                        return direction == BuildingDirection.Up? Vector2.down : Vector2.up;
-                    }
-                    if (direction == BuildingDirection.Right || direction == BuildingDirection.Left)
-                    {
-                        if (roadPos.y > buildingPos.y && roadPos.y - buildingPos.y > 2f * nodeRadius)
-                        {
-                            return Vector2.down;
-                        }
-                
-                        if (roadPos.y < buildingPos.y)
-                        {
-                            return Vector2.up;
-                        }
-                        return direction == BuildingDirection.Right? Vector2.left : Vector2.right;
-                    }
-                }
-               
-                return Vector2.zero;
-            }
+         
             
             //Get stepInCorner and stepOutCorner
             
@@ -520,6 +551,64 @@ namespace Game._00.Script._03.Traffic_System.Building
             }
          }
         
+        /// <summary>
+        ///Instead of using get neighbours list of road node, we compare Y-axis or X-axis of roadPos to the origin node
+        ///to decouple from GridManager (for testing majorly)
+        ///Return vector2.left if the road is on the left of parking node 
+        /// </summary>
+        /// <param name="roadPos"></param>
+        /// <param name="buildingPos"></param>
+        /// <param name="direction"></param>
+        /// <param name="size"></param>
+        /// <returns></returns>
+        private Vector2 GetRoadNodeDirection(Vector2 roadPos, Vector2 buildingPos, BuildingDirection direction, ParkingLotSize size)
+        {
+            float nodeRadius = GridManager.NodeRadius;
+            if (size == ParkingLotSize._1x1)
+            {
+                Vector2 dir = roadPos - buildingPos;
+                if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y))
+                {
+                    return dir.x > 0 ? Vector2.left : Vector2.right;
+                }
+                else
+                {
+                    return dir.y > 0 ? Vector2.down : Vector2.up;
+                }
+
+            }
+            else
+            {
+                if (direction == BuildingDirection.Up || direction == BuildingDirection.Down)
+                {
+                    if (roadPos.x > buildingPos.x)
+                    {
+                        return Vector2.left;
+                    }
+                    if (roadPos.x < buildingPos.x && buildingPos.x  - roadPos.x > 2 * nodeRadius)
+                    {
+                        return Vector2.right;
+                    }
+                    return direction == BuildingDirection.Up? Vector2.down : Vector2.up;
+                }
+                if (direction == BuildingDirection.Right || direction == BuildingDirection.Left)
+                {
+                    if (roadPos.y > buildingPos.y && roadPos.y - buildingPos.y > 2f * nodeRadius)
+                    {
+                        return Vector2.down;
+                    }
+                
+                    if (roadPos.y < buildingPos.y)
+                    {
+                        return Vector2.up;
+                    }
+                    return direction == BuildingDirection.Right? Vector2.left : Vector2.right;
+                }
+            }
+               
+            return Vector2.zero;
+        }
+        
         #endregion
         
         
@@ -540,7 +629,8 @@ namespace Game._00.Script._03.Traffic_System.Building
             {
                 return;
             }
-            Gizmos.color = Color.yellow;
+
+            Gizmos.color = Color.red;
 
             if (drawWaypoints)
             {
@@ -550,7 +640,7 @@ namespace Game._00.Script._03.Traffic_System.Building
                 }
             }
 
-            Gizmos.color = Color.yellow;
+            Gizmos.color = Color.red;
             foreach (var node in TestParkingWaypoints)
             {
                 Gizmos.DrawSphere(node, 0.05f);

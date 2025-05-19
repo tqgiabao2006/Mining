@@ -111,7 +111,6 @@ namespace Game._00.Script._04.Timer
                     if (_notiQueue.Count > 0 && _day <= _notiQueue.Peek())
                     {
                         _notiQueue.Dequeue();
-                        Debug.Log("Notify");
                         Notify(null, NotificationFlags.DEMAND_BUILDING);
                     }
                 }

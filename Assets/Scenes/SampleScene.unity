@@ -22036,8 +22036,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stopTest: 0
   isGizmos: 1
-  secPerDay: 4
-  timeScale: 1
+  secPerDay: 3
+  timeScale: 2
   increaseFrequency: 0
 --- !u!1 &2014558152
 GameObject:
