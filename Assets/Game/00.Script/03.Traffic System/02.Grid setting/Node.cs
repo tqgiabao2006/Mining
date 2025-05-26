@@ -1,10 +1,15 @@
 using System.Collections.Generic;
+using System.Linq;
+using Game._00.Script._04.Timer.CurvePath;
 using UnityEngine;
 
 namespace Game._00.Script._02.Grid_setting
 {
 	public class Node : IHeapItem<Node>
 	{
+		//Intersection
+		private HashSet<BezierSpline> _belongedSplines;
+		
 		private GameObject _belongedBuilding;
 	
 		private bool _walkable;
@@ -76,6 +81,7 @@ namespace Game._00.Script._02.Grid_setting
 				_graphIndex = value;
 			} 
 		}
+		 
 		public Node(bool walkable, Vector3 worldPos, int gridX, int gridY, int penalty, GridManager gridManager) 
 		{
 			this._walkable = walkable;
@@ -86,6 +92,8 @@ namespace Game._00.Script._02.Grid_setting
 			this._graphIndex = -1;
 			this.GridManager = gridManager;
 			_canDraw = true;
+			
+			_belongedSplines = new HashSet<BezierSpline>();
 		}
 
 		public void SetRoad(bool isRoad)
@@ -94,7 +102,19 @@ namespace Game._00.Script._02.Grid_setting
 			_walkable = isRoad;
 		}
 
+		public void AddSpline(BezierSpline spline)
+		{
+			if (!_belongedSplines.Contains(spline))
+			{
+				_belongedSplines.Add(spline);
+			}
+		}
 
+		public BezierSpline[] GetSplines()
+		{
+			return _belongedSplines.ToArray();
+		}
+		
 		public void SetBuilding(bool isBuilding)
 		{
 			_isBuilding = isBuilding;

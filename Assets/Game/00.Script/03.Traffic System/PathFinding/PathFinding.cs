@@ -1,18 +1,22 @@
-using System;
 using System.Collections.Generic;
 using Game._00.Script._00.Manager.Custom_Editor;
 using Game._00.Script._02.Grid_setting;
 using Game._00.Script._03.Traffic_System.Road;
 using Game._00.Script._04.Timer.CurvePath;
 using UnityEngine;
-using Debug = System.Diagnostics.Debug;
+using System;
+using Debug = UnityEngine.Debug;
 
 namespace Game._00.Script._03.Traffic_System.PathFinding
 {
     public class PathFinding : MonoBehaviour
     {
-        private RoadManager _roadManager;
+        [SerializeField] private bool isGizmos;
 
+        private BezierSpline _spline;
+        
+        private RoadManager _roadManager;
+        
         private void Start()
         {
             Initialize();
@@ -105,14 +109,15 @@ namespace Game._00.Script._03.Traffic_System.PathFinding
 
             BezierSpline spline = new BezierSpline(null, CurveRoadMesh.spacing, CurveRoadMesh.curveSmooth);
 
-            // Vector3[] simplifyPath = SimplifyPath(path,startNode,endNode);
             spline.AddPoint(startNode.WorldPosition);
-            for (int i = path.Count - 1; i>=0; i--)
+            for (int i = path.Count - 1; i >= 0; i--)
             {
                 spline.AddPoint(path[i].WorldPosition);
             }
+            
+            _spline = spline;
 
-            Vector3[] waypoints = spline.GetEvenlySpacedPoints(0.4f, 10);
+            Vector3[] waypoints = spline.GetEvenlySpacedPoints(0.2f, 10);
             Vector3[] simplifyPath = SimplifyPath(waypoints, startNode, endNode);
             return simplifyPath;
         }
@@ -167,6 +172,31 @@ namespace Game._00.Script._03.Traffic_System.PathFinding
         private List<Node> GetNeighboursInAdjList(Node node)
         {
             return _roadManager.GetNodeInAdjList(node);
+        }
+
+        private void OnDrawGizmos()
+        {
+            if (!isGizmos || _spline == null)
+            {
+                return;
+            }
+            
+            Vector2[] points = _spline.GetPoints();
+
+            for (int i = 0; i < points.Length; i++)
+            {
+                if (i % 3 == 0)
+                {
+                    Gizmos.color = Color.magenta;
+                    Gizmos.DrawSphere(points[i], 0.05f);
+                }
+                else
+                {
+                    Gizmos.color = Color. blue;
+                    Gizmos.DrawSphere(points[i], 0.02f);
+                }
+            }
+
         }
     }
     

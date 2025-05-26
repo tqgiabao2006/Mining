@@ -75,12 +75,40 @@ public class CurveRoadMesh:MonoBehaviour
         _meshFilter.mesh = mesh;
     }
 
+    /// <summary>
+    /// Genrate corner by creating a smooth arc
+    /// </summary>
+    /// <param name="points">points in the curve</param>
+    /// <param name="pivot">pivot to draw rectangle from</param>
+    /// <returns></returns>
+    private Mesh CreateCorner(Vector3[] points, Vector3 pivot)
+    {
+        Vector3[] verts = new Vector3[points.Length + 1];
+        int numbTri = points.Length - 1;
+        int[] tris = new int[numbTri * 3];
+        verts[0] = pivot;
+
+        for (int i = 0; i < points.Length; i++)
+        {
+            verts[i + 1] = points[i];
+            tris[i] = 0;
+            tris[i + 1] = i + 1;
+            tris[i + 2] = i + 2;
+        }
+        
+        Mesh mesh = new Mesh();
+        mesh.vertices = verts;
+        mesh.triangles = tris;
+
+        return mesh;
+    }
+
     
     private Mesh CreateRoadMesh(Vector3[] points)
     {
         Vector3[] verts = new Vector3[points.Length * 2];
-        int numbTris = 2 * (points.Length - 1);
-        int[] tris = new int[numbTris * 3];
+        int numbTri = 2 * (points.Length - 1);
+        int[] tris = new int[numbTri * 3];
         Vector2[] uvs = new Vector2[verts.Length];
 
         int vertIndex = 0;
@@ -161,17 +189,19 @@ public class CurveRoadMesh:MonoBehaviour
             }
             if (showPoint)
             {
-                for (int j = 0; j < spline.Points.Count; j++)
+                Vector2[] points = spline.GetPoints();
+
+                for (int i = 0; i < points.Length; i++)
                 {
-                    if (j % 3 == 0)
+                    if (i % 3 == 0)
                     {
                         Gizmos.color = Color.red;
-                        Gizmos.DrawSphere(spline.Points[j], 0.05f);
+                        Gizmos.DrawSphere(points[i], 0.05f);
                     }
                     else
                     {
                         Gizmos.color = Color.green;
-                        Gizmos.DrawSphere(spline.Points[j], 0.025f);
+                        Gizmos.DrawSphere(points[i], 0.02f);
                     }
                 }
             }

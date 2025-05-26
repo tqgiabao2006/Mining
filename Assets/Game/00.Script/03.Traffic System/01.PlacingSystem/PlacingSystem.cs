@@ -13,8 +13,6 @@ namespace Game._00.Script._01.PlacingSystem
 {
     public class PlacingSystem : SubjectBase
     { 
-        
-        
         //Spline
         private BezierSpline _curSpline;
         
@@ -91,7 +89,7 @@ namespace Game._00.Script._01.PlacingSystem
                 _curNode = GridManager.NodeFromWorldPosition(_mousePos);
             }
 
-            if (_isPlacing)
+            if (_isPlacing && IsInGrid())
             {
                 Notify(null, NotificationFlags.PLACING);
                 _cameraZoom.EnabledZoom = false;
@@ -148,7 +146,7 @@ namespace Game._00.Script._01.PlacingSystem
                 _cameraZoom.EnabledZoom = true;
             }
 
-            if (Input.GetMouseButtonUp(0))
+            if (Input.GetMouseButtonUp(0) || !IsInGrid())
             {
                 _curSpline = null;
                 _isPlacing = false;

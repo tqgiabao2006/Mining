@@ -11354,9 +11354,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4601e41d6ca3fba4fb6788da5333df21, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isGizmos: 1
+  isGizmos: 0
   showLine: 0
-  showPoint: 1
+  showPoint: 0
 --- !u!23 &1397883274
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -22193,9 +22193,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c986db57e726454f87291a69114065a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isGizmos: 1
+  isGizmos: 0
   displayWaypoints: 0
-  originalLines: 1
+  originalLines: 0
 --- !u!114 &2074224017
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22208,6 +22208,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5dcef965b43e44d29107a7f6a6a74092, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isGizmos: 1
 --- !u!1 &2086397389
 GameObject:
   m_ObjectHideFlags: 0

@@ -79,7 +79,6 @@ namespace Game._00.Script._03.Traffic_System.Building
         [Range(0, 1)]
         [SerializeField] private float increaseAddNewRatio = 0.15f;
         
-        
         private Dictionary<(BuildingType, BuildingColor), BuildingPrefab> _buildingPrefabsDict;
 
         private BuildingColor[] _buildingColors;
@@ -91,6 +90,8 @@ namespace Game._00.Script._03.Traffic_System.Building
         private ParkingMesh _parkingMesh;
 
         //Top level class
+
+        private CameraZoom _cameraZoom;
         private BuildingManager _buildingManager;
 
         private RoadManager _roadManager;
@@ -116,6 +117,8 @@ namespace Game._00.Script._03.Traffic_System.Building
             _roadManager = FindObjectOfType<RoadManager>();
 
             _objectPooling = GameManager.Instance.ObjectPooling;
+
+            _cameraZoom = CameraZoom.Instance;
             
             _parkingMesh = FindObjectOfType<ParkingMesh>();
 
@@ -886,6 +889,12 @@ namespace Game._00.Script._03.Traffic_System.Building
 
             Node road = SpawnRoadRandomDirection(buildingNode, size, direction);
             
+            if(!IsInGrid(road.WorldPosition))
+            {
+                roadNode = null;
+                return false;   
+            }
+            
             nodes.Add(road);
 
             foreach (Node node in nodes)
@@ -979,6 +988,20 @@ namespace Game._00.Script._03.Traffic_System.Building
             return weights[weights.Length - 1];
         }
 
+        private bool IsInGrid(Vector2 pos)
+        {
+            return IsInSide(pos, 0.5f, 0.5f, GridManager.GridSizeX, GridManager.GridSizeY) 
+                   && IsInSide(pos, 0.5f, 0.5f, _cameraZoom.InteractZone.Size.x, _cameraZoom.InteractZone.Size.y);
+        }
+        
+        private bool IsInSide(Vector2 checkPos, float centerX, float centerY, float width, float height)
+        {
+            float halfWidth = width / 2f;
+            float halfHeight = height / 2f;
+            
+            return checkPos.x >= centerX - halfWidth && checkPos.x <= centerX + halfWidth && checkPos.y >= centerY - halfHeight && checkPos.y <= centerY + halfHeight;
+        }
+                
         #endregion
 
 
@@ -997,6 +1020,8 @@ namespace Game._00.Script._03.Traffic_System.Building
                 fontSize = 20
             });
         }
+
+    
     }
 
 }

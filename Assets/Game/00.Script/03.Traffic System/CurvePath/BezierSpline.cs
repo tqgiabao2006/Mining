@@ -20,14 +20,6 @@ namespace Game._00.Script._04.Timer.CurvePath
         
         private List<Vector2> _points;
 
-        public List<Vector2> Points
-        {
-            get
-            {
-                return _points; 
-            }
-        }
-
         private float _alpha;
 
         private float _radius;
@@ -245,11 +237,16 @@ namespace Game._00.Script._04.Timer.CurvePath
 
         public Vector2[] GetPointInSegment(int i)
         {
-            if (i< 0 || i > NumbSeg)
+            if (i< 0 || i >= NumbSeg)
             {
                 return new Vector2[]{};
             }
             return new[] {_points[i], _points[i+1], _points[i+2], _points[i+3]};
+        }
+
+        public Vector2[] GetPoints()
+        {
+            return  _points.ToArray();
         }
         private bool IsCurve(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3)
         {
