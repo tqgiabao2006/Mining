@@ -272,7 +272,7 @@ namespace Game._00.Script._03.Traffic_System.Building
 
             Vector2 right = new Vector2(buildingEntryDir.y, -buildingEntryDir.x);
             
-            BezierSpline spline = new BezierSpline(null, spacing, curveSmooth);
+            BezierSpline spline = new BezierSpline(null,null,null, null,spacing, curveSmooth);
 
             Vector2 parkingEntryDir = Vector2.zero;
 
@@ -307,16 +307,16 @@ namespace Game._00.Script._03.Traffic_System.Building
             Vector2 leftRoadPos = roadPos - right * RoadManager.QuarterWidth;
             
             //Avoid moving glicthly becase the end of path is the same as the start of new path
-            spline.AddPoint(rightRoadPos + buildingEntryDir * halfRadius);
-            spline.AddPoint( rightRoadPos + buildingEntryDir * oneHalfRadius);
+            spline.AddRawPoint(rightRoadPos + buildingEntryDir * halfRadius);
+            spline.AddRawPoint( rightRoadPos + buildingEntryDir * oneHalfRadius);
 
-            spline.AddPoint(parkingPos2 + parkingEntryDir * halfRadius);
-            spline.AddPoint(parkingPos2);
-            spline.AddPoint(parkingPos2 - parkingEntryDir * halfRadius);
+            spline.AddRawPoint(parkingPos2 + parkingEntryDir * halfRadius);
+            spline.AddRawPoint(parkingPos2);
+            spline.AddRawPoint(parkingPos2 - parkingEntryDir * halfRadius);
             
-            spline.AddPoint(leftRoadPos + buildingEntryDir * oneHalfRadius);
+            spline.AddRawPoint(leftRoadPos + buildingEntryDir * oneHalfRadius);
             //Avoid moving glicthly becase the end of path is the same as the start of new path
-            spline.AddPoint(leftRoadPos +  buildingEntryDir * halfRadius);
+            spline.AddRawPoint(leftRoadPos +  buildingEntryDir * halfRadius);
 
             
             Vector3[] points = spline.GetEvenlySpacedPoints(spacing, curveSmooth);

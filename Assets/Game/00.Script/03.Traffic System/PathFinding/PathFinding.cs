@@ -107,12 +107,12 @@ namespace Game._00.Script._03.Traffic_System.PathFinding
                 currentNode = currentNode.Parent;
             }
 
-            BezierSpline spline = new BezierSpline(null, CurveRoadMesh.spacing, CurveRoadMesh.curveSmooth);
+            BezierSpline spline = new BezierSpline(null,null, null,null,CurveRoadMesh.spacing, CurveRoadMesh.curveSmooth);
 
-            spline.AddPoint(startNode.WorldPosition);
+            spline.AddRawPoint(startNode.WorldPosition);
             for (int i = path.Count - 1; i >= 0; i--)
             {
-                spline.AddPoint(path[i].WorldPosition);
+                spline.AddRawPoint(path[i].WorldPosition);
             }
             
             _spline = spline;
@@ -181,22 +181,24 @@ namespace Game._00.Script._03.Traffic_System.PathFinding
                 return;
             }
             
-            Vector2[] points = _spline.GetPoints();
-
-            for (int i = 0; i < points.Length; i++)
+            for (int k = 0; k < _spline.NumbSeg; k++)
             {
-                if (i % 3 == 0)
+                Vector2[] points = _spline.GetPointInSegment(k);
+
+                for (int i = 0; i < points.Length; i++)
                 {
-                    Gizmos.color = Color.magenta;
-                    Gizmos.DrawSphere(points[i], 0.05f);
-                }
-                else
-                {
-                    Gizmos.color = Color. blue;
-                    Gizmos.DrawSphere(points[i], 0.02f);
+                    if (i % 3 == 0)
+                    {
+                        Gizmos.color = Color.red;
+                        Gizmos.DrawSphere(points[i], 0.05f);
+                    }
+                    else
+                    {
+                        Gizmos.color = Color.green;
+                        Gizmos.DrawSphere(points[i], 0.02f);
+                    }
                 }
             }
-
         }
     }
     

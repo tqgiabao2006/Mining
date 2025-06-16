@@ -98,8 +98,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isGizmos: 0
+  drawWaypoints: 0
+  drawInfo: 0
   spriteCollections: {fileID: 11400000, guid: d6c2c136ab42c42b59a6a40608dc4482, type: 2}
   size: 0
   buildingType: 0
   buildingColor: 0
+  spacing: 0.2
+  curveSmooth: 10
   numbCars: 2

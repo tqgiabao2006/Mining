@@ -38,6 +38,8 @@ public class CurveRoadMesh:MonoBehaviour
     private Dictionary<BezierSpline, CombineInstance> _splines;
     
     private List<Vector2> _points;
+
+    private List<Vector3> _vertices;
     
     private void Start()
     {
@@ -48,15 +50,17 @@ public class CurveRoadMesh:MonoBehaviour
         _roadWidth = RoadManager.RoadWidth;
         
         _points = new List<Vector2>();
+        
+        _vertices = new List<Vector3>();
     }
 
     public BezierSpline CreateSpline()
     {
-        BezierSpline spline = new BezierSpline(CreateRoadMesh, spacing, curveSmooth);
+        BezierSpline spline = new BezierSpline(CreateSpline ,CreateRoadMesh, UpdateRoadMesh, CreateIntersection,spacing, curveSmooth);
         _splines.Add(spline, new CombineInstance());   
         return spline;
     }
-    public void UpdateRoadMesh(BezierSpline spline)
+    private void UpdateRoadMesh(BezierSpline spline)
     {
         if (!_splines.ContainsKey(spline)) return;
 
@@ -74,36 +78,81 @@ public class CurveRoadMesh:MonoBehaviour
 
         _meshFilter.mesh = mesh;
     }
-
-    /// <summary>
-    /// Genrate corner by creating a smooth arc
-    /// </summary>
-    /// <param name="points">points in the curve</param>
-    /// <param name="pivot">pivot to draw rectangle from</param>
-    /// <returns></returns>
-    private Mesh CreateCorner(Vector3[] points, Vector3 pivot)
+    
+    
+    private void CreateIntersection(Vector3[] points, Vector3 center)
     {
-        Vector3[] verts = new Vector3[points.Length + 1];
-        int numbTri = points.Length - 1;
-        int[] tris = new int[numbTri * 3];
-        verts[0] = pivot;
-
         for (int i = 0; i < points.Length; i++)
         {
-            verts[i + 1] = points[i];
-            tris[i] = 0;
-            tris[i + 1] = i + 1;
-            tris[i + 2] = i + 2;
+            Debug.Log(i + " " + points[i]);
+        }
+        List<Vector3> verts = new List<Vector3>();
+        List<int> tris = new List<int>();
+
+        verts.Add(center);
+
+        for (int i = 1; i < points.Length; i += 2)
+        {
+            int next = (i + 1) % points.Length; // wrap around
+            Vector2 dir = (points[next] - points[i]).normalized;
+            
+            Vector2 mid = Vector2.Lerp(points[i], points[next], 0.5f);
+            Vector2 centerMid = Vector2.Lerp(mid, center, 0.4f);
+            
+            Debug.Log($"{i} Lerp({points[i]}, {points[next]},0,5) =  mid " + mid);
+            Debug.Log($"{i} center " + centerMid);
+
+            //Straight line case
+            if (Mathf.Approximately(dir.x, 0) ||  Mathf.Approximately(dir.y, 0))
+            {
+                verts.Add(points[i]);
+                verts.Add(points[next]);
+            }
+            else
+            {
+                for (int j = 0; j <= curveSmooth; j++)
+                {
+                    float t = j /(float)curveSmooth;
+                    verts.Add(BezierCurve.GetPoint(points[i], centerMid ,centerMid, points[next], t));
+                }
+            }
+            
         }
         
+        for (int i = 1; i < verts.Count - 1; i++)
+        {
+            tris.AddRange(new int[] { 0, i, i + 1 });
+        }
+        
+        //Close the loop
+        tris.AddRange(new int[] { 0, verts.Count - 1, 1 });
+        
+        Mesh updatedMesh = new Mesh();
+        updatedMesh.vertices = verts.ToArray();
+        updatedMesh.triangles = tris.ToArray();
+
+        updatedMesh.RecalculateBounds();
+        updatedMesh.RecalculateNormals();
+
+        _vertices = verts;
+        
+        Debug.Log("V " + updatedMesh.vertices.Length);
+        Debug.Log("Tri " + updatedMesh.triangles.Length);
+
+        BezierSpline dummy = new BezierSpline(null, null, null, null, spacing, curveSmooth);
+        _splines[dummy] = new CombineInstance
+        {
+            mesh = updatedMesh,
+            transform = Matrix4x4.identity
+        };
+
         Mesh mesh = new Mesh();
-        mesh.vertices = verts;
-        mesh.triangles = tris;
+        mesh.CombineMeshes(_splines.Values.ToArray(), true, true);
+        mesh.RecalculateBounds();
+        mesh.RecalculateNormals();
 
-        return mesh;
+        _meshFilter.mesh = mesh;
     }
-
-    
     private Mesh CreateRoadMesh(Vector3[] points)
     {
         Vector3[] verts = new Vector3[points.Length * 2];
@@ -163,11 +212,34 @@ public class CurveRoadMesh:MonoBehaviour
         return mesh;
     }
 
-    private void OnDrawGizmos()
+    private void OnGUI()
     {
-        if (!isGizmos || _splines == null || _points == null)
+        if (!isGizmos || _splines == null )
         {
             return;
+        }
+        
+        GUI.Label(new Rect(10, 20, 200, 200), $"Splines count: {_splines.Count}", new GUIStyle()
+        {
+            normal = new GUIStyleState()
+            {
+                textColor = Color.white,
+            },
+            fontSize = 20
+        });
+
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (!isGizmos || _splines == null || _points == null || _vertices==null)
+        {
+            return;
+        }
+
+        foreach (Vector3 v in _vertices)
+        {
+            Gizmos.DrawSphere(v, 0.1f);
         }
 
         foreach (Vector2 point in _points)
@@ -180,7 +252,7 @@ public class CurveRoadMesh:MonoBehaviour
         {
             if (showLine)
             {
-                Vector3[] points = spline.GetEvenlySpacedPoints(0.3f, curveSmooth);
+                Vector3[] points = spline.GetEvenlySpacedPoints(spacing, curveSmooth);
 
                 foreach (Vector3 p in points)
                 {
@@ -189,21 +261,25 @@ public class CurveRoadMesh:MonoBehaviour
             }
             if (showPoint)
             {
-                Vector2[] points = spline.GetPoints();
-
-                for (int i = 0; i < points.Length; i++)
+                for (int k = 0; k < spline.NumbSeg; k++)
                 {
-                    if (i % 3 == 0)
+                    Vector2[] points = spline.GetPointInSegment(k);
+
+                    for (int i = 0; i < points.Length; i++)
                     {
-                        Gizmos.color = Color.red;
-                        Gizmos.DrawSphere(points[i], 0.05f);
-                    }
-                    else
-                    {
-                        Gizmos.color = Color.green;
-                        Gizmos.DrawSphere(points[i], 0.02f);
+                        if (i % 3 == 0)
+                        {
+                            Gizmos.color = Color.red;
+                            Gizmos.DrawSphere(points[i], 0.05f);
+                        }
+                        else
+                        {
+                            Gizmos.color = Color.green;
+                            Gizmos.DrawSphere(points[i], 0.02f);
+                        }
                     }
                 }
+             
             }
         }
 

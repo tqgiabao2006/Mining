@@ -39,6 +39,15 @@ namespace Game._00.Script._02.Grid_setting
         
         [CustomReadOnly] public static readonly float NodeRadius = 0.5f;
 
+        public static float HalfRadius
+        {
+            get
+            {
+                return NodeRadius * 0.5f;
+            }
+        }
+        
+
         //Weight:
         public LayerMask UnwalkableMask;
         

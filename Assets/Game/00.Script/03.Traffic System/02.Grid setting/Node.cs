@@ -108,6 +108,19 @@ namespace Game._00.Script._02.Grid_setting
 			{
 				_belongedSplines.Add(spline);
 			}
+			else //Update spline
+			{
+				_belongedSplines.Remove(spline);
+				_belongedSplines.Add(spline);
+			}
+		}
+
+		public void IntersectSpline()
+		{
+			foreach (BezierSpline spline in _belongedSplines)
+			{
+				spline.SplitSegment(this);
+			}
 		}
 
 		public BezierSpline[] GetSplines()

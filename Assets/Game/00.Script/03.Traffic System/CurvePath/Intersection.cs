@@ -11,13 +11,14 @@ namespace Game._00.Script._03.Traffic_System.CurvePath
         [Tooltip("The smaller, the closer the smooth to intersection")]
         [Range(0.25f ,1)]
         private float _checkRadius;
-        
-        // private
+
+        private Func<Vector3[], Vector3, Mesh> _createCornerMeshFunc;
         
         public Intersection(BezierSpline[] splines, Func<Vector3[], Vector3, Mesh> createCornerMeshFunc)
         {
             _checkRadius = GridManager.NodeRadius;
             
+            _createCornerMeshFunc = createCornerMeshFunc;
         }
     }
 }

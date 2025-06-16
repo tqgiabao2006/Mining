@@ -81,7 +81,7 @@ namespace Game._00.Script._01.PlacingSystem
         {
             _mousePos = UnityEngine.Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
-            if (Input.GetMouseButtonDown(0) && IsInGrid() && IsInWalkableNode() && IsInDrawableNode())
+            if (Input.GetMouseButtonDown(0) && IsInteractiveZone(_mousePos) && IsInWalkableNode() && IsInDrawableNode())
             {
                 _isPlacing = true;
             
@@ -89,7 +89,7 @@ namespace Game._00.Script._01.PlacingSystem
                 _curNode = GridManager.NodeFromWorldPosition(_mousePos);
             }
 
-            if (_isPlacing && IsInGrid())
+            if (_isPlacing)
             {
                 Notify(null, NotificationFlags.PLACING);
                 _cameraZoom.EnabledZoom = false;
@@ -97,44 +97,59 @@ namespace Game._00.Script._01.PlacingSystem
                 Node newNode = null;
                 
                 //Avoid too responsive, and never place diagonal node
-                if (Vector2.Distance(_mousePos, _curNode.WorldPosition) >= GridManager.NodeDiameter)
+                if (Vector2.Distance(_mousePos, _curNode.WorldPosition) >= GridManager.NodeRadius * 1.75f)
                 {
                     newNode = GridManager.NodeFromWorldPosition(_mousePos);
                 }
                 
-                if (newNode != _curNode && newNode != null && IsInGrid()) 
+                if (newNode != _curNode && newNode != null && IsInteractiveZone(newNode.WorldPosition)) 
                 {
                     if (_prevStack.Count == 0 || Vector2.Distance(_prevStack.Peek(),newNode.WorldPosition) > 0.1f)
                     {
+                        bool needIntersect = false;
+                        
+                        //Check new node, before setting new node => avoid calling intersect by every frames
+                        if (newNode.IsRoad && !newNode.BelongedBuilding)
+                        {
+                            needIntersect = true;
+                        }
+                  
                         _roadManager.PlaceNode(newNode);
                         _roadManager.SetAdjList(_curNode, newNode);
-
+                            
                         if (_curSpline == null || _curSpline.NumbSeg == 0)
                         {
                             _curSpline = _roadMesh.CreateSpline();
-                            _curSpline.AddPoint(_curNode.WorldPosition);
+                            _curSpline.AddRawPoint(_curNode.WorldPosition);
                             _curNode.SetRoad(true);
                         }
                         
-                        _curSpline.AddPoint(newNode.WorldPosition);
-                        _curNode.SetRoad(true);
-                        _roadMesh.UpdateRoadMesh(_curSpline);
+                        //Intersection logic, check BEFORE Place Node
+                        newNode.AddSpline(_curSpline);
                         
+                        _curSpline.AddRawPoint(newNode.WorldPosition);
+                        _curNode.SetRoad(true);
+                                                    
                         _gridManager.UpdateWalkable(newNode.WorldPosition);
                         // _roadManager.CreateMesh(newNode);
-
+                            
                         _prevStack.Push(_curNode.WorldPosition);
-                        
+                                                    
                         //NOTICE: Notify after the road manager update graph because use graph index to determine if 2 road is connected
                         //CHECK: after place a new road => possibility that there are some homes connecteed
                         Notify(null, NotificationFlags.CHECK_CONNECTION);
+
+                        if (needIntersect)
+                        {
+                            newNode.IntersectSpline();
+                        }
+                   
                     }
                     else
                     {
                         GridManager.NodeFromWorldPosition(_prevStack.Peek()).SetRoad(false);
                         _prevStack.Pop();
                         _curSpline.Pop();
-                        _roadMesh.UpdateRoadMesh(_curSpline);
                     }
                     
                     _curNode = newNode;
@@ -146,7 +161,7 @@ namespace Game._00.Script._01.PlacingSystem
                 _cameraZoom.EnabledZoom = true;
             }
 
-            if (Input.GetMouseButtonUp(0) || !IsInGrid())
+            if (Input.GetMouseButtonUp(0) || !IsInteractiveZone(_mousePos))
             {
                 _curSpline = null;
                 _isPlacing = false;
@@ -166,18 +181,23 @@ namespace Game._00.Script._01.PlacingSystem
             return GridManager.NodeFromWorldPosition(_mousePos).CanDraw;
         }
 
-        private bool IsInSide(Vector2 checkPos, float centerX, float centerY, float width, float height)
+        private bool IsInSide(Vector2 candidate, float centerX, float centerY, float width, float height)
         {
             float halfWidth = width / 2f;
             float halfHeight = height / 2f;
             
-            return checkPos.x >= centerX - halfWidth && checkPos.x <= centerX + halfWidth && checkPos.y >= centerY - halfHeight && checkPos.y <= centerY + halfHeight;
+            return candidate.x >= centerX - halfWidth && candidate.x <= centerX + halfWidth && candidate.y >= centerY - halfHeight && candidate.y <= centerY + halfHeight;
         }
-        
-        private bool IsInGrid()
+
+        private bool IsInSide(Vector2 candidate, Vector2 botLeftPivot, Vector2 size)
         {
-            return IsInSide(_mousePos, 0.5f, 0.5f, GridManager.GridSizeX, GridManager.GridSizeY) 
-                && IsInSide(_mousePos, 0.5f, 0.5f, _cameraZoom.InteractZone.Size.x, _cameraZoom.InteractZone.Size.y);
+            return candidate.x >= botLeftPivot.x && candidate.x <= botLeftPivot.x + size.x &&
+                   candidate.y >= botLeftPivot.y && candidate.y <= botLeftPivot.y + size.y;
+        }
+        private bool IsInteractiveZone(Vector2 candidate)
+        {
+            return IsInSide(candidate, 0.5f, 0.5f, GridManager.GridSizeX, GridManager.GridSizeY) && 
+                   IsInSide(candidate, _cameraZoom.InteractZone.BotLeftPivot, _cameraZoom.InteractZone.Size);
         }
         
         #endregion
